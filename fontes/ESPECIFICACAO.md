@@ -19,9 +19,9 @@
 - **Unidade 3** — Integração front-end/back-end: Firebase, Supabase, Express, autenticação, banco de dados, deploy.
 
 ### Avaliações (média aritmética simples das 3)
-- **Avaliação 1** — entrega até **31/08/2026, 23h59**. Implementação introdutória de Vue 3 com CLI: estrutura, componentes, diretivas.
-- **Avaliação 2** — entrega até **05/10/2026, 23h59**. Vue avançado: Vuetify + Axios + Vue Router + Pinia.
-- **Avaliação 3** — entrega até **14/12/2026, 23h59**. Back-end: Firebase/Express/Supabase, banco de dados, autenticação.
+- **Avaliação 1** — entrega até **02/09/2026, 23h59**. Implementação introdutória de Vue 3 com CLI: estrutura, componentes, diretivas.
+- **Avaliação 2** — entrega até **07/10/2026, 23h59**. Vue avançado: Vuetify + Axios + Vue Router + Pinia.
+- **Avaliação 3** — entrega até **16/12/2026, 23h59**. Back-end: Firebase/Express/Supabase, banco de dados, autenticação.
 - **Exame final:** prova teórica presencial e individual sobre as 3 unidades.
 - Entregas **via SIGAA**.
 
@@ -29,21 +29,21 @@
 
 | # | Data | Unidade | Tema (conforme plano) |
 |---|------|---------|------------------------|
-| 01 | 10/08/2026 | U1 | Apresentação da Disciplina e Revisão JavaScript |
-| 02 | 17/08/2026 | U1 | Introdução ao Vue — lifecycle, instância vue, data e methods, v-if, v-else, v-for, v-on, v-bind, v-model |
-| 03 | 24/08/2026 | U1 | Introdução ao Vue — v-if, v-else, v-for, computed e onMounted |
-| 04 | 31/08/2026 | U1 | Introdução a Vuetify e Vue Router. **Data final da Avaliação 1** |
-| 05 | 14/09/2026 | U2 | Componentes, Vue Router e Introdução ao Vuetify |
-| 06 | 21/09/2026 | U2 | Axios e Pinia |
-| 07 | 28/09/2026 | U3 | Introdução ao Firebase, Node.js e Express |
-| 08 | 05/10/2026 | U3 | Definindo endpoints, criando e usando middleware. **Data final da Avaliação 2** |
-| 09 | 19/10/2026 | U3 | Integrando com SGBD MySQL |
-| 10 | 26/10/2026 | U3 | Requisições autenticadas com Firebase |
-| 11 | 09/11/2026 | U3 | Integrando front-end com back-end: exemplo de CRUD |
-| 12 | 16/11/2026 | U3 | Introdução a CRUD com banco de dados em nuvem (Supabase) |
-| 13 | 23/11/2026 | U3 | Desenvolvimento do Back-end |
-| 14 | 07/12/2026 | U3 | Documentação com Swagger |
-| 15 | 14/12/2026 | U3 | Apresentação dos resultados e finalização. **Data final da Avaliação 3** |
+| 01 | 12/08/2026 | U1 | Apresentação da Disciplina e Revisão JavaScript |
+| 02 | 19/08/2026 | U1 | Introdução ao Vue — lifecycle, instância vue, data e methods, v-if, v-else, v-for, v-on, v-bind, v-model |
+| 03 | 26/08/2026 | U1 | Introdução ao Vue — v-if, v-else, v-for, computed e onMounted |
+| 04 | 02/09/2026 | U1 | Introdução a Vuetify e Vue Router. **Data final da Avaliação 1** |
+| 05 | 16/09/2026 | U2 | Componentes, Vue Router e Introdução ao Vuetify |
+| 06 | 23/09/2026 | U2 | Axios e Pinia |
+| 07 | 30/09/2026 | U3 | Introdução ao Firebase, Node.js e Express |
+| 08 | 07/10/2026 | U3 | Definindo endpoints, criando e usando middleware. **Data final da Avaliação 2** |
+| 09 | 21/10/2026 | U3 | Integrando com SGBD MySQL |
+| 10 | 28/10/2026 | U3 | Requisições autenticadas com Firebase |
+| 11 | 11/11/2026 | U3 | Integrando front-end com back-end: exemplo de CRUD |
+| 12 | 18/11/2026 | U3 | Introdução a CRUD com banco de dados em nuvem (Supabase) |
+| 13 | 25/11/2026 | U3 | Desenvolvimento do Back-end |
+| 14 | 09/12/2026 | U3 | Documentação com Swagger |
+| 15 | 16/12/2026 | U3 | Apresentação dos resultados e finalização. **Data final da Avaliação 3** |
 
 ## 3. Projeto fio-condutor: **UniEventos**
 

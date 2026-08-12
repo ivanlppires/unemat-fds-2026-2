@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Aula 03 — Vue: listas, computed e ciclo de vida · FACET-SNP-310</title>
-<meta name="description" content="Unidade 1 · 24/08/2026 · Vue: listas, computed e ciclo de vida">
+<meta name="description" content="Unidade 1 · 26/08/2026 · Vue: listas, computed e ciclo de vida">
 <style>
 :root{
   --bg:#0f1117; --bg-soft:#161922; --bg-code:#11131a; --line:#272b38;
@@ -297,11 +297,11 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div></header>
 <div class="wrap">
   <nav class="lateral"><h4>Aulas</h4><ol><li class="grupo">Unidade 1</li><li><a class="" href="aula-01.html"><span class="num">01</span><span>Apresentação da Disciplina e Revisão JavaScript</span></a></li><li><a class="" href="aula-02.html"><span class="num">02</span><span>Introdução ao Vue: instância, ciclo de vida e diretivas</span></a></li><li><a class="ativo" href="aula-03.html"><span class="num">03</span><span>Vue: listas, computed e ciclo de vida</span></a></li><li><a class="" href="aula-04.html"><span class="num">04</span><span>Introdução a Vuetify e Vue Router</span></a></li><li class="grupo">Unidade 2</li><li><a class="" href="aula-05.html"><span class="num">05</span><span>Componentes, Vue Router e Vuetify avançado</span></a></li><li><a class="" href="aula-06.html"><span class="num">06</span><span>Axios e Pinia</span></a></li><li class="grupo">Unidade 3</li><li><a class="" href="aula-07.html"><span class="num">07</span><span>Introdução ao Firebase, Node.js e Express</span></a></li><li><a class="" href="aula-08.html"><span class="num">08</span><span>Definindo endpoints e middlewares</span></a></li><li><a class="" href="aula-09.html"><span class="num">09</span><span>Integrando com SGBD MySQL</span></a></li><li><a class="" href="aula-10.html"><span class="num">10</span><span>Requisições autenticadas com Firebase</span></a></li><li><a class="" href="aula-11.html"><span class="num">11</span><span>Integrando front-end com back-end: CRUD</span></a></li><li><a class="" href="aula-12.html"><span class="num">12</span><span>CRUD com banco em nuvem (Supabase)</span></a></li><li><a class="" href="aula-13.html"><span class="num">13</span><span>Desenvolvimento do Back-end</span></a></li><li><a class="" href="aula-14.html"><span class="num">14</span><span>Documentação com Swagger</span></a></li><li><a class="" href="aula-15.html"><span class="num">15</span><span>Deploy, apresentação e finalização</span></a></li></ol></nav>
-  <main class=""><div class="cabecalho"><div class="tags"><span class="tag u1">Unidade 1</span><span class="tag">24/08/2026</span><span class="tag">3 aulas de 50 min + 1 h EAD</span></div><h1>Aula 03 — Vue: listas, computed e ciclo de vida</h1><div class="sub">FACET-SNP-310 · Frameworks Modernos para Desenvolvimento de Sistemas · UNEMAT/Sinop · Prof. Ivan Luiz Pedroso Pires</div></div>
+  <main class=""><div class="cabecalho"><div class="tags"><span class="tag u1">Unidade 1</span><span class="tag">26/08/2026</span><span class="tag">3 aulas de 50 min + 1 h EAD</span></div><h1>Aula 03 — Vue: listas, computed e ciclo de vida</h1><div class="sub">FACET-SNP-310 · Frameworks Modernos para Desenvolvimento de Sistemas · UNEMAT/Sinop · Prof. Ivan Luiz Pedroso Pires</div></div>
 <blockquote>
 <p><strong>FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas</strong> · Unidade 1
 UNEMAT/Sinop — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
-<strong>Data:</strong> 24/08/2026 · <strong>Carga:</strong> 3 aulas de 50 min (síncrona) + 1 h (assíncrona)</p>
+<strong>Data:</strong> 26/08/2026 · <strong>Carga:</strong> 3 aulas de 50 min (síncrona) + 1 h (assíncrona)</p>
 </blockquote>
 <p>Na Aula 02 criamos a primeira versão do UniEventos: lista, busca, filtro e inscrição, tudo com diretivas básicas e uma função de filtro chamada manualmente três vezes no template. Hoje resolvemos exatamente esse desperdício com <code>computed()</code>, aprofundamos <code>v-for</code> e passamos a carregar os eventos de forma assíncrona dentro de <code>onMounted()</code>.</p>
 <h2 id="objetivos-de-aprendizagem">🎯 Objetivos de aprendizagem<a class="anchor" href="#objetivos-de-aprendizagem" title="Permanent link">¶</a></h2>
@@ -1413,7 +1413,7 @@ Observe que <code>eventosFiltrados</code> e <code>eventosOrdenados</code> são d
 </ul>
 <p>Na próxima aula você vai reestruturar seu projeto com <strong>Vuetify</strong> e <strong>Vue Router</strong> — os filtros e listas que você já tem hoje continuam valendo, só ganham um visual pronto e navegação entre telas.</p>
 <h2 id="aviso-avaliacao-1-se-aproxima">📝 Aviso — Avaliação 1 se aproxima<a class="anchor" href="#aviso-avaliacao-1-se-aproxima" title="Permanent link">¶</a></h2>
-<p>A <strong>Avaliação 1</strong> (implementação introdutória de Vue 3 com CLI: estrutura, componentes, diretivas) tem entrega até <strong>31/08/2026, 23h59</strong>, e as instruções completas — escopo, rubrica e formato de entrega — serão publicadas na <strong>Aula 04</strong> (31/08/2026), junto com Vuetify e Vue Router. Use esta semana assíncrona também para revisar: estrutura do projeto Vite, diretivas da Aula 02 e <code>computed</code>/<code>onMounted</code> de hoje são a base de tudo que será cobrado.</p>
+<p>A <strong>Avaliação 1</strong> (implementação introdutória de Vue 3 com CLI: estrutura, componentes, diretivas) tem entrega até <strong>02/09/2026, 23h59</strong>, e as instruções completas — escopo, rubrica e formato de entrega — serão publicadas na <strong>Aula 04</strong> (02/09/2026), junto com Vuetify e Vue Router. Use esta semana assíncrona também para revisar: estrutura do projeto Vite, diretivas da Aula 02 e <code>computed</code>/<code>onMounted</code> de hoje são a base de tudo que será cobrado.</p>
 <h2 id="para-aprofundar">📚 Para aprofundar<a class="anchor" href="#para-aprofundar" title="Permanent link">¶</a></h2>
 <ul>
 <li><a href="https://vuejs.org/guide/essentials/computed.html">Vue 3 — Computed Properties</a></li>
@@ -1425,7 +1425,7 @@ Observe que <code>eventosFiltrados</code> e <code>eventosOrdenados</code> são d
 <li><a href="https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Global_Objects/Proxy">MDN — <code>Proxy</code></a></li>
 </ul>
 <hr />
-<p><strong>Próxima aula (04, 31/08/2026):</strong> introdução a <strong>Vuetify</strong> e <strong>Vue Router</strong>, transformando o UniEventos em uma SPA navegável com componentes visuais prontos — e publicação das instruções completas da <strong>Avaliação 1</strong>.</p><nav class="navpe"><a data-nav="anterior" href="aula-02.html"><span class="rot">← Aula 02</span><span class="tit">Introdução ao Vue: instância, ciclo de vida e diretivas</span></a><a class="dir" data-nav="proxima" href="aula-04.html"><span class="rot">Aula 04 →</span><span class="tit">Introdução a Vuetify e Vue Router</span></a></nav>
+<p><strong>Próxima aula (04, 02/09/2026):</strong> introdução a <strong>Vuetify</strong> e <strong>Vue Router</strong>, transformando o UniEventos em uma SPA navegável com componentes visuais prontos — e publicação das instruções completas da <strong>Avaliação 1</strong>.</p><nav class="navpe"><a data-nav="anterior" href="aula-02.html"><span class="rot">← Aula 02</span><span class="tit">Introdução ao Vue: instância, ciclo de vida e diretivas</span></a><a class="dir" data-nav="proxima" href="aula-04.html"><span class="rot">Aula 04 →</span><span class="tit">Introdução a Vuetify e Vue Router</span></a></nav>
     <div class="rodape">
       UNEMAT — Universidade do Estado de Mato Grosso · Campus Sinop · FACET<br>
       FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas · 2026.2<br>

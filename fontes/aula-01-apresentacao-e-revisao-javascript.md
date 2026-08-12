@@ -2,7 +2,7 @@
 
 > **FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas** · Unidade 1
 > UNEMAT/Sinop — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
-> **Data:** 10/08/2026 · **Carga:** 3 aulas de 50 min (síncrona) + 1 h (assíncrona)
+> **Data:** 12/08/2026 · **Carga:** 3 aulas de 50 min (síncrona) + 1 h (assíncrona)
 
 ## 🎯 Objetivos de aprendizagem
 
@@ -62,21 +62,21 @@ Guarde esta tabela — ela é o mapa do semestre inteiro.
 
 | # | Data | Unidade | Tema |
 |---|---|---|---|
-| 01 | 10/08/2026 | U1 | Apresentação da disciplina e revisão de JavaScript |
-| 02 | 17/08/2026 | U1 | Introdução ao Vue: lifecycle, instância, data e methods, diretivas básicas |
-| 03 | 24/08/2026 | U1 | Vue: v-if, v-else, v-for, computed e onMounted |
-| 04 | 31/08/2026 | U1 | Introdução a Vuetify e Vue Router — **entrega da Avaliação 1** |
-| 05 | 14/09/2026 | U2 | Componentes, Vue Router e Vuetify |
-| 06 | 21/09/2026 | U2 | Axios e Pinia |
-| 07 | 28/09/2026 | U3 | Firebase, Node.js e Express |
-| 08 | 05/10/2026 | U3 | Endpoints e middlewares — **entrega da Avaliação 2** |
-| 09 | 19/10/2026 | U3 | Integração com MySQL |
-| 10 | 26/10/2026 | U3 | Requisições autenticadas com Firebase |
-| 11 | 09/11/2026 | U3 | CRUD front-end + back-end |
-| 12 | 16/11/2026 | U3 | CRUD com banco de dados em nuvem (Supabase) |
-| 13 | 23/11/2026 | U3 | Desenvolvimento do back-end em camadas |
-| 14 | 07/12/2026 | U3 | Documentação com Swagger |
-| 15 | 14/12/2026 | U3 | Apresentação dos resultados — **entrega da Avaliação 3** |
+| 01 | 12/08/2026 | U1 | Apresentação da disciplina e revisão de JavaScript |
+| 02 | 19/08/2026 | U1 | Introdução ao Vue: lifecycle, instância, data e methods, diretivas básicas |
+| 03 | 26/08/2026 | U1 | Vue: v-if, v-else, v-for, computed e onMounted |
+| 04 | 02/09/2026 | U1 | Introdução a Vuetify e Vue Router — **entrega da Avaliação 1** |
+| 05 | 16/09/2026 | U2 | Componentes, Vue Router e Vuetify |
+| 06 | 23/09/2026 | U2 | Axios e Pinia |
+| 07 | 30/09/2026 | U3 | Firebase, Node.js e Express |
+| 08 | 07/10/2026 | U3 | Endpoints e middlewares — **entrega da Avaliação 2** |
+| 09 | 21/10/2026 | U3 | Integração com MySQL |
+| 10 | 28/10/2026 | U3 | Requisições autenticadas com Firebase |
+| 11 | 11/11/2026 | U3 | CRUD front-end + back-end |
+| 12 | 18/11/2026 | U3 | CRUD com banco de dados em nuvem (Supabase) |
+| 13 | 25/11/2026 | U3 | Desenvolvimento do back-end em camadas |
+| 14 | 09/12/2026 | U3 | Documentação com Swagger |
+| 15 | 16/12/2026 | U3 | Apresentação dos resultados — **entrega da Avaliação 3** |
 
 Todas as aulas 01 a 15 constroem, em sala, uma aplicação de referência chamada **UniEventos** — uma plataforma de divulgação e inscrição em eventos acadêmicos. Você vai acompanhar essa construção passo a passo, mas seu **projeto autoral** (o que você entrega nas avaliações) terá a mesma arquitetura aplicada a um domínio diferente, escolhido por você. Falamos disso na Seção 1.6.
 
@@ -86,9 +86,9 @@ A nota final é a **média aritmética simples das três avaliações**.
 
 | Avaliação | Escopo | Entrega |
 |---|---|---|
-| Avaliação 1 | Vue 3 com CLI: estrutura de projeto, componentes, diretivas | até 31/08/2026, 23h59 |
-| Avaliação 2 | Vue avançado: Vuetify + Axios + Vue Router + Pinia | até 05/10/2026, 23h59 |
-| Avaliação 3 | Back-end: Firebase/Express/Supabase, banco de dados, autenticação | até 14/12/2026, 23h59 |
+| Avaliação 1 | Vue 3 com CLI: estrutura de projeto, componentes, diretivas | até 02/09/2026, 23h59 |
+| Avaliação 2 | Vue avançado: Vuetify + Axios + Vue Router + Pinia | até 07/10/2026, 23h59 |
+| Avaliação 3 | Back-end: Firebase/Express/Supabase, banco de dados, autenticação | até 16/12/2026, 23h59 |
 
 Todas as entregas são feitas **via SIGAA**, dentro do prazo. As instruções detalhadas de cada avaliação (escopo exato, rubrica, formato de entrega) serão publicadas na aula correspondente — a Avaliação 1 será detalhada na Aula 04.
 
@@ -1120,4 +1120,4 @@ Ao final desta aula, seu repositório deve ter:
 
 ---
 
-**Próxima aula (02, 17/08/2026):** começamos o Vue de verdade — `createApp`, instância, `data`/`methods` (Options API) e Composition API com `<script setup>`, além das diretivas básicas (`v-bind`, `v-on`, `v-model`, `v-if`, `v-for`). Traga o ambiente instalado e o repositório do projeto autoral criado.
+**Próxima aula (02, 19/08/2026):** começamos o Vue de verdade — `createApp`, instância, `data`/`methods` (Options API) e Composition API com `<script setup>`, além das diretivas básicas (`v-bind`, `v-on`, `v-model`, `v-if`, `v-for`). Traga o ambiente instalado e o repositório do projeto autoral criado.

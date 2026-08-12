@@ -2,7 +2,7 @@
 
 > **FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas** · Unidade 1
 > UNEMAT/Sinop — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
-> **Data:** 31/08/2026 · **Carga:** 3 aulas de 50 min (síncrona) + 1 h (assíncrona)
+> **Data:** 02/09/2026 · **Carga:** 3 aulas de 50 min (síncrona) + 1 h (assíncrona)
 
 Nas Aulas 02 e 03 você construiu o UniEventos em Vue puro: listagem com `v-for`, filtros com `computed()`, carregamento assíncrono em `onMounted()` e HTML/CSS escritos à mão. Hoje ele ganha interface profissional com **Vuetify** e navegação real com **Vue Router**, virando uma SPA de verdade — e você recebe as instruções completas da Avaliação 1.
 
@@ -1122,7 +1122,7 @@ O projeto deve:
 
 ### Formato e prazo de entrega
 
-Entregue **o link do repositório GitHub público** via SIGAA, na atividade "Avaliação 1", até **31/08/2026, 23h59**. Cole o link diretamente no campo de texto da atividade — não anexe `.zip`.
+Entregue **o link do repositório GitHub público** via SIGAA, na atividade "Avaliação 1", até **02/09/2026, 23h59**. Cole o link diretamente no campo de texto da atividade — não anexe `.zip`.
 
 ### Rubrica (10,0 pontos)
 
@@ -1136,7 +1136,7 @@ Entregue **o link do repositório GitHub público** via SIGAA, na atividade "Ava
 
 ### Política de atraso
 
-Entregas após 31/08/2026 23h59 perdem **1,0 ponto por dia corrido** de atraso, até o limite de 5 dias. Após esse prazo, a atividade recebe nota zero, salvo justificativa formal protocolada junto à coordenação do curso.
+Entregas após 02/09/2026 23h59 perdem **1,0 ponto por dia corrido** de atraso, até o limite de 5 dias. Após esse prazo, a atividade recebe nota zero, salvo justificativa formal protocolada junto à coordenação do curso.
 
 ### Política de plágio e uso de IA
 

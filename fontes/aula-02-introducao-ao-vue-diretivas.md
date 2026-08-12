@@ -2,7 +2,7 @@
 
 > **FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas** · Unidade 1
 > UNEMAT/Sinop — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
-> **Data:** 17/08/2026 · **Carga:** 3 aulas de 50 min (síncrona) + 1 h (assíncrona)
+> **Data:** 19/08/2026 · **Carga:** 3 aulas de 50 min (síncrona) + 1 h (assíncrona)
 
 Na Aula 01 revisamos JavaScript moderno e comparamos DOM manual com o estilo declarativo. Hoje esse estilo declarativo ganha nome: **Vue 3**.
 
@@ -1126,4 +1126,4 @@ No repositório do seu projeto autoral:
 
 ---
 
-**Próxima aula (03, 24/08/2026):** aprofundamos `v-for`, resolvemos o antipadrão `v-for` + `v-if` juntos, introduzimos `computed()` (com cache de verdade) e usamos `onMounted()` para carregar dados de uma fonte assíncrona, com estados de carregando/erro/vazio.
+**Próxima aula (03, 26/08/2026):** aprofundamos `v-for`, resolvemos o antipadrão `v-for` + `v-if` juntos, introduzimos `computed()` (com cache de verdade) e usamos `onMounted()` para carregar dados de uma fonte assíncrona, com estados de carregando/erro/vazio.

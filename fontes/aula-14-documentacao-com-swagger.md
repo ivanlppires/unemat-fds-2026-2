@@ -2,7 +2,7 @@
 
 > **FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas** · Unidade 3
 > UNEMAT/Sinop — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
-> **Data:** 07/12/2026 · **Carga:** 3 aulas de 50 min (síncrona) + 1 h (assíncrona)
+> **Data:** 09/12/2026 · **Carga:** 3 aulas de 50 min (síncrona) + 1 h (assíncrona)
 
 ## 🎯 Objetivos de aprendizagem
 
@@ -1011,4 +1011,4 @@ Ao final desta aula, seu repositório `<tema>-api` deve ter:
 
 ---
 
-**Próxima aula (15, 14/12/2026):** fechamos o semestre com deploy real (front e back), CI/CD com GitHub Actions, retrospectiva de todos os padrões de projeto usados, guia de estudo para o exame final e as instruções completas da Avaliação 3. Traga a API documentada e pronta para publicar.
+**Próxima aula (15, 16/12/2026):** fechamos o semestre com deploy real (front e back), CI/CD com GitHub Actions, retrospectiva de todos os padrões de projeto usados, guia de estudo para o exame final e as instruções completas da Avaliação 3. Traga a API documentada e pronta para publicar.

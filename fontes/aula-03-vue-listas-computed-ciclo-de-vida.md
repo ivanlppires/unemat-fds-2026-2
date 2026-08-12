@@ -2,7 +2,7 @@
 
 > **FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas** · Unidade 1
 > UNEMAT/Sinop — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
-> **Data:** 24/08/2026 · **Carga:** 3 aulas de 50 min (síncrona) + 1 h (assíncrona)
+> **Data:** 26/08/2026 · **Carga:** 3 aulas de 50 min (síncrona) + 1 h (assíncrona)
 
 Na Aula 02 criamos a primeira versão do UniEventos: lista, busca, filtro e inscrição, tudo com diretivas básicas e uma função de filtro chamada manualmente três vezes no template. Hoje resolvemos exatamente esse desperdício com `computed()`, aprofundamos `v-for` e passamos a carregar os eventos de forma assíncrona dentro de `onMounted()`.
 
@@ -1100,7 +1100,7 @@ Na próxima aula você vai reestruturar seu projeto com **Vuetify** e **Vue Rout
 
 ## 📝 Aviso — Avaliação 1 se aproxima
 
-A **Avaliação 1** (implementação introdutória de Vue 3 com CLI: estrutura, componentes, diretivas) tem entrega até **31/08/2026, 23h59**, e as instruções completas — escopo, rubrica e formato de entrega — serão publicadas na **Aula 04** (31/08/2026), junto com Vuetify e Vue Router. Use esta semana assíncrona também para revisar: estrutura do projeto Vite, diretivas da Aula 02 e `computed`/`onMounted` de hoje são a base de tudo que será cobrado.
+A **Avaliação 1** (implementação introdutória de Vue 3 com CLI: estrutura, componentes, diretivas) tem entrega até **02/09/2026, 23h59**, e as instruções completas — escopo, rubrica e formato de entrega — serão publicadas na **Aula 04** (02/09/2026), junto com Vuetify e Vue Router. Use esta semana assíncrona também para revisar: estrutura do projeto Vite, diretivas da Aula 02 e `computed`/`onMounted` de hoje são a base de tudo que será cobrado.
 
 ## 📚 Para aprofundar
 
@@ -1114,4 +1114,4 @@ A **Avaliação 1** (implementação introdutória de Vue 3 com CLI: estrutura, 
 
 ---
 
-**Próxima aula (04, 31/08/2026):** introdução a **Vuetify** e **Vue Router**, transformando o UniEventos em uma SPA navegável com componentes visuais prontos — e publicação das instruções completas da **Avaliação 1**.
+**Próxima aula (04, 02/09/2026):** introdução a **Vuetify** e **Vue Router**, transformando o UniEventos em uma SPA navegável com componentes visuais prontos — e publicação das instruções completas da **Avaliação 1**.

@@ -2,7 +2,7 @@
 
 > **FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas** · Unidade 3
 > UNEMAT/Sinop — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
-> **Data:** 28/09/2026 · **Carga:** 3 aulas de 50 min (síncrona) + 1 h (assíncrona)
+> **Data:** 30/09/2026 · **Carga:** 3 aulas de 50 min (síncrona) + 1 h (assíncrona)
 
 Na Aula 06 você conectou o UniEventos a uma API falsa com `json-server`, encapsulou as chamadas numa instância dedicada do Axios e organizou o estado global com Pinia. O front-end ficou pronto para conversar com um back-end de verdade. A partir de hoje ele existe — e você é quem vai escrevê-lo.
 

@@ -2,7 +2,7 @@
 
 > **FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas** · Unidade 3
 > UNEMAT/Sinop — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
-> **Data:** 16/11/2026 · **Carga:** 3 aulas de 50 min (síncrona) + 1 h (assíncrona)
+> **Data:** 18/11/2026 · **Carga:** 3 aulas de 50 min (síncrona) + 1 h (assíncrona)
 
 Na Aula 11 fechamos o CRUD de eventos ponta a ponta: Vue chamando `services/`, Express validando e persistindo no MySQL, Firebase autenticando. Hoje mudamos de fornecedor: o mesmo recurso `evento`, agora falando direto com o **Supabase** — sem API própria no meio. É a mesma pergunta de arquitetura de sempre ("onde mora a lógica?"), respondida de um jeito diferente.
 

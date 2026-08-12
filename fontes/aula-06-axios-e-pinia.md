@@ -2,7 +2,7 @@
 
 > **FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas** · Unidade 2
 > UNEMAT/Sinop — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
-> **Data:** 21/09/2026 · **Carga:** 3 aulas de 50 min (síncrona) + 1 h (assíncrona)
+> **Data:** 23/09/2026 · **Carga:** 3 aulas de 50 min (síncrona) + 1 h (assíncrona)
 
 ## 🎯 Objetivos de aprendizagem
 
@@ -1294,4 +1294,4 @@ No seu **projeto autoral**:
 - Pinia — `storeToRefs`: <https://pinia.vuejs.org/core-concepts/state.html#accessing-the-state>
 - Referências básicas do plano de curso: capítulos sobre consumo de API e gerenciamento de estado.
 
-Isso encerra a Unidade 2. A **Avaliação 2** vence em **05/10/2026**, com as instruções completas de entrega na Aula 08 — mas o escopo, resumido em 5 linhas: seu projeto autoral deve consumir dados de uma API (própria ou `json-server`) através de uma camada de serviços com Axios; ter estado gerenciado por pelo menos uma store Pinia com `carregando`/`erro`; refletir esses estados visualmente na interface; persistir algum dado em `localStorage`; e manter tudo isso rodando em cima da estrutura de rotas e componentes que você já construiu nas Aulas 04 e 05. Comece a organizar seu `db.json` e sua camada de serviços desde já — não deixe para a última semana.
+Isso encerra a Unidade 2. A **Avaliação 2** vence em **07/10/2026**, com as instruções completas de entrega na Aula 08 — mas o escopo, resumido em 5 linhas: seu projeto autoral deve consumir dados de uma API (própria ou `json-server`) através de uma camada de serviços com Axios; ter estado gerenciado por pelo menos uma store Pinia com `carregando`/`erro`; refletir esses estados visualmente na interface; persistir algum dado em `localStorage`; e manter tudo isso rodando em cima da estrutura de rotas e componentes que você já construiu nas Aulas 04 e 05. Comece a organizar seu `db.json` e sua camada de serviços desde já — não deixe para a última semana.

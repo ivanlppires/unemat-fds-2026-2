@@ -3,7 +3,7 @@
 Material didático da disciplina **FACET-SNP-310**, ofertada na UNEMAT — Campus de Sinop, no semestre **2026.2**.
 
 **Professor:** Ivan Luiz Pedroso Pires
-**Período letivo:** 10/08/2026 a 14/12/2026 — 15 aulas
+**Período letivo:** 12/08/2026 a 16/12/2026 — 15 aulas
 
 ## 📖 Acesse online
 
@@ -45,9 +45,9 @@ CRUD full-stack, Supabase, desenvolvimento do back-end, documentação com Swagg
 
 | Instrumento | Entrega |
 |---|---|
-| Avaliação 1 — front-end | 31/08/2026 |
-| Avaliação 2 — back-end | 05/10/2026 |
-| Avaliação 3 — projeto integrador | 14/12/2026 |
+| Avaliação 1 — front-end | 02/09/2026 |
+| Avaliação 2 — back-end | 07/10/2026 |
+| Avaliação 3 — projeto integrador | 16/12/2026 |
 
 ## 🔧 Regerar o material
 

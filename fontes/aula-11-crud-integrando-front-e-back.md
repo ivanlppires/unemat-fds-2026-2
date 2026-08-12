@@ -2,7 +2,7 @@
 
 > **FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas** · Unidade 3
 > UNEMAT/Sinop — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
-> **Data:** 09/11/2026 · **Carga:** 3 aulas de 50 min (síncrona) + 1 h (assíncrona)
+> **Data:** 11/11/2026 · **Carga:** 3 aulas de 50 min (síncrona) + 1 h (assíncrona)
 
 Na Aula 10 o UniEventos passou a exigir token do Firebase para escrever dados, e a API passou a validar esse token com `firebase-admin`. Todas as peças já existem separadas: Vue no front, Express no back, MySQL persistindo, Firebase autenticando. Hoje é a aula de **fechar o ciclo** — o CRUD completo de eventos, ponta a ponta, com as duas pontas conversando por um contrato bem definido.
 

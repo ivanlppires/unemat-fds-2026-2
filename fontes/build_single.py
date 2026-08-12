@@ -115,9 +115,9 @@ O exame final é uma prova teórica presencial sobre as três unidades.</p>
 <div class="tabela-wrap"><table>
 <thead><tr><th>Avaliação</th><th>Conteúdo</th><th>Prazo</th></tr></thead>
 <tbody>
-<tr><td>Avaliação 1</td><td>Vue 3 com CLI: estrutura, componentes, diretivas</td><td>31/08/2026</td></tr>
-<tr><td>Avaliação 2</td><td>Vuetify, Vue Router, Axios e Pinia</td><td>05/10/2026</td></tr>
-<tr><td>Avaliação 3</td><td>Back-end, banco de dados, autenticação e deploy</td><td>14/12/2026</td></tr>
+<tr><td>Avaliação 1</td><td>Vue 3 com CLI: estrutura, componentes, diretivas</td><td>02/09/2026</td></tr>
+<tr><td>Avaliação 2</td><td>Vuetify, Vue Router, Axios e Pinia</td><td>07/10/2026</td></tr>
+<tr><td>Avaliação 3</td><td>Back-end, banco de dados, autenticação e deploy</td><td>16/12/2026</td></tr>
 </tbody></table></div>
 <h2 id="c-uso">Como usar este material</h2>
 <ul>

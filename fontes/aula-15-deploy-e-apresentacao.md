@@ -2,7 +2,7 @@
 
 > **FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas** · Unidade 3
 > UNEMAT/Sinop — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
-> **Data:** 14/12/2026 · **Carga:** 3 aulas de 50 min (síncrona) + 1 h (assíncrona)
+> **Data:** 16/12/2026 · **Carga:** 3 aulas de 50 min (síncrona) + 1 h (assíncrona)
 
 ## 🎯 Objetivos de aprendizagem
 
@@ -848,7 +848,7 @@ Ao final desta aula, seu projeto deve ter:
 | Deploy funcionando com URL pública | 2,0 | Front e back publicados, acessíveis externamente, sem depender de `localhost` |
 | README e qualidade geral do código | 1,0 | README completo conforme estrutura da Aula 14; arquitetura em camadas aplicada; ao menos alguns testes automatizados presentes |
 
-**Formato de entrega:** via **SIGAA**, até **14/12/2026, 23h59**, contendo:
+**Formato de entrega:** via **SIGAA**, até **16/12/2026, 23h59**, contendo:
 
 - Link do repositório do front-end.
 - Link do repositório do back-end (ou anotação de que o back é 100% Supabase, com link do projeto Supabase se aplicável).
@@ -858,7 +858,7 @@ Ao final desta aula, seu projeto deve ter:
 > **⚠️ Atenção**
 > A entrega é considerada incompleta se qualquer um dos quatro links acima estiver ausente ou não funcionar no momento da correção. Teste os links em uma aba anônima do navegador antes de enviar, simulando o que o avaliador vai ver.
 
-**Política de atraso:** entregas após 14/12/2026, 23h59 têm desconto de 1,0 ponto (sobre a nota final da Avaliação 3) por dia corrido de atraso, até o limite de 3 dias — após esse prazo, a avaliação recebe nota zero, exceto em casos de justificativa formal e documentada junto à coordenação do curso, conforme o regimento da UNEMAT.
+**Política de atraso:** entregas após 16/12/2026, 23h59 têm desconto de 1,0 ponto (sobre a nota final da Avaliação 3) por dia corrido de atraso, até o limite de 3 dias — após esse prazo, a avaliação recebe nota zero, exceto em casos de justificativa formal e documentada junto à coordenação do curso, conforme o regimento da UNEMAT.
 
 **Política de plágio e uso de IA:** é permitido e esperado o uso de ferramentas de IA (como assistentes de código) como apoio ao desenvolvimento — é exatamente essa prática que a indústria de software usa hoje. O que não é aceito: (1) entregar código que você não é capaz de explicar linha a linha na apresentação; (2) copiar o projeto de outro colega, com ou sem alterações cosméticas; (3) apresentar como próprio um projeto gerado quase integralmente por IA sem compreensão do que foi produzido. A apresentação de 8 minutos (Seção 8) é, entre outras coisas, o mecanismo de verificação de autoria: perguntas técnicas sobre decisões do próprio código fazem parte da avaliação.
 

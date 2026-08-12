@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Aula 08 — Definindo endpoints e middlewares · FACET-SNP-310</title>
-<meta name="description" content="Unidade 3 · 05/10/2026 · Definindo endpoints e middlewares">
+<meta name="description" content="Unidade 3 · 07/10/2026 · Definindo endpoints e middlewares">
 <style>
 :root{
   --bg:#0f1117; --bg-soft:#161922; --bg-code:#11131a; --line:#272b38;
@@ -297,11 +297,11 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div></header>
 <div class="wrap">
   <nav class="lateral"><h4>Aulas</h4><ol><li class="grupo">Unidade 1</li><li><a class="" href="aula-01.html"><span class="num">01</span><span>Apresentação da Disciplina e Revisão JavaScript</span></a></li><li><a class="" href="aula-02.html"><span class="num">02</span><span>Introdução ao Vue: instância, ciclo de vida e diretivas</span></a></li><li><a class="" href="aula-03.html"><span class="num">03</span><span>Vue: listas, computed e ciclo de vida</span></a></li><li><a class="" href="aula-04.html"><span class="num">04</span><span>Introdução a Vuetify e Vue Router</span></a></li><li class="grupo">Unidade 2</li><li><a class="" href="aula-05.html"><span class="num">05</span><span>Componentes, Vue Router e Vuetify avançado</span></a></li><li><a class="" href="aula-06.html"><span class="num">06</span><span>Axios e Pinia</span></a></li><li class="grupo">Unidade 3</li><li><a class="" href="aula-07.html"><span class="num">07</span><span>Introdução ao Firebase, Node.js e Express</span></a></li><li><a class="ativo" href="aula-08.html"><span class="num">08</span><span>Definindo endpoints e middlewares</span></a></li><li><a class="" href="aula-09.html"><span class="num">09</span><span>Integrando com SGBD MySQL</span></a></li><li><a class="" href="aula-10.html"><span class="num">10</span><span>Requisições autenticadas com Firebase</span></a></li><li><a class="" href="aula-11.html"><span class="num">11</span><span>Integrando front-end com back-end: CRUD</span></a></li><li><a class="" href="aula-12.html"><span class="num">12</span><span>CRUD com banco em nuvem (Supabase)</span></a></li><li><a class="" href="aula-13.html"><span class="num">13</span><span>Desenvolvimento do Back-end</span></a></li><li><a class="" href="aula-14.html"><span class="num">14</span><span>Documentação com Swagger</span></a></li><li><a class="" href="aula-15.html"><span class="num">15</span><span>Deploy, apresentação e finalização</span></a></li></ol></nav>
-  <main class=""><div class="cabecalho"><div class="tags"><span class="tag u3">Unidade 3</span><span class="tag">05/10/2026</span><span class="tag">3 aulas de 50 min + 1 h EAD</span><span class="tag av">Entrega da Avaliação 2</span></div><h1>Aula 08 — Definindo endpoints e middlewares</h1><div class="sub">FACET-SNP-310 · Frameworks Modernos para Desenvolvimento de Sistemas · UNEMAT/Sinop · Prof. Ivan Luiz Pedroso Pires</div></div>
+  <main class=""><div class="cabecalho"><div class="tags"><span class="tag u3">Unidade 3</span><span class="tag">07/10/2026</span><span class="tag">3 aulas de 50 min + 1 h EAD</span><span class="tag av">Entrega da Avaliação 2</span></div><h1>Aula 08 — Definindo endpoints e middlewares</h1><div class="sub">FACET-SNP-310 · Frameworks Modernos para Desenvolvimento de Sistemas · UNEMAT/Sinop · Prof. Ivan Luiz Pedroso Pires</div></div>
 <blockquote>
 <p><strong>FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas</strong> · Unidade 3
 UNEMAT/Sinop — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
-<strong>Data:</strong> 05/10/2026 · <strong>Carga:</strong> 3 aulas de 50 min (síncrona) + 1 h (assíncrona)</p>
+<strong>Data:</strong> 07/10/2026 · <strong>Carga:</strong> 3 aulas de 50 min (síncrona) + 1 h (assíncrona)</p>
 </blockquote>
 <p>Na Aula 07 você criou a <code>unieventos-api</code> com Express 5, duas rotas <code>GET</code> em memória, CORS habilitado, e conectou o front-end real a ela. Hoje essa API vira um CRUD completo, ganha middlewares próprios e validação de entrada — e você recebe as instruções da <strong>Avaliação 2</strong>, com entrega até hoje às 23h59.</p>
 <h2 id="objetivos-de-aprendizagem">🎯 Objetivos de aprendizagem<a class="anchor" href="#objetivos-de-aprendizagem" title="Permanent link">¶</a></h2>
@@ -324,7 +324,7 @@ UNEMAT/Sinop — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
 </ul>
 <blockquote class="atencao">
 <p><strong>⚠️ Atenção</strong>
-Esta é a aula da <strong>Avaliação 2</strong>. Leia a seção "📝 Avaliação 2 — instruções de entrega" logo no início do período de aula, para planejar seu tempo — o prazo de entrega é hoje, 05/10/2026, às 23h59.</p>
+Esta é a aula da <strong>Avaliação 2</strong>. Leia a seção "📝 Avaliação 2 — instruções de entrega" logo no início do período de aula, para planejar seu tempo — o prazo de entrega é hoje, 07/10/2026, às 23h59.</p>
 </blockquote>
 <h2 id="roteiro">🗺️ Roteiro<a class="anchor" href="#roteiro" title="Permanent link">¶</a></h2>
 <div class="tabela-wrap"><table>
@@ -1232,7 +1232,7 @@ A variável <code>@baseUrl</code> no topo do arquivo evita repetir <code>http://
 </table></div>
 <p>Total: <strong>10,0 pontos</strong>.</p>
 <p><strong>Formato de entrega.</strong> Link do repositório Git (GitHub, GitLab ou similar), <strong>público ou com acesso liberado para o professor</strong>, enviado via <strong>SIGAA</strong>, no campo de entrega da Avaliação 2. O <code>README.md</code> do repositório deve conter: nome do projeto autoral, instruções de instalação (<code>npm install</code>, <code>npm run dev</code>) e uma breve descrição do domínio escolhido.</p>
-<p><strong>Prazo.</strong> Até <strong>05/10/2026, 23h59</strong>, horário de Brasília. O SIGAA registra o horário da submissão — entregas após o prazo entram na política de atraso abaixo.</p>
+<p><strong>Prazo.</strong> Até <strong>07/10/2026, 23h59</strong>, horário de Brasília. O SIGAA registra o horário da submissão — entregas após o prazo entram na política de atraso abaixo.</p>
 <p><strong>Política de atraso.</strong> Cada 24h de atraso desconta 1,0 ponto da nota final da avaliação, até o limite de 5 dias corridos; após esse prazo, a atividade recebe nota zero, salvo justificativa formal (atestado médico ou similar) protocolada junto à coordenação.</p>
 <p><strong>Política de plágio e uso de IA.</strong> É permitido usar ferramentas de IA como apoio (explicar um erro, sugerir uma correção pontual, revisar um trecho) — é o mesmo tipo de apoio que se espera de qualquer ferramenta de desenvolvimento moderna. <strong>Não é permitido</strong> entregar um projeto majoritariamente gerado por IA sem compreensão do próprio código: na correção, o professor pode fazer perguntas orais sobre qualquer trecho entregue, e a incapacidade de explicar decisões básicas do próprio código (por que essa rota, por que essa store, o que faz esse <code>computed</code>) resulta em revisão da nota. Cópia entre colegas — código idêntico ou com alterações cosméticas — resulta em nota zero para todos os envolvidos, sem exceção.</p>
 <h2 id="atividade-assincrona-1-h">🏠 Atividade assíncrona (1 h)<a class="anchor" href="#atividade-assincrona-1-h" title="Permanent link">¶</a></h2>

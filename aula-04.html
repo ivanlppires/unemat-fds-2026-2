@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Aula 04 — Introdução a Vuetify e Vue Router · FACET-SNP-310</title>
-<meta name="description" content="Unidade 1 · 31/08/2026 · Introdução a Vuetify e Vue Router">
+<meta name="description" content="Unidade 1 · 02/09/2026 · Introdução a Vuetify e Vue Router">
 <style>
 :root{
   --bg:#0f1117; --bg-soft:#161922; --bg-code:#11131a; --line:#272b38;
@@ -297,11 +297,11 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div></header>
 <div class="wrap">
   <nav class="lateral"><h4>Aulas</h4><ol><li class="grupo">Unidade 1</li><li><a class="" href="aula-01.html"><span class="num">01</span><span>Apresentação da Disciplina e Revisão JavaScript</span></a></li><li><a class="" href="aula-02.html"><span class="num">02</span><span>Introdução ao Vue: instância, ciclo de vida e diretivas</span></a></li><li><a class="" href="aula-03.html"><span class="num">03</span><span>Vue: listas, computed e ciclo de vida</span></a></li><li><a class="ativo" href="aula-04.html"><span class="num">04</span><span>Introdução a Vuetify e Vue Router</span></a></li><li class="grupo">Unidade 2</li><li><a class="" href="aula-05.html"><span class="num">05</span><span>Componentes, Vue Router e Vuetify avançado</span></a></li><li><a class="" href="aula-06.html"><span class="num">06</span><span>Axios e Pinia</span></a></li><li class="grupo">Unidade 3</li><li><a class="" href="aula-07.html"><span class="num">07</span><span>Introdução ao Firebase, Node.js e Express</span></a></li><li><a class="" href="aula-08.html"><span class="num">08</span><span>Definindo endpoints e middlewares</span></a></li><li><a class="" href="aula-09.html"><span class="num">09</span><span>Integrando com SGBD MySQL</span></a></li><li><a class="" href="aula-10.html"><span class="num">10</span><span>Requisições autenticadas com Firebase</span></a></li><li><a class="" href="aula-11.html"><span class="num">11</span><span>Integrando front-end com back-end: CRUD</span></a></li><li><a class="" href="aula-12.html"><span class="num">12</span><span>CRUD com banco em nuvem (Supabase)</span></a></li><li><a class="" href="aula-13.html"><span class="num">13</span><span>Desenvolvimento do Back-end</span></a></li><li><a class="" href="aula-14.html"><span class="num">14</span><span>Documentação com Swagger</span></a></li><li><a class="" href="aula-15.html"><span class="num">15</span><span>Deploy, apresentação e finalização</span></a></li></ol></nav>
-  <main class=""><div class="cabecalho"><div class="tags"><span class="tag u1">Unidade 1</span><span class="tag">31/08/2026</span><span class="tag">3 aulas de 50 min + 1 h EAD</span><span class="tag av">Entrega da Avaliação 1</span></div><h1>Aula 04 — Introdução a Vuetify e Vue Router</h1><div class="sub">FACET-SNP-310 · Frameworks Modernos para Desenvolvimento de Sistemas · UNEMAT/Sinop · Prof. Ivan Luiz Pedroso Pires</div></div>
+  <main class=""><div class="cabecalho"><div class="tags"><span class="tag u1">Unidade 1</span><span class="tag">02/09/2026</span><span class="tag">3 aulas de 50 min + 1 h EAD</span><span class="tag av">Entrega da Avaliação 1</span></div><h1>Aula 04 — Introdução a Vuetify e Vue Router</h1><div class="sub">FACET-SNP-310 · Frameworks Modernos para Desenvolvimento de Sistemas · UNEMAT/Sinop · Prof. Ivan Luiz Pedroso Pires</div></div>
 <blockquote>
 <p><strong>FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas</strong> · Unidade 1
 UNEMAT/Sinop — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
-<strong>Data:</strong> 31/08/2026 · <strong>Carga:</strong> 3 aulas de 50 min (síncrona) + 1 h (assíncrona)</p>
+<strong>Data:</strong> 02/09/2026 · <strong>Carga:</strong> 3 aulas de 50 min (síncrona) + 1 h (assíncrona)</p>
 </blockquote>
 <p>Nas Aulas 02 e 03 você construiu o UniEventos em Vue puro: listagem com <code>v-for</code>, filtros com <code>computed()</code>, carregamento assíncrono em <code>onMounted()</code> e HTML/CSS escritos à mão. Hoje ele ganha interface profissional com <strong>Vuetify</strong> e navegação real com <strong>Vue Router</strong>, virando uma SPA de verdade — e você recebe as instruções completas da Avaliação 1.</p>
 <h2 id="objetivos-de-aprendizagem">🎯 Objetivos de aprendizagem<a class="anchor" href="#objetivos-de-aprendizagem" title="Permanent link">¶</a></h2>
@@ -1402,7 +1402,7 @@ No <code>EventoDetalheView.vue</code>, se <code>rota.params.id</code> não for u
 <li><strong>Repositório GitHub público</strong>, com histórico de commits que mostre evolução incremental (não um único commit "projeto final").</li>
 </ol>
 <h3 id="formato-e-prazo-de-entrega">Formato e prazo de entrega<a class="anchor" href="#formato-e-prazo-de-entrega" title="Permanent link">¶</a></h3>
-<p>Entregue <strong>o link do repositório GitHub público</strong> via SIGAA, na atividade "Avaliação 1", até <strong>31/08/2026, 23h59</strong>. Cole o link diretamente no campo de texto da atividade — não anexe <code>.zip</code>.</p>
+<p>Entregue <strong>o link do repositório GitHub público</strong> via SIGAA, na atividade "Avaliação 1", até <strong>02/09/2026, 23h59</strong>. Cole o link diretamente no campo de texto da atividade — não anexe <code>.zip</code>.</p>
 <h3 id="rubrica-100-pontos">Rubrica (10,0 pontos)<a class="anchor" href="#rubrica-100-pontos" title="Permanent link">¶</a></h3>
 <div class="tabela-wrap"><table>
 <thead>
@@ -1435,7 +1435,7 @@ No <code>EventoDetalheView.vue</code>, se <code>rota.params.id</code> não for u
 </tbody>
 </table></div>
 <h3 id="politica-de-atraso">Política de atraso<a class="anchor" href="#politica-de-atraso" title="Permanent link">¶</a></h3>
-<p>Entregas após 31/08/2026 23h59 perdem <strong>1,0 ponto por dia corrido</strong> de atraso, até o limite de 5 dias. Após esse prazo, a atividade recebe nota zero, salvo justificativa formal protocolada junto à coordenação do curso.</p>
+<p>Entregas após 02/09/2026 23h59 perdem <strong>1,0 ponto por dia corrido</strong> de atraso, até o limite de 5 dias. Após esse prazo, a atividade recebe nota zero, salvo justificativa formal protocolada junto à coordenação do curso.</p>
 <h3 id="politica-de-plagio-e-uso-de-ia">Política de plágio e uso de IA<a class="anchor" href="#politica-de-plagio-e-uso-de-ia" title="Permanent link">¶</a></h3>
 <p>É permitido usar ferramentas de IA como apoio (explicar erros, sugerir sintaxe, revisar código) — assim como é permitido consultar documentação e tutoriais. <strong>Não é permitido</strong> entregar um projeto gerado quase integralmente por IA sem compreensão do próprio código: na correção, qualquer estudante pode ser chamado para explicar oralmente uma parte do seu projeto, e a nota é ajustada conforme a clareza da explicação. Cópia integral do projeto de outro colega (mesmo com o domínio "trocado") é considerada plágio e resulta em nota zero para ambos os envolvidos, com encaminhamento ao regimento acadêmico da UNEMAT.</p>
 <h2 id="para-aprofundar">📚 Para aprofundar<a class="anchor" href="#para-aprofundar" title="Permanent link">¶</a></h2>

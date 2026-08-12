@@ -14,21 +14,21 @@ OUT = BASE / "html"
 OUT.mkdir(parents=True, exist_ok=True)
 
 AULAS = [
-    ("01", "10/08/2026", "Unidade 1", "Apresentação da Disciplina e Revisão JavaScript"),
-    ("02", "17/08/2026", "Unidade 1", "Introdução ao Vue: instância, ciclo de vida e diretivas"),
-    ("03", "24/08/2026", "Unidade 1", "Vue: listas, computed e ciclo de vida"),
-    ("04", "31/08/2026", "Unidade 1", "Introdução a Vuetify e Vue Router"),
-    ("05", "14/09/2026", "Unidade 2", "Componentes, Vue Router e Vuetify avançado"),
-    ("06", "21/09/2026", "Unidade 2", "Axios e Pinia"),
-    ("07", "28/09/2026", "Unidade 3", "Introdução ao Firebase, Node.js e Express"),
-    ("08", "05/10/2026", "Unidade 3", "Definindo endpoints e middlewares"),
-    ("09", "19/10/2026", "Unidade 3", "Integrando com SGBD MySQL"),
-    ("10", "26/10/2026", "Unidade 3", "Requisições autenticadas com Firebase"),
-    ("11", "09/11/2026", "Unidade 3", "Integrando front-end com back-end: CRUD"),
-    ("12", "16/11/2026", "Unidade 3", "CRUD com banco em nuvem (Supabase)"),
-    ("13", "23/11/2026", "Unidade 3", "Desenvolvimento do Back-end"),
-    ("14", "07/12/2026", "Unidade 3", "Documentação com Swagger"),
-    ("15", "14/12/2026", "Unidade 3", "Deploy, apresentação e finalização"),
+    ("01", "12/08/2026", "Unidade 1", "Apresentação da Disciplina e Revisão JavaScript"),
+    ("02", "19/08/2026", "Unidade 1", "Introdução ao Vue: instância, ciclo de vida e diretivas"),
+    ("03", "26/08/2026", "Unidade 1", "Vue: listas, computed e ciclo de vida"),
+    ("04", "02/09/2026", "Unidade 1", "Introdução a Vuetify e Vue Router"),
+    ("05", "16/09/2026", "Unidade 2", "Componentes, Vue Router e Vuetify avançado"),
+    ("06", "23/09/2026", "Unidade 2", "Axios e Pinia"),
+    ("07", "30/09/2026", "Unidade 3", "Introdução ao Firebase, Node.js e Express"),
+    ("08", "07/10/2026", "Unidade 3", "Definindo endpoints e middlewares"),
+    ("09", "21/10/2026", "Unidade 3", "Integrando com SGBD MySQL"),
+    ("10", "28/10/2026", "Unidade 3", "Requisições autenticadas com Firebase"),
+    ("11", "11/11/2026", "Unidade 3", "Integrando front-end com back-end: CRUD"),
+    ("12", "18/11/2026", "Unidade 3", "CRUD com banco em nuvem (Supabase)"),
+    ("13", "25/11/2026", "Unidade 3", "Desenvolvimento do Back-end"),
+    ("14", "09/12/2026", "Unidade 3", "Documentação com Swagger"),
+    ("15", "16/12/2026", "Unidade 3", "Deploy, apresentação e finalização"),
 ]
 
 AVALIACOES = {"04": 1, "08": 2, "15": 3}
@@ -569,9 +569,9 @@ O exame final é uma prova teórica presencial sobre as três unidades.</p>
 <div class="tabela-wrap"><table>
 <thead><tr><th>Avaliação</th><th>Conteúdo</th><th>Prazo</th></tr></thead>
 <tbody>
-<tr><td>Avaliação 1</td><td>Vue 3 com CLI: estrutura, componentes, diretivas</td><td>31/08/2026</td></tr>
-<tr><td>Avaliação 2</td><td>Vuetify, Vue Router, Axios e Pinia</td><td>05/10/2026</td></tr>
-<tr><td>Avaliação 3</td><td>Back-end, banco de dados, autenticação e deploy</td><td>14/12/2026</td></tr>
+<tr><td>Avaliação 1</td><td>Vue 3 com CLI: estrutura, componentes, diretivas</td><td>02/09/2026</td></tr>
+<tr><td>Avaliação 2</td><td>Vuetify, Vue Router, Axios e Pinia</td><td>07/10/2026</td></tr>
+<tr><td>Avaliação 3</td><td>Back-end, banco de dados, autenticação e deploy</td><td>16/12/2026</td></tr>
 </tbody></table></div>
 
 <h2 id="uso">Como usar este material</h2>

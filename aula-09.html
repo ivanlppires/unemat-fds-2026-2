@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Aula 09 — Integrando com SGBD MySQL · FACET-SNP-310</title>
-<meta name="description" content="Unidade 3 · 19/10/2026 · Integrando com SGBD MySQL">
+<meta name="description" content="Unidade 3 · 21/10/2026 · Integrando com SGBD MySQL">
 <style>
 :root{
   --bg:#0f1117; --bg-soft:#161922; --bg-code:#11131a; --line:#272b38;
@@ -297,11 +297,11 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div></header>
 <div class="wrap">
   <nav class="lateral"><h4>Aulas</h4><ol><li class="grupo">Unidade 1</li><li><a class="" href="aula-01.html"><span class="num">01</span><span>Apresentação da Disciplina e Revisão JavaScript</span></a></li><li><a class="" href="aula-02.html"><span class="num">02</span><span>Introdução ao Vue: instância, ciclo de vida e diretivas</span></a></li><li><a class="" href="aula-03.html"><span class="num">03</span><span>Vue: listas, computed e ciclo de vida</span></a></li><li><a class="" href="aula-04.html"><span class="num">04</span><span>Introdução a Vuetify e Vue Router</span></a></li><li class="grupo">Unidade 2</li><li><a class="" href="aula-05.html"><span class="num">05</span><span>Componentes, Vue Router e Vuetify avançado</span></a></li><li><a class="" href="aula-06.html"><span class="num">06</span><span>Axios e Pinia</span></a></li><li class="grupo">Unidade 3</li><li><a class="" href="aula-07.html"><span class="num">07</span><span>Introdução ao Firebase, Node.js e Express</span></a></li><li><a class="" href="aula-08.html"><span class="num">08</span><span>Definindo endpoints e middlewares</span></a></li><li><a class="ativo" href="aula-09.html"><span class="num">09</span><span>Integrando com SGBD MySQL</span></a></li><li><a class="" href="aula-10.html"><span class="num">10</span><span>Requisições autenticadas com Firebase</span></a></li><li><a class="" href="aula-11.html"><span class="num">11</span><span>Integrando front-end com back-end: CRUD</span></a></li><li><a class="" href="aula-12.html"><span class="num">12</span><span>CRUD com banco em nuvem (Supabase)</span></a></li><li><a class="" href="aula-13.html"><span class="num">13</span><span>Desenvolvimento do Back-end</span></a></li><li><a class="" href="aula-14.html"><span class="num">14</span><span>Documentação com Swagger</span></a></li><li><a class="" href="aula-15.html"><span class="num">15</span><span>Deploy, apresentação e finalização</span></a></li></ol></nav>
-  <main class=""><div class="cabecalho"><div class="tags"><span class="tag u3">Unidade 3</span><span class="tag">19/10/2026</span><span class="tag">3 aulas de 50 min + 1 h EAD</span></div><h1>Aula 09 — Integrando com SGBD MySQL</h1><div class="sub">FACET-SNP-310 · Frameworks Modernos para Desenvolvimento de Sistemas · UNEMAT/Sinop · Prof. Ivan Luiz Pedroso Pires</div></div>
+  <main class=""><div class="cabecalho"><div class="tags"><span class="tag u3">Unidade 3</span><span class="tag">21/10/2026</span><span class="tag">3 aulas de 50 min + 1 h EAD</span></div><h1>Aula 09 — Integrando com SGBD MySQL</h1><div class="sub">FACET-SNP-310 · Frameworks Modernos para Desenvolvimento de Sistemas · UNEMAT/Sinop · Prof. Ivan Luiz Pedroso Pires</div></div>
 <blockquote>
 <p><strong>FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas</strong> · Unidade 3
 UNEMAT/Sinop — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
-<strong>Data:</strong> 19/10/2026 · <strong>Carga:</strong> 3 aulas de 50 min (síncrona) + 1 h (assíncrona)</p>
+<strong>Data:</strong> 21/10/2026 · <strong>Carga:</strong> 3 aulas de 50 min (síncrona) + 1 h (assíncrona)</p>
 </blockquote>
 <p>Na Aula 08 você entregou a Avaliação 2 com um CRUD completo, middlewares próprios e validação com Zod — tudo isso guardando dados num array em memória. Hoje esse array desaparece. Toda a <code>unieventos-api</code> passa a persistir em um banco de dados relacional de verdade: <strong>MySQL</strong>.</p>
 <p>Vale reforçar o que muda e o que não muda hoje. O que muda: de onde os dados vêm e para onde vão — de um array na RAM para tabelas em disco, com todas as garantias que isso traz. O que <strong>não</strong> muda: o formato de cada requisição, o formato de cada resposta, os status codes, as rotas, os middlewares de validação e de erro. Esse é o teste que valida se você fez a migração corretamente — se o <code>requests.http</code> da Aula 08 continuar passando sem editar uma linha sequer, a API está correta.</p>

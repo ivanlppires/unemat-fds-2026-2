@@ -2,7 +2,7 @@
 
 > **FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas** · Unidade 3
 > UNEMAT/Sinop — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
-> **Data:** 19/10/2026 · **Carga:** 3 aulas de 50 min (síncrona) + 1 h (assíncrona)
+> **Data:** 21/10/2026 · **Carga:** 3 aulas de 50 min (síncrona) + 1 h (assíncrona)
 
 Na Aula 08 você entregou a Avaliação 2 com um CRUD completo, middlewares próprios e validação com Zod — tudo isso guardando dados num array em memória. Hoje esse array desaparece. Toda a `unieventos-api` passa a persistir em um banco de dados relacional de verdade: **MySQL**.
 

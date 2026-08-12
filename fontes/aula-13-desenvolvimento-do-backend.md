@@ -2,7 +2,7 @@
 
 > **FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas** · Unidade 3
 > UNEMAT/Sinop — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
-> **Data:** 23/11/2026 · **Carga:** 3 aulas de 50 min (síncrona) + 1 h (assíncrona)
+> **Data:** 25/11/2026 · **Carga:** 3 aulas de 50 min (síncrona) + 1 h (assíncrona)
 
 ## 🎯 Objetivos de aprendizagem
 
@@ -1353,4 +1353,4 @@ Ao final desta aula, seu repositório `<tema>-api` deve ter:
 
 ---
 
-**Próxima aula (14, 07/12/2026):** documentamos a API inteira com OpenAPI 3 e Swagger UI — cada endpoint que construímos até aqui ganha um contrato formal, testável direto do navegador. Traga o `unieventos-api` (ou seu projeto autoral) já na arquitetura em camadas desta aula.
+**Próxima aula (14, 09/12/2026):** documentamos a API inteira com OpenAPI 3 e Swagger UI — cada endpoint que construímos até aqui ganha um contrato formal, testável direto do navegador. Traga o `unieventos-api` (ou seu projeto autoral) já na arquitetura em camadas desta aula.

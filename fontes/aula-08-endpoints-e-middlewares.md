@@ -2,7 +2,7 @@
 
 > **FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas** · Unidade 3
 > UNEMAT/Sinop — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
-> **Data:** 05/10/2026 · **Carga:** 3 aulas de 50 min (síncrona) + 1 h (assíncrona)
+> **Data:** 07/10/2026 · **Carga:** 3 aulas de 50 min (síncrona) + 1 h (assíncrona)
 
 Na Aula 07 você criou a `unieventos-api` com Express 5, duas rotas `GET` em memória, CORS habilitado, e conectou o front-end real a ela. Hoje essa API vira um CRUD completo, ganha middlewares próprios e validação de entrada — e você recebe as instruções da **Avaliação 2**, com entrega até hoje às 23h59.
 
@@ -26,7 +26,7 @@ Ao final desta aula você será capaz de:
 - [ ] Projeto autoral com API própria (`<seu-projeto>-api`) criada na atividade assíncrona da Aula 07.
 
 > **⚠️ Atenção**
-> Esta é a aula da **Avaliação 2**. Leia a seção "📝 Avaliação 2 — instruções de entrega" logo no início do período de aula, para planejar seu tempo — o prazo de entrega é hoje, 05/10/2026, às 23h59.
+> Esta é a aula da **Avaliação 2**. Leia a seção "📝 Avaliação 2 — instruções de entrega" logo no início do período de aula, para planejar seu tempo — o prazo de entrega é hoje, 07/10/2026, às 23h59.
 
 ## 🗺️ Roteiro
 
@@ -867,7 +867,7 @@ Total: **10,0 pontos**.
 
 **Formato de entrega.** Link do repositório Git (GitHub, GitLab ou similar), **público ou com acesso liberado para o professor**, enviado via **SIGAA**, no campo de entrega da Avaliação 2. O `README.md` do repositório deve conter: nome do projeto autoral, instruções de instalação (`npm install`, `npm run dev`) e uma breve descrição do domínio escolhido.
 
-**Prazo.** Até **05/10/2026, 23h59**, horário de Brasília. O SIGAA registra o horário da submissão — entregas após o prazo entram na política de atraso abaixo.
+**Prazo.** Até **07/10/2026, 23h59**, horário de Brasília. O SIGAA registra o horário da submissão — entregas após o prazo entram na política de atraso abaixo.
 
 **Política de atraso.** Cada 24h de atraso desconta 1,0 ponto da nota final da avaliação, até o limite de 5 dias corridos; após esse prazo, a atividade recebe nota zero, salvo justificativa formal (atestado médico ou similar) protocolada junto à coordenação.
 

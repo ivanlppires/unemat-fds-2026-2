@@ -2,7 +2,7 @@
 
 > **FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas** · Unidade 3
 > UNEMAT/Sinop — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
-> **Data:** 26/10/2026 · **Carga:** 3 aulas de 50 min (síncrona) + 1 h (assíncrona)
+> **Data:** 28/10/2026 · **Carga:** 3 aulas de 50 min (síncrona) + 1 h (assíncrona)
 
 Na Aula 09 o UniEventos passou a persistir eventos no MySQL, com a API `unieventos-api` seguindo a arquitetura controller → service → repository. Qualquer pessoa com acesso à API conseguia criar, editar ou excluir um evento — não havia noção de "quem" fazia a requisição. Hoje isso muda: vamos exigir identidade.
 
