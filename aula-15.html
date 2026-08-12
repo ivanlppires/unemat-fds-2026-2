@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-tema="escuro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aula 15 — Deploy, apresentação e finalização · FACET-SNP-310</title>
+<meta name="description" content="Unidade 3 · 14/12/2026 · Deploy, apresentação e finalização">
+<style>
+:root{
+  --bg:#0f1117; --bg-soft:#161922; --bg-code:#11131a; --line:#272b38;
+  --fg:#e6e8ee; --fg-dim:#a6adbb; --fg-faint:#6f7686;
+  --accent:#5eead4; --accent-2:#818cf8; --warn:#fbbf24; --danger:#fb7185;
+  --u1:#5eead4; --u2:#818cf8; --u3:#f0abfc;
+  --radius:12px; --max:860px;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+}
+html[data-tema="claro"]{
+  --bg:#ffffff; --bg-soft:#f6f7f9; --bg-code:#f2f3f6; --line:#e2e5ea;
+  --fg:#1a1d24; --fg-dim:#4b5262; --fg-faint:#8a92a3;
+  --accent:#0d9488; --accent-2:#4f46e5; --warn:#b45309; --danger:#be123c;
+  --u1:#0d9488; --u2:#4f46e5; --u3:#a21caf;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:76px}
+body{
+  margin:0; background:var(--bg); color:var(--fg); font-family:var(--font);
+  font-size:16.5px; line-height:1.72; -webkit-font-smoothing:antialiased;
+}
+a{color:var(--accent); text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ---------- barra superior ---------- */
+.topo{
+  position:sticky; top:0; z-index:50; background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:blur(12px); border-bottom:1px solid var(--line);
+}
+.topo-in{max-width:1400px;margin:0 auto;display:flex;align-items:center;gap:14px;padding:10px 18px}
+.marca{font-weight:700;font-size:.82rem;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-dim);white-space:nowrap}
+.marca b{color:var(--accent)}
+.topo .espaco{flex:1}
+.btn{
+  background:var(--bg-soft); color:var(--fg-dim); border:1px solid var(--line);
+  border-radius:8px; padding:6px 12px; font-size:.82rem; cursor:pointer; font-family:inherit;
+  transition:.15s;
+}
+.btn:hover{color:var(--fg); border-color:var(--accent)}
+#busca{
+  background:var(--bg-soft); border:1px solid var(--line); border-radius:8px; color:var(--fg);
+  padding:6px 12px; font-size:.85rem; font-family:inherit; width:200px;
+}
+#busca:focus{outline:none;border-color:var(--accent)}
+
+/* ---------- layout ---------- */
+.wrap{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:260px minmax(0,1fr) 240px;gap:34px;padding:0 18px}
+@media(max-width:1150px){.wrap{grid-template-columns:240px minmax(0,1fr)} .toc{display:none}}
+@media(max-width:860px){.wrap{grid-template-columns:minmax(0,1fr)} .lateral{display:none}}
+
+.lateral,.toc{position:sticky;top:76px;align-self:start;max-height:calc(100vh - 90px);overflow-y:auto;padding:22px 0 60px;font-size:.85rem}
+.lateral::-webkit-scrollbar,.toc::-webkit-scrollbar{width:6px}
+.lateral::-webkit-scrollbar-thumb,.toc::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+.lateral h4,.toc h4{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-faint);margin:0 0 12px}
+.lateral ol{list-style:none;margin:0;padding:0}
+.lateral li a{
+  display:flex;gap:9px;align-items:baseline;padding:6px 10px;border-radius:7px;
+  color:var(--fg-dim);border-left:2px solid transparent;line-height:1.35;
+}
+.lateral li a:hover{background:var(--bg-soft);color:var(--fg);text-decoration:none}
+.lateral li a.ativo{background:var(--bg-soft);color:var(--fg);border-left-color:var(--accent);font-weight:600}
+.lateral .num{font-variant-numeric:tabular-nums;color:var(--fg-faint);font-size:.78rem;min-width:16px}
+.lateral .grupo{margin:18px 0 6px;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-faint);padding-left:10px}
+.toc a{display:block;padding:4px 0 4px 12px;color:var(--fg-dim);border-left:2px solid var(--line);line-height:1.35;font-size:.8rem}
+.toc a:hover{color:var(--fg);text-decoration:none}
+.toc a.ativo{color:var(--accent);border-left-color:var(--accent)}
+.toc a.n3{padding-left:24px;font-size:.76rem;opacity:.8}
+
+/* ---------- conteúdo ---------- */
+main{padding:34px 0 100px;min-width:0}
+.cabecalho{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:34px}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.tag{font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;font-weight:700;padding:4px 10px;border-radius:999px;border:1px solid var(--line);color:var(--fg-dim)}
+.tag.u1{color:var(--u1);border-color:color-mix(in srgb,var(--u1) 40%,transparent)}
+.tag.u2{color:var(--u2);border-color:color-mix(in srgb,var(--u2) 40%,transparent)}
+.tag.u3{color:var(--u3);border-color:color-mix(in srgb,var(--u3) 40%,transparent)}
+.tag.av{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 45%,transparent)}
+.cabecalho h1{margin:0;font-size:2.05rem;line-height:1.2;letter-spacing:-.02em}
+.cabecalho .sub{color:var(--fg-faint);font-size:.9rem;margin-top:10px}
+
+main h1{font-size:1.9rem;line-height:1.22;letter-spacing:-.02em;margin:0 0 .6em}
+main h2{font-size:1.4rem;margin:2.4em 0 .7em;padding-top:.5em;border-top:1px solid var(--line);letter-spacing:-.01em}
+main h3{font-size:1.12rem;margin:1.9em 0 .5em;color:var(--fg)}
+main h4{font-size:.98rem;margin:1.5em 0 .4em;color:var(--fg-dim)}
+main h2:first-of-type{border-top:none;padding-top:0}
+main p{margin:0 0 1.05em}
+main ul,main ol{margin:0 0 1.15em;padding-left:1.4em}
+main li{margin:.32em 0}
+main li>ul,main li>ol{margin:.35em 0}
+hr{border:none;border-top:1px solid var(--line);margin:2.6em 0}
+strong{color:var(--fg);font-weight:650}
+
+/* âncoras */
+.anchor{opacity:0;margin-left:.4em;font-weight:400;color:var(--fg-faint);text-decoration:none;font-size:.8em}
+h2:hover .anchor,h3:hover .anchor{opacity:1}
+
+/* citações / callouts */
+blockquote{
+  margin:1.4em 0;padding:14px 18px;background:var(--bg-soft);border-left:3px solid var(--accent-2);
+  border-radius:0 var(--radius) var(--radius) 0;color:var(--fg-dim);
+}
+blockquote p:last-child{margin-bottom:0}
+blockquote.dica{border-left-color:var(--accent)}
+blockquote.atencao{border-left-color:var(--warn)}
+blockquote.capo{border-left-color:var(--accent-2)}
+blockquote.prova{border-left-color:var(--danger)}
+
+/* tabelas */
+.tabela-wrap{overflow-x:auto;margin:1.4em 0;border:1px solid var(--line);border-radius:var(--radius)}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{padding:9px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--bg-soft);font-weight:650;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-dim);white-space:nowrap}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:color-mix(in srgb,var(--bg-soft) 60%,transparent)}
+
+/* código */
+code{font-family:var(--mono);font-size:.87em;background:var(--bg-soft);padding:.14em .42em;border-radius:5px;border:1px solid var(--line)}
+.bloco{position:relative;margin:1.3em 0}
+.bloco-topo{
+  display:flex;align-items:center;gap:10px;background:var(--bg-soft);border:1px solid var(--line);
+  border-bottom:none;border-radius:var(--radius) var(--radius) 0 0;padding:6px 12px;
+  font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;color:var(--fg-faint);font-family:var(--mono);
+}
+.bloco-topo .espaco{flex:1}
+.copiar{
+  background:transparent;border:1px solid var(--line);color:var(--fg-faint);border-radius:6px;
+  padding:2px 9px;font-size:.68rem;cursor:pointer;font-family:inherit;letter-spacing:.06em;text-transform:uppercase;transition:.15s;
+}
+.copiar:hover{color:var(--accent);border-color:var(--accent)}
+.copiar.ok{color:var(--accent);border-color:var(--accent)}
+.highlight{
+  margin:0;background:var(--bg-code)!important;border:1px solid var(--line);
+  border-radius:0 0 var(--radius) var(--radius);overflow-x:auto;
+}
+.bloco:not(:has(.bloco-topo)) .highlight{border-radius:var(--radius)}
+.highlight pre{margin:0;padding:15px 17px;font-family:var(--mono);font-size:.845rem;line-height:1.62;background:transparent!important}
+.highlight code{background:transparent;border:none;padding:0;font-size:inherit}
+html[data-tema="claro"] .highlight pre{color:#1a1d24}
+
+/* detalhes */
+details{background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px;margin:1.2em 0}
+details[open]{padding-bottom:6px}
+summary{cursor:pointer;font-weight:600;color:var(--fg-dim);font-size:.9rem;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▸ ";color:var(--accent)}
+details[open] summary::before{content:"▾ "}
+details[open] summary{margin-bottom:10px}
+
+img{max-width:100%;border-radius:var(--radius)}
+
+/* rodapé / navegação */
+.navpe{display:flex;gap:14px;margin-top:60px;padding-top:26px;border-top:1px solid var(--line)}
+.navpe a{
+  flex:1;padding:14px 18px;background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);
+  color:var(--fg-dim);transition:.15s;
+}
+.navpe a:hover{border-color:var(--accent);color:var(--fg);text-decoration:none}
+.navpe .rot{display:block;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-faint);margin-bottom:4px}
+.navpe .tit{font-weight:600;font-size:.9rem}
+.navpe .dir{text-align:right}
+.rodape{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:var(--fg-faint);font-size:.8rem}
+
+/* progresso */
+#progresso{position:fixed;top:0;left:0;height:2px;background:var(--accent);z-index:60;width:0}
+
+/* índice (home) */
+.hero{padding:56px 0 34px;border-bottom:1px solid var(--line);margin-bottom:38px}
+.hero h1{font-size:2.6rem;margin:0 0 12px;letter-spacing:-.03em;line-height:1.1}
+.hero p{color:var(--fg-dim);max-width:640px;font-size:1.02rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin:34px 0}
+.stat{background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px}
+.stat .n{font-size:1.7rem;font-weight:700;letter-spacing:-.02em;color:var(--accent)}
+.stat .l{font-size:.75rem;letter-spacing:.07em;text-transform:uppercase;color:var(--fg-faint);margin-top:2px}
+.grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;margin:20px 0 44px}
+.cartao{
+  display:block;background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);
+  padding:17px 19px;color:var(--fg);transition:.16s;position:relative;overflow:hidden;
+}
+.cartao::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--line);transition:.16s}
+.cartao.u1::before{background:var(--u1)} .cartao.u2::before{background:var(--u2)} .cartao.u3::before{background:var(--u3)}
+.cartao:hover{transform:translateY(-2px);border-color:var(--fg-faint);text-decoration:none}
+.cartao .meta{display:flex;justify-content:space-between;align-items:center;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-faint);margin-bottom:8px}
+.cartao .t{font-weight:650;line-height:1.35;font-size:.97rem}
+.cartao .av{display:inline-block;margin-top:9px;font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;color:var(--warn);border:1px solid color-mix(in srgb,var(--warn) 40%,transparent);border-radius:999px;padding:2px 9px}
+.oculto{display:none!important}
+@media print{
+  .topo,.lateral,.toc,.navpe,#progresso{display:none!important}
+  .wrap{display:block;max-width:none;padding:0}
+  body{background:#fff;color:#000;font-size:11pt}
+  .highlight{border:1px solid #ccc;background:#fafafa!important}
+  a{color:#000}
+}
+
+pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #49483e }
+.highlight { background: #232629; color: #CCC }
+.highlight .c { color: #777; font-style: italic } /* Comment */
+.highlight .err { color: #A61717; background-color: #E3D2D2 } /* Error */
+.highlight .esc { color: #CCC } /* Escape */
+.highlight .g { color: #CCC } /* Generic */
+.highlight .k { color: #7686BB; font-weight: bold } /* Keyword */
+.highlight .l { color: #CCC } /* Literal */
+.highlight .n { color: #CCC } /* Name */
+.highlight .o { color: #CCC } /* Operator */
+.highlight .x { color: #CCC } /* Other */
+.highlight .p { color: #CCC } /* Punctuation */
+.highlight .ch { color: #777; font-style: italic } /* Comment.Hashbang */
+.highlight .cm { color: #777; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #777; font-style: italic } /* Comment.Preproc */
+.highlight .cpf { color: #777; font-style: italic } /* Comment.PreprocFile */
+.highlight .c1 { color: #777; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #777; font-style: italic } /* Comment.Special */
+.highlight .gd { color: #CCC } /* Generic.Deleted */
+.highlight .ge { color: #CCC } /* Generic.Emph */
+.highlight .ges { color: #CCC } /* Generic.EmphStrong */
+.highlight .gr { color: #CCC } /* Generic.Error */
+.highlight .gh { color: #CCC } /* Generic.Heading */
+.highlight .gi { color: #CCC } /* Generic.Inserted */
+.highlight .go { color: #CCC } /* Generic.Output */
+.highlight .gp { color: #FFF } /* Generic.Prompt */
+.highlight .gs { color: #CCC } /* Generic.Strong */
+.highlight .gu { color: #CCC } /* Generic.Subheading */
+.highlight .gt { color: #CCC } /* Generic.Traceback */
+.highlight .kc { color: #7686BB; font-weight: bold } /* Keyword.Constant */
+.highlight .kd { color: #7686BB; font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { color: #7686BB; font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { color: #7686BB; font-weight: bold } /* Keyword.Pseudo */
+.highlight .kr { color: #7686BB; font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #7686BB; font-weight: bold } /* Keyword.Type */
+.highlight .ld { color: #CCC } /* Literal.Date */
+.highlight .m { color: #4FB8CC } /* Literal.Number */
+.highlight .s { color: #51CC99 } /* Literal.String */
+.highlight .na { color: #CCC } /* Name.Attribute */
+.highlight .nb { color: #CCC } /* Name.Builtin */
+.highlight .nc { color: #CCC } /* Name.Class */
+.highlight .no { color: #CCC } /* Name.Constant */
+.highlight .nd { color: #CCC } /* Name.Decorator */
+.highlight .ni { color: #CCC } /* Name.Entity */
+.highlight .ne { color: #CCC } /* Name.Exception */
+.highlight .nf { color: #6A6AFF } /* Name.Function */
+.highlight .nl { color: #CCC } /* Name.Label */
+.highlight .nn { color: #CCC } /* Name.Namespace */
+.highlight .nx { color: #E2828E } /* Name.Other */
+.highlight .py { color: #CCC } /* Name.Property */
+.highlight .nt { color: #CCC } /* Name.Tag */
+.highlight .nv { color: #7AB4DB; font-weight: bold } /* Name.Variable */
+.highlight .ow { color: #CCC } /* Operator.Word */
+.highlight .pm { color: #CCC } /* Punctuation.Marker */
+.highlight .w { color: #BBB } /* Text.Whitespace */
+.highlight .mb { color: #4FB8CC } /* Literal.Number.Bin */
+.highlight .mf { color: #4FB8CC } /* Literal.Number.Float */
+.highlight .mh { color: #4FB8CC } /* Literal.Number.Hex */
+.highlight .mi { color: #4FB8CC } /* Literal.Number.Integer */
+.highlight .mo { color: #4FB8CC } /* Literal.Number.Oct */
+.highlight .sa { color: #51CC99 } /* Literal.String.Affix */
+.highlight .sb { color: #51CC99 } /* Literal.String.Backtick */
+.highlight .sc { color: #51CC99 } /* Literal.String.Char */
+.highlight .dl { color: #51CC99 } /* Literal.String.Delimiter */
+.highlight .sd { color: #51CC99 } /* Literal.String.Doc */
+.highlight .s2 { color: #51CC99 } /* Literal.String.Double */
+.highlight .se { color: #51CC99 } /* Literal.String.Escape */
+.highlight .sh { color: #51CC99 } /* Literal.String.Heredoc */
+.highlight .si { color: #51CC99 } /* Literal.String.Interpol */
+.highlight .sx { color: #51CC99 } /* Literal.String.Other */
+.highlight .sr { color: #51CC99 } /* Literal.String.Regex */
+.highlight .s1 { color: #51CC99 } /* Literal.String.Single */
+.highlight .ss { color: #51CC99 } /* Literal.String.Symbol */
+.highlight .bp { color: #CCC } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #6A6AFF } /* Name.Function.Magic */
+.highlight .vc { color: #7AB4DB; font-weight: bold } /* Name.Variable.Class */
+.highlight .vg { color: #BE646C; font-weight: bold } /* Name.Variable.Global */
+.highlight .vi { color: #7AB4DB; font-weight: bold } /* Name.Variable.Instance */
+.highlight .vm { color: #7AB4DB; font-weight: bold } /* Name.Variable.Magic */
+.highlight .il { color: #4FB8CC } /* Literal.Number.Integer.Long */
+</style>
+</head>
+<body>
+<div id="progresso"></div>
+<header class="topo"><div class="topo-in">
+  <span class="marca"><b>FACET-SNP-310</b> &nbsp;Frameworks Modernos</span>
+  <span class="espaco"></span>
+  
+  <a class="btn" href="indice.html">Índice</a>
+  <button class="btn" id="tema" type="button">Tema</button>
+</div></header>
+<div class="wrap">
+  <nav class="lateral"><h4>Aulas</h4><ol><li class="grupo">Unidade 1</li><li><a class="" href="aula-01.html"><span class="num">01</span><span>Apresentação da Disciplina e Revisão JavaScript</span></a></li><li><a class="" href="aula-02.html"><span class="num">02</span><span>Introdução ao Vue: instância, ciclo de vida e diretivas</span></a></li><li><a class="" href="aula-03.html"><span class="num">03</span><span>Vue: listas, computed e ciclo de vida</span></a></li><li><a class="" href="aula-04.html"><span class="num">04</span><span>Introdução a Vuetify e Vue Router</span></a></li><li class="grupo">Unidade 2</li><li><a class="" href="aula-05.html"><span class="num">05</span><span>Componentes, Vue Router e Vuetify avançado</span></a></li><li><a class="" href="aula-06.html"><span class="num">06</span><span>Axios e Pinia</span></a></li><li class="grupo">Unidade 3</li><li><a class="" href="aula-07.html"><span class="num">07</span><span>Introdução ao Firebase, Node.js e Express</span></a></li><li><a class="" href="aula-08.html"><span class="num">08</span><span>Definindo endpoints e middlewares</span></a></li><li><a class="" href="aula-09.html"><span class="num">09</span><span>Integrando com SGBD MySQL</span></a></li><li><a class="" href="aula-10.html"><span class="num">10</span><span>Requisições autenticadas com Firebase</span></a></li><li><a class="" href="aula-11.html"><span class="num">11</span><span>Integrando front-end com back-end: CRUD</span></a></li><li><a class="" href="aula-12.html"><span class="num">12</span><span>CRUD com banco em nuvem (Supabase)</span></a></li><li><a class="" href="aula-13.html"><span class="num">13</span><span>Desenvolvimento do Back-end</span></a></li><li><a class="" href="aula-14.html"><span class="num">14</span><span>Documentação com Swagger</span></a></li><li><a class="ativo" href="aula-15.html"><span class="num">15</span><span>Deploy, apresentação e finalização</span></a></li></ol></nav>
+  <main class=""><div class="cabecalho"><div class="tags"><span class="tag u3">Unidade 3</span><span class="tag">14/12/2026</span><span class="tag">3 aulas de 50 min + 1 h EAD</span><span class="tag av">Entrega da Avaliação 3</span></div><h1>Aula 15 — Deploy, apresentação e finalização</h1><div class="sub">FACET-SNP-310 · Frameworks Modernos para Desenvolvimento de Sistemas · UNEMAT/Cáceres · Prof. Ivan Luiz Pedroso Pires</div></div>
+<blockquote>
+<p><strong>FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas</strong> · Unidade 3
+UNEMAT/Cáceres — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
+<strong>Data:</strong> 14/12/2026 · <strong>Carga:</strong> 3 aulas de 50 min (síncrona) + 1 h (assíncrona)</p>
+</blockquote>
+<h2 id="objetivos-de-aprendizagem">🎯 Objetivos de aprendizagem<a class="anchor" href="#objetivos-de-aprendizagem" title="Permanent link">¶</a></h2>
+<p>Ao final desta aula você será capaz de:</p>
+<ul>
+<li>Gerar o build de produção de uma aplicação Vue com Vite e explicar o que existe dentro de <code>dist/</code>.</li>
+<li>Publicar o front-end em um serviço de hospedagem estática (Vercel, Firebase Hosting ou GitHub Pages), configurando variáveis de ambiente e rewrite de SPA.</li>
+<li>Publicar o back-end Express em um serviço de nuvem, com <code>PORT</code> dinâmico, health check e variáveis de ambiente seguras.</li>
+<li>Escrever um <code>Dockerfile</code> simples para a API e um <code>docker-compose.yml</code> com API + MySQL.</li>
+<li>Diagnosticar e corrigir os erros mais comuns pós-deploy (CORS, mixed content, 404 em rota interna, banco inacessível).</li>
+<li>Configurar um pipeline básico de CI/CD no GitHub Actions que roda lint e testes a cada push.</li>
+<li>Relacionar cada padrão de projeto estudado no semestre ao trecho de código onde ele apareceu no UniEventos.</li>
+<li>Apresentar o projeto autoral em formato de seminário técnico, dentro do tempo e critérios definidos.</li>
+<li>Entregar a Avaliação 3 seguindo integralmente os requisitos e o prazo estabelecidos.</li>
+</ul>
+<h2 id="pre-requisitos-desta-aula">📋 Pré-requisitos desta aula<a class="anchor" href="#pre-requisitos-desta-aula" title="Permanent link">¶</a></h2>
+<ul>
+<li><code>unieventos-api</code> (ou projeto autoral) com arquitetura em camadas (Aula 13) e documentação Swagger (Aula 14) completas.</li>
+<li>Front-end (<code>unieventos-web</code> ou equivalente) com build funcionando localmente (<code>npm run build</code> sem erro).</li>
+<li>Conta gratuita em pelo menos um serviço de hospedagem de front (Vercel, Netlify, Firebase Hosting ou GitHub Pages) e um de back (Render, Railway ou Fly.io).</li>
+<li>Repositórios do projeto autoral publicados e atualizados no GitHub.</li>
+</ul>
+<p>Checklist antes de começar:</p>
+<ul>
+<li>[ ] <code>npm run build</code> do front gera a pasta <code>dist/</code> sem erro.</li>
+<li>[ ] <code>npm test</code> do back passa localmente.</li>
+<li>[ ] Você tem acesso de administrador aos dois repositórios (front e back) no GitHub.</li>
+</ul>
+<h2 id="roteiro">🗺️ Roteiro<a class="anchor" href="#roteiro" title="Permanent link">¶</a></h2>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Bloco</th>
+<th>Tempo</th>
+<th>Atividade</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>50 min</td>
+<td>Build de produção, deploy do front e do back, Docker, CORS em produção</td>
+</tr>
+<tr>
+<td>2</td>
+<td>50 min</td>
+<td>CI/CD com GitHub Actions, retrospectiva de padrões de projeto, guia de estudo do exame final</td>
+</tr>
+<tr>
+<td>3</td>
+<td>50 min</td>
+<td>Instruções da Avaliação 3, formato do seminário, encerramento da disciplina</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="retomando-a-aula-14">Retomando a Aula 14<a class="anchor" href="#retomando-a-aula-14" title="Permanent link">¶</a></h2>
+<p>Na Aula 14 documentamos a API inteira com OpenAPI e Swagger UI — qualquer pessoa consegue entender e testar o UniEventos sem ler uma linha de código. Falta uma última etapa: tirar o projeto do <code>localhost</code> e colocá-lo no ar, com URL pública, para qualquer pessoa acessar. Hoje fechamos esse ciclo — e fechamos o semestre.</p>
+<h2 id="1-build-de-producao-do-front-end">1. Build de produção do front-end<a class="anchor" href="#1-build-de-producao-do-front-end" title="Permanent link">¶</a></h2>
+<h3 id="11-o-que-npm-run-build-faz">1.1 O que <code>npm run build</code> faz<a class="anchor" href="#11-o-que-npm-run-build-faz" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>unieventos-web
+npm<span class="w"> </span>run<span class="w"> </span>build
+</code></pre></div></div>
+
+<p>O Vite lê <code>src/</code>, resolve todos os imports, faz <strong>tree-shaking</strong> (remove código não utilizado), minifica JavaScript e CSS, gera hashes nos nomes de arquivo (para cache eficiente no navegador) e escreve tudo em <code>dist/</code>:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>dist/
+├─ assets/
+│  ├─ index-BvPPrto3.css     ← todo o CSS do projeto, minificado
+│  ├─ index-EL0WAqE7.js      ← todo o JavaScript, empacotado e minificado
+│  └─ materialdesignicons-*.woff2  ← fontes de ícone do @mdi/font
+├─ favicon.ico
+└─ index.html                ← HTML final, já referenciando os assets com hash
+</code></pre></div></div>
+
+<blockquote class="capo">
+<p><strong>🔎 Por baixo do capô</strong>
+O hash no nome do arquivo (<code>index-BvPPrto3.js</code>) muda sempre que o conteúdo muda. Isso permite configurar cache agressivo e "para sempre" nesses arquivos no servidor: o navegador só baixa de novo se o hash (e portanto o conteúdo) mudou. O <code>index.html</code>, em contrapartida, nunca deve ser cacheado agressivamente — ele é o que aponta para os hashes corretos a cada novo deploy.</p>
+</blockquote>
+<p><code>dist/</code> é <strong>tudo</strong> que o servidor de hospedagem precisa: arquivos estáticos, sem Node.js rodando por trás. É por isso que hospedar um front-end Vue construído é barato (ou gratuito) — não é um processo de servidor, é só arquivos.</p>
+<h3 id="12-variaveis-de-ambiente-do-vite">1.2 Variáveis de ambiente do Vite<a class="anchor" href="#12-variaveis-de-ambiente-do-vite" title="Permanent link">¶</a></h3>
+<p>O Vite só expõe ao código do navegador variáveis de ambiente prefixadas com <code>VITE_</code> — qualquer outra fica de fora do bundle final, por segurança (evita vazar segredos de build no JavaScript público).</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1"># .env.production — lido automaticamente quando NODE_ENV=production (no build)</span>
+<span class="nv">VITE_API_URL</span><span class="o">=</span>https://unieventos-api.onrender.com
+<span class="nv">VITE_FIREBASE_API_KEY</span><span class="o">=</span>AIzaSy...
+<span class="nv">VITE_FIREBASE_AUTH_DOMAIN</span><span class="o">=</span>unieventos.firebaseapp.com
+<span class="nv">VITE_FIREBASE_PROJECT_ID</span><span class="o">=</span>unieventos
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1"># .env.development — lido em npm run dev</span>
+<span class="nv">VITE_API_URL</span><span class="o">=</span>http://localhost:3000
+<span class="nv">VITE_FIREBASE_API_KEY</span><span class="o">=</span>AIzaSy...
+<span class="nv">VITE_FIREBASE_AUTH_DOMAIN</span><span class="o">=</span>unieventos.firebaseapp.com
+<span class="nv">VITE_FIREBASE_PROJECT_ID</span><span class="o">=</span>unieventos
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/services/apiClient.js — uso da variável, como já fazemos desde a Aula 06</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">axios</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;axios&#39;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">apiClient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">axios</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">baseURL</span><span class="o">:</span><span class="w"> </span><span class="k">import</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">VITE_API_URL</span><span class="p">,</span><span class="w"> </span><span class="c1">// troca sozinho entre dev e produção</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+<code>import.meta.env.VITE_*</code> só existe em tempo de <strong>build</strong> — o Vite substitui essas referências por valores literais no JavaScript final. Trocar a variável depois do build (por exemplo, direto no painel do serviço de hospedagem, sem rebuildar) <strong>não tem efeito nenhum</strong>: você precisa gerar um novo build para que um novo valor de <code>VITE_API_URL</code> entre no bundle. Serviços como Vercel fazem isso automaticamente a cada push, rodando <code>npm run build</code> de novo.</p>
+</blockquote>
+<h3 id="13-base-no-viteconfigjs">1.3 <code>base</code> no <code>vite.config.js</code><a class="anchor" href="#13-base-no-viteconfigjs" title="Permanent link">¶</a></h3>
+<p>Se o site for publicado em um subcaminho (comum no GitHub Pages, ex.: <code>usuario.github.io/unieventos-web/</code>), configure <code>base</code>:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// vite.config.js — trecho relevante para deploy em subcaminho</span>
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">defineConfig</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">base</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/unieventos-web/&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// necessário só se NÃO estiver na raiz do domínio</span>
+<span class="w">  </span><span class="nx">plugins</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="nx">vue</span><span class="p">({</span><span class="w"> </span><span class="nx">template</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">transformAssetUrls</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}),</span>
+<span class="w">    </span><span class="nx">vuetify</span><span class="p">({</span><span class="w"> </span><span class="nx">autoImport</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">}),</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<p>Em Vercel, Netlify e Firebase Hosting, o projeto normalmente fica na raiz do domínio (<code>base: '/'</code>, o padrão) — só ajuste isso para GitHub Pages em repositório de projeto (não em <code>usuario.github.io</code>).</p>
+<h3 id="14-por-que-spa-precisa-de-rewrite-para-indexhtml">1.4 Por que SPA precisa de rewrite para <code>index.html</code><a class="anchor" href="#14-por-que-spa-precisa-de-rewrite-para-indexhtml" title="Permanent link">¶</a></h3>
+<p>Uma SPA como o UniEventos tem <strong>uma única página real</strong> (<code>index.html</code>); rotas como <code>/eventos/3</code> ou <code>/minhas-inscricoes</code> só existem no navegador, resolvidas pelo Vue Router (Aula 04) via History API — o servidor nunca teve, e nunca terá, um arquivo físico chamado <code>eventos/3</code>.</p>
+<p>O problema: se o usuário aperta <strong>F5</strong> (recarrega a página) estando em <code>/eventos/3</code>, o navegador faz uma requisição HTTP real, ao servidor, pedindo o caminho <code>/eventos/3</code>. Um servidor de arquivos estáticos comum não encontra esse arquivo e responde <code>404</code>.</p>
+<p>A solução é configurar o servidor para, em qualquer caminho que não seja um arquivo estático real, devolver <code>index.html</code> — o Vue Router então assume o controle no navegador e resolve a rota <code>/eventos/3</code> normalmente.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// vercel.json — rewrite de SPA na Vercel</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;rewrites&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;source&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/(.*)&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;destination&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/index.html&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code># _redirects — Netlify (arquivo dentro de public/, copiado para dist/ no build)
+/*  /index.html  200
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// firebase.json — trecho relevante do Firebase Hosting</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;hosting&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;public&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dist&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;rewrites&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;source&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;**&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;destination&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/index.html&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote class="prova">
+<p><strong>📌 Na prova</strong>
+"F5 em rota interna dá 404" é o sintoma mais clássico de rewrite de SPA mal configurado. Sempre que alguém relatar esse erro pós-deploy, a primeira pergunta é: "o servidor está configurado para devolver <code>index.html</code> em qualquer caminho desconhecido?"</p>
+</blockquote>
+<h2 id="2-deploy-do-front-end">2. Deploy do front-end<a class="anchor" href="#2-deploy-do-front-end" title="Permanent link">¶</a></h2>
+<h3 id="21-vercel-recomendado-passo-a-passo-testado">2.1 Vercel (recomendado — passo a passo testado)<a class="anchor" href="#21-vercel-recomendado-passo-a-passo-testado" title="Permanent link">¶</a></h3>
+<ol>
+<li>Crie conta em <a href="https://vercel.com">vercel.com</a> usando login do GitHub.</li>
+<li>No painel, clique <strong>"Add New... → Project"</strong> e selecione o repositório <code>unieventos-web</code>.</li>
+<li>A Vercel detecta automaticamente que é um projeto Vite. Confirme:
+   - <strong>Build Command:</strong> <code>npm run build</code>
+   - <strong>Output Directory:</strong> <code>dist</code></li>
+<li>Antes de clicar em "Deploy", adicione as variáveis de ambiente na seção <strong>Environment Variables</strong>: <code>VITE_API_URL</code>, <code>VITE_FIREBASE_API_KEY</code>, <code>VITE_FIREBASE_AUTH_DOMAIN</code>, <code>VITE_FIREBASE_PROJECT_ID</code> — os mesmos valores do seu <code>.env.production</code> local.</li>
+<li>Clique <strong>Deploy</strong>. Em cerca de 1 minuto, a Vercel devolve uma URL pública (<code>https://unieventos-web.vercel.app</code>).</li>
+<li>A cada <code>git push</code> na branch <code>main</code>, a Vercel refaz o deploy automaticamente.</li>
+</ol>
+<blockquote class="dica">
+<p><strong>💡 Dica</strong>
+A Vercel também cria um <strong>preview deploy</strong> automático para cada Pull Request, com URL própria — ótimo para revisar uma feature antes de mesclar em <code>main</code>, mas não obrigatório nesta disciplina.</p>
+</blockquote>
+<h3 id="22-alternativa-firebase-hosting">2.2 Alternativa: Firebase Hosting<a class="anchor" href="#22-alternativa-firebase-hosting" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>npm<span class="w"> </span>install<span class="w"> </span>-g<span class="w"> </span>firebase-tools
+firebase<span class="w"> </span>login
+firebase<span class="w"> </span>init<span class="w"> </span>hosting
+<span class="c1"># Public directory: dist</span>
+<span class="c1"># Configure as a single-page app (rewrite all urls to /index.html)? Yes</span>
+<span class="c1"># Set up automatic builds and deploys with GitHub? (opcional, responda conforme preferir)</span>
+
+npm<span class="w"> </span>run<span class="w"> </span>build
+firebase<span class="w"> </span>deploy<span class="w"> </span>--only<span class="w"> </span>hosting
+</code></pre></div></div>
+
+<p>Como o UniEventos já usa Firebase Auth (Aula 10), hospedar no Firebase Hosting mantém tudo no mesmo painel — vantagem organizacional, sem necessidade técnica adicional.</p>
+<h3 id="23-alternativa-github-pages">2.3 Alternativa: GitHub Pages<a class="anchor" href="#23-alternativa-github-pages" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </span>gh-pages
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// package.json — trecho de &quot;scripts&quot;</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;scripts&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;deploy&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;npm run build &amp;&amp; gh-pages -d dist&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Lembre de configurar <code>base: '/unieventos-web/'</code> no <code>vite.config.js</code> (Seção 1.3) antes de publicar, já que o GitHub Pages de repositório de projeto serve em um subcaminho. Depois:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>npm<span class="w"> </span>run<span class="w"> </span>deploy
+</code></pre></div></div>
+
+<p>A URL pública fica em <code>https://&lt;seu-usuario&gt;.github.io/unieventos-web/</code>. Habilite em <strong>Settings → Pages</strong> do repositório, escolhendo a branch <code>gh-pages</code> (criada automaticamente pelo pacote <code>gh-pages</code>) como fonte.</p>
+<h2 id="3-deploy-do-back-end">3. Deploy do back-end<a class="anchor" href="#3-deploy-do-back-end" title="Permanent link">¶</a></h2>
+<h3 id="31-o-essencial-independente-do-servico-escolhido">3.1 O essencial, independente do serviço escolhido<a class="anchor" href="#31-o-essencial-independente-do-servico-escolhido" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/server.js — PORT precisa vir do ambiente, nunca fixo</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">app</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./app.js&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">config</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./config/index.js&#39;</span>
+
+<span class="c1">// A maioria dos serviços de nuvem injeta a variável PORT automaticamente —</span>
+<span class="c1">// escutar em uma porta fixa (3000) quebra o deploy nesses ambientes.</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">servidor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">app</span><span class="p">.</span><span class="nx">listen</span><span class="p">(</span><span class="nx">config</span><span class="p">.</span><span class="nx">PORT</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`API rodando na porta </span><span class="si">${</span><span class="nx">config</span><span class="p">.</span><span class="nx">PORT</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// package.json — script &quot;start&quot; é o que o serviço de deploy roda em produção</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;scripts&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;start&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;node src/server.js&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;dev&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;node --watch src/server.js&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// trecho de src/app.js — health check simples, usado pelo serviço de deploy</span>
+<span class="c1">// para saber se o processo está de pé (e reiniciar automaticamente se não estiver)</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/health&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">res</span><span class="p">.</span><span class="nx">status</span><span class="p">(</span><span class="mf">200</span><span class="p">).</span><span class="nx">json</span><span class="p">({</span><span class="w"> </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;ok&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">ambiente</span><span class="o">:</span><span class="w"> </span><span class="nx">config</span><span class="p">.</span><span class="nx">NODE_ENV</span><span class="w"> </span><span class="p">})</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<p>Checklist mínimo antes de publicar o back:</p>
+<ul>
+<li>[ ] <code>PORT</code> vem de <code>process.env.PORT</code> (via <code>config</code>, Aula 13), nunca hardcoded.</li>
+<li>[ ] Script <code>start</code> existe em <code>package.json</code> e sobe a API com <code>node</code> puro (sem <code>--watch</code>, que é só para desenvolvimento).</li>
+<li>[ ] <code>GET /health</code> responde <code>200</code> sem exigir autenticação nem banco de dados obrigatoriamente disponível.</li>
+<li>[ ] Banco de dados gerenciado (não <code>localhost</code>) — MySQL na nuvem (ex.: Railway, PlanetScale-compatível, ou o banco oferecido pelo próprio Render).</li>
+<li>[ ] Todas as variáveis de <code>.env</code> configuradas como <em>secrets</em> no painel do serviço, nunca commitadas no Git.</li>
+</ul>
+<h3 id="32-opcoes-gratuitasbaratas-e-o-que-considerar">3.2 Opções gratuitas/baratas e o que considerar<a class="anchor" href="#32-opcoes-gratuitasbaratas-e-o-que-considerar" title="Permanent link">¶</a></h3>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Serviço</th>
+<th>Ponto forte</th>
+<th>Atenção</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Render</td>
+<td>Free tier simples, banco MySQL/Postgres gerenciado disponível</td>
+<td>Cold start no plano gratuito — primeira requisição após inatividade demora alguns segundos</td>
+</tr>
+<tr>
+<td>Railway</td>
+<td>Deploy rápido a partir do GitHub, bom suporte a MySQL</td>
+<td>Free tier limitado por uso mensal, não por tempo</td>
+</tr>
+<tr>
+<td>Fly.io</td>
+<td>Roda containers Docker diretamente, bom controle de infraestrutura</td>
+<td>Curva de aprendizado maior, exige <code>fly.toml</code> e CLI própria</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção — cold start</strong>
+Planos gratuitos costumam "dormir" o processo após um período sem tráfego. A primeira requisição depois disso demora vários segundos (o serviço precisa religar o container). Isso é normal e esperado no plano gratuito — não é bug do seu código. Avise sobre isso na apresentação se seu projeto usar plano gratuito.</p>
+</blockquote>
+<h3 id="33-deploy-na-render-passo-a-passo">3.3 Deploy na Render (passo a passo)<a class="anchor" href="#33-deploy-na-render-passo-a-passo" title="Permanent link">¶</a></h3>
+<ol>
+<li>Crie conta em <a href="https://render.com">render.com</a> com login do GitHub.</li>
+<li><strong>New → Web Service</strong>, selecione o repositório <code>unieventos-api</code>.</li>
+<li>Configure:
+   - <strong>Runtime:</strong> Node
+   - <strong>Build Command:</strong> <code>npm install</code>
+   - <strong>Start Command:</strong> <code>npm start</code></li>
+<li>Na aba <strong>Environment</strong>, adicione todas as variáveis do seu <code>.env</code> (exceto as que só existem localmente).</li>
+<li>Se precisar de MySQL gerenciado, crie um <strong>New → MySQL</strong> (ou Postgres, se preferir migrar) separado na Render e copie a string de conexão para as variáveis <code>DB_*</code> do Web Service.</li>
+<li>Clique <strong>Create Web Service</strong>. A Render builda, sobe o processo, e devolve uma URL pública (<code>https://unieventos-api.onrender.com</code>).</li>
+<li>Rode as migrations manualmente uma vez, via o <strong>Shell</strong> da Render (aba disponível no painel do serviço) ou como <em>Build Command</em> combinado: <code>npm install &amp;&amp; npm run migrar</code>.</li>
+</ol>
+<h3 id="34-dockerfile-simples-para-a-api">3.4 Dockerfile simples para a API<a class="anchor" href="#34-dockerfile-simples-para-a-api" title="Permanent link">¶</a></h3>
+<p>Mesmo usando um serviço que builda direto do GitHub, ter um <code>Dockerfile</code> documenta exatamente o ambiente de execução e permite rodar a API localmente de forma idêntica à produção.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c"># Dockerfile</span>
+<span class="k">FROM</span><span class="w"> </span><span class="s">node:22-alpine</span>
+
+<span class="k">WORKDIR</span><span class="w"> </span><span class="s">/app</span>
+
+<span class="c"># Copiar só os arquivos de manifesto primeiro aproveita o cache de camadas do</span>
+<span class="c"># Docker: se package.json não mudou, o npm install não roda de novo no rebuild.</span>
+<span class="k">COPY</span><span class="w"> </span>package.json<span class="w"> </span>package-lock.json<span class="w"> </span>./
+<span class="k">RUN</span><span class="w"> </span>npm<span class="w"> </span>install<span class="w"> </span>--omit<span class="o">=</span>dev
+
+<span class="k">COPY</span><span class="w"> </span>src<span class="w"> </span>./src
+<span class="k">COPY</span><span class="w"> </span>migrations<span class="w"> </span>./migrations
+<span class="k">COPY</span><span class="w"> </span>scripts<span class="w"> </span>./scripts
+
+<span class="k">EXPOSE</span><span class="w"> </span><span class="s">3000</span>
+
+<span class="k">CMD</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;npm&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;start&quot;</span><span class="p">]</span>
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1"># .dockerignore</span>
+node_modules
+.env
+.git
+<span class="nb">test</span>
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </span>unieventos-api<span class="w"> </span>.
+docker<span class="w"> </span>run<span class="w"> </span>-p<span class="w"> </span><span class="m">3000</span>:3000<span class="w"> </span>--env-file<span class="w"> </span>.env<span class="w"> </span>unieventos-api
+</code></pre></div></div>
+
+<h3 id="35-docker-composeyml-com-api-mysql">3.5 <code>docker-compose.yml</code> com API + MySQL<a class="anchor" href="#35-docker-composeyml-com-api-mysql" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1"># docker-compose.yml</span>
+<span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">api</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;3000:3000&#39;</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">NODE_ENV</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">development</span>
+<span class="w">      </span><span class="nt">PORT</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3000</span>
+<span class="w">      </span><span class="nt">DB_HOST</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mysql</span>
+<span class="w">      </span><span class="nt">DB_PORT</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3306</span>
+<span class="w">      </span><span class="nt">DB_USER</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">root</span>
+<span class="w">      </span><span class="nt">DB_PASSWORD</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">senha_local</span>
+<span class="w">      </span><span class="nt">DB_NAME</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uni_eventos</span>
+<span class="w">      </span><span class="nt">FIREBASE_PROJECT_ID</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unieventos</span>
+<span class="w">      </span><span class="nt">CORS_ORIGEM_PERMITIDA</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://localhost:5173</span>
+<span class="w">    </span><span class="nt">depends_on</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">mysql</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">condition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">service_healthy</span>
+
+<span class="w">  </span><span class="nt">mysql</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mysql:8</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">MYSQL_ROOT_PASSWORD</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">senha_local</span>
+<span class="w">      </span><span class="nt">MYSQL_DATABASE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uni_eventos</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;3306:3306&#39;</span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dados_mysql:/var/lib/mysql</span>
+<span class="w">    </span><span class="nt">healthcheck</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&#39;CMD&#39;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&#39;mysqladmin&#39;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&#39;ping&#39;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&#39;-h&#39;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&#39;localhost&#39;</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5s</span>
+<span class="w">      </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5s</span>
+<span class="w">      </span><span class="nt">retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+
+<span class="nt">volumes</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">dados_mysql</span><span class="p">:</span>
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>--build
+<span class="c1"># API e MySQL sobem juntos, na mesma rede virtual — a API conversa</span>
+<span class="c1"># com o banco pelo nome do serviço (&quot;mysql&quot;), não por &quot;localhost&quot;</span>
+</code></pre></div></div>
+
+<blockquote class="capo">
+<p><strong>🔎 Por baixo do capô</strong>
+Dentro da rede criada pelo <code>docker compose</code>, cada serviço enxerga os outros pelo <strong>nome do serviço</strong> no YAML (<code>mysql</code>), não por <code>localhost</code> — por isso <code>DB_HOST: mysql</code> e não <code>DB_HOST: localhost</code>. O valor de "isso funcionar de primeira" é enorme: qualquer pessoa que clonar o repositório sobe o ambiente completo (API + banco, com schema aplicável via <code>npm run migrar</code>) com um único comando, sem instalar MySQL na própria máquina.</p>
+</blockquote>
+<h2 id="4-cors-em-producao-e-diagnostico-de-erros-pos-deploy">4. CORS em produção e diagnóstico de erros pós-deploy<a class="anchor" href="#4-cors-em-producao-e-diagnostico-de-erros-pos-deploy" title="Permanent link">¶</a></h2>
+<p>Em produção, restrinja CORS <strong>apenas</strong> ao domínio real do front publicado — nunca deixe <code>origin: '*'</code> ou o domínio de <code>localhost</code> esquecido em produção:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1"># .env de produção da API</span>
+<span class="nv">CORS_ORIGEM_PERMITIDA</span><span class="o">=</span>https://unieventos-web.vercel.app
+</code></pre></div></div>
+
+<h3 id="41-erros-classicos-pos-deploy-e-como-diagnosticar">4.1 Erros clássicos pós-deploy e como diagnosticar<a class="anchor" href="#41-erros-classicos-pos-deploy-e-como-diagnosticar" title="Permanent link">¶</a></h3>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Sintoma</th>
+<th>Causa provável</th>
+<th>Como diagnosticar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tela em branco após publicar, console mostra "Mixed Content"</td>
+<td>Front em HTTPS chamando API em HTTP puro</td>
+<td>Confira <code>VITE_API_URL</code> — precisa começar com <code>https://</code>, todo serviço de deploy moderno já expõe HTTPS por padrão</td>
+</tr>
+<tr>
+<td>Requisições falham com erro de CORS no console</td>
+<td>Domínio do front não está em <code>CORS_ORIGEM_PERMITIDA</code> da API, ou variável não foi atualizada em produção</td>
+<td>Abra a aba Network do DevTools, confira o cabeçalho <code>Access-Control-Allow-Origin</code> na resposta; ajuste a variável de ambiente e reinicie o serviço</td>
+</tr>
+<tr>
+<td>Tela em branco, sem erro óbvio</td>
+<td>Uma <code>VITE_*</code> esquecida no painel de deploy — o build usa <code>undefined</code> silenciosamente</td>
+<td>Confira todas as variáveis <code>VITE_*</code> no painel do serviço de hospedagem, comparando com o <code>.env.production</code> local</td>
+</tr>
+<tr>
+<td>F5 numa rota interna (<code>/eventos/3</code>) dá 404</td>
+<td>Servidor não configurado para rewrite de SPA (Seção 1.4)</td>
+<td>Adicione <code>vercel.json</code>/<code>_redirects</code>/<code>firebase.json</code> com o rewrite para <code>index.html</code></td>
+</tr>
+<tr>
+<td>API responde, mas toda rota de banco dá erro 500</td>
+<td>Banco inacessível: credenciais erradas, banco não migrado, ou IP não liberado no firewall do provedor</td>
+<td>Acesse <code>/health</code> primeiro (não depende de banco); depois confira logs do serviço e rode <code>npm run migrar</code> no ambiente de produção</td>
+</tr>
+<tr>
+<td>Login funciona local, falha em produção</td>
+<td>Domínio de produção não foi adicionado à lista de domínios autorizados do Firebase Auth</td>
+<td>No Console do Firebase, <strong>Authentication → Settings → Authorized domains</strong>, adicione o domínio publicado</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote class="dica">
+<p><strong>💡 Dica</strong>
+Sempre teste <code>/health</code> primeiro depois de um deploy. Se ele responde <code>200</code>, o processo subiu — o problema está em uma camada específica (banco, CORS, variável de ambiente), não na infraestrutura toda.</p>
+</blockquote>
+<h2 id="5-cicd-introdutorio-com-github-actions">5. CI/CD introdutório com GitHub Actions<a class="anchor" href="#5-cicd-introdutorio-com-github-actions" title="Permanent link">¶</a></h2>
+<p>CI (Integração Contínua) roda verificações automáticas a cada mudança no código — lint e testes, neste caso. CD (Entrega Contínua) automatiza a publicação quando essas verificações passam. Juntos, eliminam o "funciona na minha máquina" e o deploy manual esquecido.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1"># .github/workflows/ci.yml</span>
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CI</span>
+
+<span class="nt">on</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">push</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&#39;**&#39;</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">pull_request</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">main</span><span class="p p-Indicator">]</span>
+
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">lint-e-testes</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Baixar o código do repositório</span>
+<span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Configurar Node.js 22</span>
+<span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/setup-node@v4</span>
+<span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">node-version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;22&#39;</span>
+<span class="w">          </span><span class="nt">cache</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;npm&#39;</span>
+
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Instalar dependências</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">npm ci</span>
+
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Rodar lint</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">npm run lint --if-present</span>
+
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Rodar testes</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">npm test</span>
+
+<span class="w">  </span><span class="nt">deploy</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lint-e-testes</span>
+<span class="w">    </span><span class="nt">if</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">github.ref == &#39;refs/heads/main&#39; &amp;&amp; github.event_name == &#39;push&#39;</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Baixar o código do repositório</span>
+<span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Disparar deploy na Render via deploy hook</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">curl -X POST &quot;${{ secrets.RENDER_DEPLOY_HOOK_URL }}&quot;</span>
+</code></pre></div></div>
+
+<p>Explicando as partes:</p>
+<ul>
+<li><code>on.push.branches: ['**']</code> — roda lint/teste em <strong>qualquer</strong> push, em qualquer branch, dando feedback rápido antes mesmo de abrir Pull Request.</li>
+<li><code>needs: lint-e-testes</code> — o job <code>deploy</code> só roda depois que <code>lint-e-testes</code> termina com sucesso; se um teste falhar, o deploy nunca acontece.</li>
+<li><code>if: github.ref == 'refs/heads/main' &amp;&amp; github.event_name == 'push'</code> — restringe o deploy a pushes diretos (ou merges) na branch <code>main</code>, nunca em branches de feature.</li>
+<li><code>secrets.RENDER_DEPLOY_HOOK_URL</code> — configurado em <strong>Settings → Secrets and variables → Actions</strong> do repositório GitHub; nunca aparece em texto puro no workflow nem no log de execução.</li>
+</ul>
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+<code>npm ci</code> (não <code>npm install</code>) dentro de workflows de CI: ele instala exatamente as versões travadas em <code>package-lock.json</code>, de forma determinística, e falha se o lockfile estiver dessincronizado do <code>package.json</code> — evita o "passou no CI, mas com uma versão diferente da que alguém tem local".</p>
+</blockquote>
+<p>Para a Vercel (front-end), normalmente <strong>não é preciso</strong> workflow de deploy próprio — a integração da Vercel com o GitHub já dispara build e deploy automaticamente a cada push em <code>main</code>, de forma nativa, sem depender do GitHub Actions.</p>
+<blockquote class="capo">
+<p><strong>🔎 Por baixo do capô</strong>
+O nome "CI/CD" às vezes confunde por juntar duas ideias distintas. <strong>Integração Contínua</strong> é sobre confiança: cada push prova, automaticamente, que o código continua íntegro (lint limpo, testes passando) antes de qualquer humano revisar. <strong>Entrega/Implantação Contínua</strong> é sobre velocidade: reduzir a distância entre "código pronto" e "código no ar" para minutos, não para um ritual manual de deploy que alguém precisa lembrar de fazer. O workflow desta seção faz as duas coisas: garante qualidade antes, entrega depois — e só entrega se a qualidade passou.</p>
+<p><strong>💡 Dica</strong>
+Um erro comum de quem está aprendendo CI/CD é tratar o pipeline como "burocracia extra". Na prática, ele é o que permite a um time (ou a você sozinho, meses depois) fazer mudanças com confiança: se o CI ficou verde, você sabe que não quebrou nada que já estava coberto por teste — sem isso, cada mudança pequena vira um momento de ansiedade.</p>
+</blockquote>
+<h2 id="6-retrospectiva-da-disciplina">6. Retrospectiva da disciplina<a class="anchor" href="#6-retrospectiva-da-disciplina" title="Permanent link">¶</a></h2>
+<h3 id="61-mapa-mental-textual-do-que-foi-construido">6.1 Mapa mental textual do que foi construído<a class="anchor" href="#61-mapa-mental-textual-do-que-foi-construido" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>UniEventos
+│
+├─ Front-end (unieventos-web)
+│  ├─ Vue 3 (Composition API, &lt;script setup&gt;)          — Aulas 01–03
+│  ├─ Vuetify 4 (UI, layout, formulários)               — Aulas 04–05
+│  ├─ Vue Router 5 (SPA navegável, guards)              — Aulas 04, 10
+│  ├─ Pinia 4 (estado global: usuário, eventos)          — Aula 06
+│  ├─ Axios (consumo da API, interceptors)               — Aula 06
+│  ├─ Firebase Auth (login, cadastro)                    — Aula 10
+│  └─ Deploy (Vercel/Firebase Hosting/GitHub Pages)      — Aula 15
+│
+├─ Back-end (unieventos-api)
+│  ├─ Node.js + Express 5 (rotas, middlewares)           — Aula 07–08
+│  ├─ MySQL (mysql2/promise, pool, transações)           — Aula 09
+│  ├─ Firebase Admin (verificação de token)               — Aula 10
+│  ├─ CRUD completo (front + back integrados)             — Aula 11
+│  ├─ Supabase (alternativa: RLS, Storage, Realtime)      — Aula 12
+│  ├─ Arquitetura em camadas + testes + segurança         — Aula 13
+│  ├─ Documentação OpenAPI/Swagger                        — Aula 14
+│  └─ Deploy + CI/CD                                      — Aula 15
+│
+└─ Padrões de projeto (GoF) — ver tabela consolidada abaixo
+</code></pre></div></div>
+
+<h3 id="todos-os-padroes-de-projeto-usados-no-semestre">🧩 Todos os padrões de projeto usados no semestre<a class="anchor" href="#todos-os-padroes-de-projeto-usados-no-semestre" title="Permanent link">¶</a></h3>
+<p>A ementa exige explicitamente padrões <strong>criacionais, estruturais e comportamentais</strong>. Aqui está a lista completa, com onde cada um apareceu de verdade no UniEventos.</p>
+<p><strong>Criacionais</strong></p>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Padrão</th>
+<th>Onde apareceu</th>
+<th>Aula</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Singleton</td>
+<td>Store Pinia como instância única do estado global; pool de conexões do MySQL (<code>obterPool()</code> em <code>db/pool.js</code>)</td>
+<td>06, 09, 13</td>
+</tr>
+<tr>
+<td>Factory</td>
+<td><code>createPool</code> do <code>mysql2</code>; funções <code>criarServicoDeEventos</code>/<code>criarRepositorioDeEventosMySQL</code> que fabricam objetos configurados</td>
+<td>09, 13</td>
+</tr>
+<tr>
+<td>Builder</td>
+<td><code>QueryBuilderDeListagem</code>, que monta a query SQL de listagem incrementando condições opcionais (<code>.comCategoria().comBuscaDeTexto().construir()</code>)</td>
+<td>13</td>
+</tr>
+<tr>
+<td>Object Pool</td>
+<td>O próprio pool de conexões do <code>mysql2</code> reutiliza um conjunto fixo de conexões abertas em vez de abrir/fechar uma a cada requisição</td>
+<td>09</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Estruturais</strong></p>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Padrão</th>
+<th>Onde apareceu</th>
+<th>Aula</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Composite</td>
+<td>Árvore de componentes Vue (componentes dentro de componentes); rotas aninhadas do Vue Router</td>
+<td>04, 05</td>
+</tr>
+<tr>
+<td>Facade</td>
+<td>Camada <code>services/</code> no front (Aula 11) e no back (Aula 13) escondendo a complexidade de várias chamadas atrás de uma interface simples</td>
+<td>11, 13</td>
+</tr>
+<tr>
+<td>Adapter</td>
+<td>Troca de MySQL por Supabase sem alterar o front — a interface do repositório permanece igual, a implementação muda por baixo</td>
+<td>12</td>
+</tr>
+<tr>
+<td>Proxy</td>
+<td><code>reactive()</code>/<code>ref()</code> do Vue usando <code>Proxy</code> do ES6 por baixo dos panos; middleware de autenticação como "proxy de proteção" antes da rota real</td>
+<td>03, 10</td>
+</tr>
+<tr>
+<td>Decorator</td>
+<td>Interceptors do Axios "decorando" toda requisição (token, log) sem alterar o código de quem chama; anotações <code>@openapi</code> decorando rotas com metadados sem mudar o comportamento</td>
+<td>06, 14</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Comportamentais</strong></p>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Padrão</th>
+<th>Onde apareceu</th>
+<th>Aula</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Observer</td>
+<td>Sistema de reatividade do Vue — um <code>ref</code>/<code>reactive</code> muda, tudo que depende dele é notificado e re-renderiza automaticamente</td>
+<td>02</td>
+</tr>
+<tr>
+<td>Chain of Responsibility</td>
+<td>Pipeline de middlewares do Express — cada <code>app.use</code> decide processar e passar adiante (<code>next()</code>) ou interromper a cadeia</td>
+<td>07, 08</td>
+</tr>
+<tr>
+<td>Strategy</td>
+<td>Middlewares/validadores intercambiáveis; escolha de qual repositório usar por ambiente (<code>obterRepositorioDeEventos</code>, MySQL vs. memória)</td>
+<td>08, 13</td>
+</tr>
+<tr>
+<td>Template Method</td>
+<td>Componentes de layout com slots definindo um "esqueleto" fixo e pontos variáveis preenchidos por quem usa o componente</td>
+<td>05</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote class="prova">
+<p><strong>📌 Na prova</strong>
+O exame final cobra a definição de cada padrão <strong>e</strong> um exemplo concreto de onde ele apareceu no semestre — não basta decorar o nome, é preciso saber reconhecer o padrão dentro de um trecho de código real.</p>
+</blockquote>
+<h2 id="7-guia-de-estudo-para-o-exame-final">7. Guia de estudo para o exame final<a class="anchor" href="#7-guia-de-estudo-para-o-exame-final" title="Permanent link">¶</a></h2>
+<p>O exame final é <strong>teórico, presencial e individual</strong>, cobrindo as três unidades da disciplina. Ele avalia conceitos, não "rodar código" — estude o porquê de cada decisão técnica, não só a sintaxe.</p>
+<h3 id="71-lista-de-25-a-30-questoes-de-estudo">7.1 Lista de 25 a 30 questões de estudo<a class="anchor" href="#71-lista-de-25-a-30-questoes-de-estudo" title="Permanent link">¶</a></h3>
+<p><strong>Unidade 1 — Fundamentos de Vue.js</strong></p>
+<ol>
+<li>O que é programação declarativa e como ela difere de manipulação manual do DOM? (Aula 01)</li>
+<li>O que é reatividade no Vue e qual padrão de projeto (GoF) explica seu funcionamento? (Aula 02)</li>
+<li>Qual a diferença entre Options API e Composition API? Quando usar <code>&lt;script setup&gt;</code>? (Aula 02)</li>
+<li>Como <code>reactive()</code> e <code>ref()</code> diferem na forma como armazenam e expõem o valor? (Aula 03)</li>
+<li>Por que <code>v-for</code> sempre precisa de <code>:key</code>, e o que acontece se ela faltar? (Aula 02–03)</li>
+<li>O que é uma <code>computed</code> e por que ela é preferível a um método equivalente, em termos de performance? (Aula 03)</li>
+<li>Qual é a diferença entre <code>onMounted</code> e o restante do ciclo de vida de um componente? (Aula 03)</li>
+</ol>
+<p><strong>Unidade 2 — Vue avançado (Vuetify, Vue Router, Axios, Pinia)</strong></p>
+<ol start="8">
+<li>Como o Vue Router resolve navegação sem recarregar a página inteira (SPA)? (Aula 04)</li>
+<li>O que é um <em>navigation guard</em> e para que serve <code>beforeEach</code>? (Aula 10)</li>
+<li>Por que instanciar <code>axios.create({ baseURL })</code> com interceptors é melhor do que usar <code>axios</code> global? (Aula 06)</li>
+<li>Que padrão de projeto os interceptors do Axios exemplificam? (Aula 06)</li>
+<li>Qual é o papel do Pinia como <em>single source of truth</em> do estado da aplicação? (Aula 06)</li>
+<li>Por que a store Pinia é um exemplo de Singleton? (Aula 06)</li>
+<li>Como slots permitem que um componente de layout seja reutilizável em vários contextos? (Aula 05)</li>
+<li>O que muda estruturalmente do Vuetify 3 para o Vuetify 4 (tema padrão, tipografia, breakpoints)? (Aula 04–05)</li>
+</ol>
+<p><strong>Unidade 3 — Back-end, autenticação, banco de dados, deploy</strong></p>
+<ol start="16">
+<li>Qual a diferença entre autenticação e autorização, e onde cada uma aparece no UniEventos? (Aula 10)</li>
+<li>Como o Express 5 muda o tratamento de erros assíncronos em relação ao Express 4? (Aula 07–08, 13)</li>
+<li>O que é <em>middleware</em> no Express e que padrão de projeto (GoF) o pipeline de middlewares representa? (Aula 07–08)</li>
+<li>Por que usar <code>mysql2/promise</code> com queries parametrizadas (<code>?</code>) em vez de concatenar strings? (Aula 09)</li>
+<li>O que é uma transação de banco de dados e quando ela é necessária? (Aula 09)</li>
+<li>Como o back-end verifica um token do Firebase, e por que essa verificação precisa acontecer no servidor (nunca só no front)? (Aula 10)</li>
+<li>O que é RLS (Row Level Security) no Supabase, e por que uma tabela com RLS habilitado e sem policies retorna lista vazia sem erro? (Aula 12)</li>
+<li>Que padrão de projeto permite trocar MySQL por Supabase sem alterar o front-end? (Aula 12)</li>
+<li>O que é injeção de dependência, e por que um service que recebe o repositório por parâmetro é mais testável? (Aula 13)</li>
+<li>Qual a diferença entre um erro operacional (esperado) e um erro inesperado, e por que essa diferença importa no log? (Aula 13)</li>
+<li>Por que nunca se deve vazar stack trace em uma resposta de erro em produção? (Aula 13)</li>
+<li>Qual a diferença entre OpenAPI e Swagger? (Aula 14)</li>
+<li>Por que a chave correta no <code>swagger-jsdoc</code> 6.x é <code>definition</code>, e o que acontece se usar <code>swaggerDefinition</code>? (Aula 14)</li>
+<li>O que é uma migration de banco de dados e por que ela substitui um <code>schema.sql</code> aplicado manualmente? (Aula 13)</li>
+<li>Por que uma SPA precisa de configuração de <em>rewrite</em> no servidor de hospedagem para funcionar corretamente com F5 em rotas internas? (Aula 15)</li>
+</ol>
+<h3 id="72-questoes-objetivas-de-exemplo-com-gabarito-comentado">7.2 Questões objetivas de exemplo, com gabarito comentado<a class="anchor" href="#72-questoes-objetivas-de-exemplo-com-gabarito-comentado" title="Permanent link">¶</a></h3>
+<p><strong>1.</strong> No Vue 3, o sistema de reatividade (<code>reactive</code>, <code>ref</code>) é implementado, por baixo dos panos, principalmente com:</p>
+<p>(A) <code>Object.defineProperty</code> apenas
+(B) <code>Proxy</code> do ES6
+(C) <code>WeakMap</code> apenas
+(D) Getters e setters manuais escritos pelo desenvolvedor</p>
+<details>
+<summary>Gabarito comentado</summary>
+<p><strong>Resposta: B.</strong> O Vue 3 usa <code>Proxy</code> do ES6 para interceptar leitura e escrita de propriedades e disparar a reatividade — diferente do Vue 2, que usava <code>Object.defineProperty</code> (com limitações conhecidas, como não detectar adição de novas propriedades). Ver Aula 03.</p>
+</details>
+<p><strong>2.</strong> Em Express 5, qual das alternativas abaixo é a forma correta de responder com status <code>201</code> e um corpo JSON?</p>
+<p>(A) <code>res.json(objeto, 201)</code>
+(B) <code>res.status(201).json(objeto)</code>
+(C) <code>res.send(201, objeto)</code>
+(D) <code>res.json(201, objeto)</code></p>
+<details>
+<summary>Gabarito comentado</summary>
+<p><strong>Resposta: B.</strong> <code>res.json(obj, status)</code> é sintaxe do Express 4, removida no Express 5. A forma correta e atual é encadear <code>res.status(201).json(objeto)</code>. Ver Aula 07/13.</p>
+</details>
+<p><strong>3.</strong> Uma tabela no Supabase tem RLS (Row Level Security) habilitado, mas nenhuma policy foi criada. Uma consulta <code>SELECT</code> feita por um cliente autenticado retorna:</p>
+<p>(A) Um erro <code>403 Forbidden</code>
+(B) Todos os registros da tabela, normalmente
+(C) <code>data: []</code>, sem nenhum erro
+(D) Um erro <code>500 Internal Server Error</code></p>
+<details>
+<summary>Gabarito comentado</summary>
+<p><strong>Resposta: C.</strong> É a "causa nº1 de meu código não funciona" no Supabase (Aula 12): RLS sem policy não gera erro, apenas nega acesso silenciosamente, retornando lista vazia. É essencial sempre criar a policy correspondente à operação (SELECT, INSERT etc.).</p>
+</details>
+<p><strong>4.</strong> Qual padrão de projeto GoF melhor descreve o pipeline de <code>middlewares</code> do Express, em que cada função decide processar a requisição e passá-la adiante com <code>next()</code>, ou interrompê-la?</p>
+<p>(A) Observer
+(B) Chain of Responsibility
+(C) Singleton
+(D) Facade</p>
+<details>
+<summary>Gabarito comentado</summary>
+<p><strong>Resposta: B.</strong> Chain of Responsibility: uma cadeia de handlers, cada um com a chance de tratar a requisição ou repassá-la ao próximo. É exatamente o comportamento de <code>app.use(middleware1, middleware2, ...)</code>. Ver Aula 07–08.</p>
+</details>
+<p><strong>5.</strong> Sobre <code>swagger-jsdoc</code> na versão 6.x usada nesta disciplina, a chave correta dentro das opções para declarar <code>openapi</code>, <code>info</code> e <code>components</code> é:</p>
+<p>(A) <code>swaggerDefinition</code>
+(B) <code>spec</code>
+(C) <code>definition</code>
+(D) <code>openApiDefinition</code></p>
+<details>
+<summary>Gabarito comentado</summary>
+<p><strong>Resposta: C.</strong> <code>swaggerDefinition</code> era usado em versões antigas (2.x/3.x). A versão 6.x exige <code>definition</code>. Usar a chave errada não gera erro — só produz uma spec com <code>paths</code> vazio. Ver Aula 14.</p>
+</details>
+<p><strong>6.</strong> Por que uma SPA hospedada em produção pode retornar <code>404</code> ao usuário apertar F5 em uma rota interna como <code>/eventos/3</code>?</p>
+<p>(A) Porque o Vue Router não suporta navegação direta por URL
+(B) Porque o servidor de hospedagem, sem configuração de rewrite, procura um arquivo físico <code>eventos/3</code> que não existe
+(C) Porque o Vite não gera <code>index.html</code> no build de produção
+(D) Porque <code>import.meta.env</code> não funciona em produção</p>
+<details>
+<summary>Gabarito comentado</summary>
+<p><strong>Resposta: B.</strong> O F5 dispara uma requisição HTTP real ao servidor para aquele caminho. Sem rewrite configurado, o servidor de arquivos estáticos não encontra um arquivo físico correspondente e responde <code>404</code>. A solução é configurar o rewrite para <code>index.html</code> em qualquer caminho desconhecido. Ver Aula 15, Seção 1.4.</p>
+</details>
+<p><strong>7.</strong> No padrão de injeção de dependência aplicado na Aula 13, qual é a principal vantagem de um <code>service</code> receber o <code>repository</code> como parâmetro em vez de importá-lo diretamente?</p>
+<p>(A) O código fica mais curto
+(B) É possível testar o service com um repositório falso, sem depender de um banco de dados real
+(C) É a única forma de usar <code>async/await</code> no Node.js
+(D) Reduz o número de arquivos do projeto</p>
+<details>
+<summary>Gabarito comentado</summary>
+<p><strong>Resposta: B.</strong> A motivação central de DI aqui é testabilidade: o service passa a depender apenas da interface do repositório, não da implementação concreta — em teste, injeta-se uma implementação em memória; em produção, a implementação real. Ver Aula 13, Seção 3.</p>
+</details>
+<p><strong>8.</strong> No Vuetify 4, o comportamento padrão da propriedade <code>theme.defaultTheme</code>, se não for explicitamente definida, é:</p>
+<p>(A) <code>'light'</code>, igual ao Vuetify 3
+(B) <code>'dark'</code>
+(C) <code>'system'</code> — segue a preferência do sistema operacional do usuário
+(D) Não existe tema padrão; é obrigatório declarar</p>
+<details>
+<summary>Gabarito comentado</summary>
+<p><strong>Resposta: C.</strong> No Vuetify 4 o padrão mudou de <code>'light'</code> (v3) para <code>'system'</code>. Por isso a disciplina sempre declara explicitamente <code>defaultTheme: 'light'</code> na criação da instância, para manter consistência visual em sala. Ver especificação da Aula 04/05.</p>
+</details>
+<h2 id="8-apresentacao-dos-resultados">8. Apresentação dos resultados<a class="anchor" href="#8-apresentacao-dos-resultados" title="Permanent link">¶</a></h2>
+<h3 id="81-formato-do-seminario-final">8.1 Formato do seminário final<a class="anchor" href="#81-formato-do-seminario-final" title="Permanent link">¶</a></h3>
+<p>Cada estudante apresenta seu projeto autoral individualmente, em <strong>8 minutos</strong>, cobrindo obrigatoriamente:</p>
+<ol>
+<li><strong>O problema</strong> (1 min) — que problema real o projeto resolve, para quem.</li>
+<li><strong>Demonstração ao vivo</strong> (3 min) — navegar pela aplicação publicada (URL real, não localhost): listagem com filtro, detalhe, fluxo autenticado, CRUD funcionando.</li>
+<li><strong>Arquitetura</strong> (2 min) — diagrama rápido das camadas (front → API → banco), tecnologias escolhidas, e onde a documentação Swagger vive.</li>
+<li><strong>Decisão técnica mais difícil</strong> (1 min) — um problema real enfrentado e como foi resolvido (ex.: "por que troquei X por Y", "como resolvi o CORS em produção").</li>
+<li><strong>O que faria diferente</strong> (1 min) — autoavaliação honesta: o que ficaria melhor com mais tempo ou outra escolha técnica.</li>
+</ol>
+<h3 id="82-criterios-de-avaliacao-da-apresentacao">8.2 Critérios de avaliação da apresentação<a class="anchor" href="#82-criterios-de-avaliacao-da-apresentacao" title="Permanent link">¶</a></h3>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Critério</th>
+<th>O que é observado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Clareza da comunicação</td>
+<td>Explica o projeto para alguém que nunca viu, sem depender de jargão não explicado</td>
+</tr>
+<tr>
+<td>Demonstração funcional</td>
+<td>A aplicação publicada realmente funciona ao vivo, sem "deixa eu tentar de novo"</td>
+</tr>
+<tr>
+<td>Profundidade técnica</td>
+<td>Consegue justificar decisões (por que essa arquitetura, por que esse banco)</td>
+</tr>
+<tr>
+<td>Gestão do tempo</td>
+<td>Respeita os 8 minutos, sem cortar abruptamente nem sobrar tempo vazio</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+A apresentação é sobre o <strong>projeto autoral publicado</strong>, com URL pública real — não é permitido apresentar rodando em <code>localhost</code>. Se o deploy falhar no dia, tenha um vídeo curto de backup gravado com antecedência mostrando o fluxo funcionando.</p>
+</blockquote>
+<h3 id="83-ordem-e-cronograma">8.3 Ordem e cronograma<a class="anchor" href="#83-ordem-e-cronograma" title="Permanent link">¶</a></h3>
+<p>A ordem de apresentação é definida por sorteio, feito em sala na aula anterior (Aula 14) ou no início desta aula, conforme a quantidade de estudantes matriculados. Com 3 blocos de 50 minutos e 8 minutos por estudante, o tempo permite aproximadamente 15 a 16 apresentações — se a turma for maior, o professor comunica com antecedência um ajuste (ex.: reduzir para 6 minutos ou dividir em dois dias, dentro do que o calendário acadêmico permitir).</p>
+<h2 id="mao-na-massa-publicando-o-unieventos">💻 Mão na massa — publicando o UniEventos<a class="anchor" href="#mao-na-massa-publicando-o-unieventos" title="Permanent link">¶</a></h2>
+<p><strong>Passo 1 — configure as variáveis de ambiente de produção do front:</strong></p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1"># no repositório unieventos-web</span>
+touch<span class="w"> </span>.env.production
+<span class="c1"># preencha VITE_API_URL com a URL da API já publicada (Passo 4 abaixo)</span>
+</code></pre></div></div>
+
+<p><strong>Passo 2 — confirme que o build local funciona:</strong></p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>npm<span class="w"> </span>run<span class="w"> </span>build
+npm<span class="w"> </span>run<span class="w"> </span>preview
+<span class="c1"># abra http://localhost:4173 e navegue pelas rotas internas — confirme que</span>
+<span class="c1"># recarregar a página (F5) numa rota interna NÃO quebra localmente</span>
+<span class="c1"># (o &quot;vite preview&quot; já simula o comportamento de servidor de produção)</span>
+</code></pre></div></div>
+
+<p><strong>Passo 3 — publique o front na Vercel</strong> seguindo o passo a passo da Seção 2.1.</p>
+<p><strong>Passo 4 — publique o back na Render</strong> seguindo o passo a passo da Seção 3.3. Anote a URL pública gerada.</p>
+<p><strong>Passo 5 — volte ao front e atualize <code>VITE_API_URL</code></strong> com a URL real da API publicada, faça commit e push — a Vercel refaz o build automaticamente.</p>
+<p><strong>Passo 6 — atualize <code>CORS_ORIGEM_PERMITIDA</code></strong> na API publicada com a URL real do front publicado (Seção 4), reinicie o serviço.</p>
+<p><strong>Passo 7 — teste o fluxo completo em produção:</strong> abra a URL do front publicado, faça login, liste eventos, crie uma inscrição, atualize a página em uma rota interna (F5) e confirme que não dá 404.</p>
+<p><strong>Passo 8 — crie o workflow de CI:</strong></p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>.github/workflows
+<span class="c1"># cole o conteúdo de .github/workflows/ci.yml da Seção 5</span>
+git<span class="w"> </span>add<span class="w"> </span>.github/workflows/ci.yml
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;adiciona pipeline de CI com lint e testes&quot;</span>
+git<span class="w"> </span>push
+</code></pre></div></div>
+
+<p>Confira na aba <strong>Actions</strong> do GitHub que o workflow rodou e passou.</p>
+<h2 id="laboratorio">🧪 Laboratório<a class="anchor" href="#laboratorio" title="Permanent link">¶</a></h2>
+<p><strong>1. Gere o build de produção do seu projeto autoral e rode <code>npm run preview</code></strong> — confirme que todas as rotas funcionam, incluindo F5 em rota interna.</p>
+<p>Resultado esperado: nenhum erro no console, navegação idêntica ao ambiente de desenvolvimento.</p>
+<details>
+<summary>Dica</summary>
+<p>Se uma rota der 404 até no <code>preview</code> local, o problema é de configuração de rota no Vue Router, não de hospedagem — resolva isso antes de publicar.</p>
+</details>
+<p><strong>2. Publique o front-end</strong> em um dos serviços da Seção 2, com as variáveis <code>VITE_*</code> corretas.</p>
+<p>Resultado esperado: URL pública funcionando, aplicação carrega sem tela em branco.</p>
+<details>
+<summary>Dica</summary>
+<p>Se a tela ficar em branco sem erro óbvio, abra o Console do DevTools primeiro — normalmente aponta uma variável de ambiente <code>undefined</code>.</p>
+</details>
+<p><strong>3. Publique o back-end</strong> em um dos serviços da Seção 3, com <code>/health</code> respondendo publicamente.</p>
+<p>Resultado esperado: <code>curl https://sua-api.onrender.com/health</code> retorna <code>{"status":"ok",...}</code>.</p>
+<details>
+<summary>Dica</summary>
+<p>Rode as migrations manualmente pelo shell do serviço antes de testar qualquer rota que dependa de tabela do banco.</p>
+</details>
+<p><strong>4. Configure CORS restritivo em produção</strong>, apontando exatamente para a URL do front publicado.</p>
+<p>Resultado esperado: requisições do front publicado funcionam; uma requisição feita a partir de uma origem diferente é bloqueada.</p>
+<details>
+<summary>Dica</summary>
+<p>Teste abrindo o Console do navegador em uma aba com origem diferente (ex.: <code>http://localhost:5500</code>) e tentando um <code>fetch</code> contra sua API publicada — deve falhar por CORS.</p>
+</details>
+<p><strong>5. Crie o workflow de CI</strong> no seu repositório de back-end, rodando lint e testes a cada push.</p>
+<p>Resultado esperado: aba Actions do GitHub mostra o workflow executando e passando em verde.</p>
+<details>
+<summary>Dica</summary>
+<p>Se você não tiver <code>npm run lint</code> configurado, o <code>--if-present</code> do comando na Seção 5 evita que o workflow falhe por esse motivo — mas vale configurar ESLint se ainda não tiver.</p>
+</details>
+<h2 id="erros-comuns-e-como-resolver">🐛 Erros comuns e como resolver<a class="anchor" href="#erros-comuns-e-como-resolver" title="Permanent link">¶</a></h2>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Sintoma</th>
+<th>Causa</th>
+<th>Solução</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Build local funciona, produção mostra tela em branco</td>
+<td>Variável <code>VITE_*</code> não configurada no painel do serviço de hospedagem</td>
+<td>Confira todas as <code>VITE_*</code> no painel, compare com <code>.env.production</code> local, force um novo build</td>
+</tr>
+<tr>
+<td><code>Mixed Content</code> no console em produção</td>
+<td>API ainda respondendo em <code>http://</code> enquanto o front está em <code>https://</code></td>
+<td>Troque <code>VITE_API_URL</code> para <code>https://</code>; a maioria dos serviços de deploy de back já expõe HTTPS por padrão</td>
+</tr>
+<tr>
+<td>CI falha em "npm ci" com erro de lockfile</td>
+<td><code>package-lock.json</code> desatualizado em relação ao <code>package.json</code></td>
+<td>Rode <code>npm install</code> localmente, comite o <code>package-lock.json</code> atualizado</td>
+</tr>
+<tr>
+<td>Deploy da API funciona, mas toda rota autenticada falha</td>
+<td>Domínio de produção do front não está na lista de domínios autorizados do Firebase Auth</td>
+<td>Adicione o domínio em Firebase Console → Authentication → Settings → Authorized domains</td>
+</tr>
+<tr>
+<td><code>docker compose up</code> falha ao conectar no banco</td>
+<td>API tentando conectar em <code>localhost</code> em vez do nome do serviço <code>mysql</code></td>
+<td>Ajuste <code>DB_HOST</code> para <code>mysql</code> (o nome do serviço no <code>docker-compose.yml</code>), não <code>localhost</code></td>
+</tr>
+<tr>
+<td>Workflow de CI nunca dispara o job de deploy</td>
+<td>Condição <code>if</code> do job <code>deploy</code> não bateu (branch errada ou evento errado)</td>
+<td>Confira se o push foi feito diretamente em <code>main</code> ou via merge de PR para <code>main</code></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="atividade-assincrona-1-h">🏠 Atividade assíncrona (1 h)<a class="anchor" href="#atividade-assincrona-1-h" title="Permanent link">¶</a></h2>
+<ol>
+<li>Finalize o deploy completo (front + back) do projeto autoral, se ainda não tiver feito no laboratório.</li>
+<li>Grave um vídeo curto (3 a 5 minutos, pode ser não listado no YouTube ou enviado por link de drive) demonstrando o fluxo publicado, como backup para a apresentação.</li>
+<li>Prepare os slides ou roteiro da apresentação de 8 minutos, seguindo a estrutura da Seção 8.1.</li>
+<li>Revise, uma última vez, o README, garantindo que o link da aplicação publicada e do <code>/api-docs</code> estejam visíveis.</li>
+</ol>
+<p><strong>Critério de pronto:</strong> aplicação publicada e acessível publicamente; vídeo de backup gravado; roteiro da apresentação pronto.</p>
+<h2 id="checkpoint-do-projeto-autoral">✅ Checkpoint do projeto autoral<a class="anchor" href="#checkpoint-do-projeto-autoral" title="Permanent link">¶</a></h2>
+<p>Ao final desta aula, seu projeto deve ter:</p>
+<ul>
+<li>[ ] Front-end publicado com URL pública, variáveis <code>VITE_*</code> corretas, rewrite de SPA configurado.</li>
+<li>[ ] Back-end publicado com URL pública, <code>/health</code> respondendo, banco gerenciado acessível, migrations aplicadas.</li>
+<li>[ ] CORS restrito ao domínio real do front publicado.</li>
+<li>[ ] Workflow de CI (<code>.github/workflows/ci.yml</code>) rodando lint e testes a cada push.</li>
+<li>[ ] README com links da aplicação publicada, da API publicada e de <code>/api-docs</code>.</li>
+<li>[ ] Roteiro de apresentação pronto, dentro de 8 minutos.</li>
+</ul>
+<h2 id="avaliacao-3-instrucoes-de-entrega">📝 Avaliação 3 — instruções de entrega<a class="anchor" href="#avaliacao-3-instrucoes-de-entrega" title="Permanent link">¶</a></h2>
+<p><strong>Escopo:</strong> aplicação full stack completa, construída sobre o projeto autoral definido na Aula 01 e evoluído ao longo de todo o semestre.</p>
+<p><strong>Requisitos obrigatórios:</strong></p>
+<ol>
+<li>Back-end próprio, em <strong>Express</strong> ou usando <strong>Supabase</strong> como back-end gerenciado (ou uma combinação dos dois, desde que a arquitetura em camadas da Aula 13 esteja presente onde houver código Express).</li>
+<li>Banco de dados persistente (MySQL ou Supabase/Postgres), com <strong>schema versionado</strong> (migrations ou scripts SQL organizados).</li>
+<li>Autenticação funcional (Firebase Auth ou autenticação nativa do Supabase), protegendo pelo menos as rotas de escrita (criação/edição/remoção).</li>
+<li><strong>CRUD completo de pelo menos 2 entidades relacionadas</strong> (ex.: "Evento" e "Inscrição"), com relacionamento real no banco (chave estrangeira ou equivalente).</li>
+<li>Documentação <strong>Swagger</strong> (OpenAPI 3) cobrindo todos os endpoints, ou documentação equivalente de todas as políticas/endpoints se o back for majoritariamente Supabase.</li>
+<li><strong>Deploy funcionando com URL pública</strong> — tanto do front quanto do back (ou só do front, se usando Supabase como back completo).</li>
+<li><strong>README completo</strong>, seguindo a estrutura da Aula 14 (badges, requisitos, instalação, variáveis de ambiente, scripts, endpoints, licença), com os links de aplicação publicada e repositório.</li>
+</ol>
+<p><strong>Rubrica (pesos somam 10 pontos):</strong></p>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Critério</th>
+<th>Peso</th>
+<th>O que precisa estar funcionando</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CRUD completo de 2+ entidades relacionadas</td>
+<td>2,5</td>
+<td>Criar, listar, editar e remover funcionando de ponta a ponta, com relacionamento real entre as entidades</td>
+</tr>
+<tr>
+<td>Banco de dados persistente e corretamente modelado</td>
+<td>1,5</td>
+<td>Schema versionado (migrations/scripts), queries corretas, sem duplicação nem inconsistência de dados</td>
+</tr>
+<tr>
+<td>Autenticação protegendo rotas sensíveis</td>
+<td>1,5</td>
+<td>Rotas de escrita exigem usuário autenticado; identidade do usuário usada corretamente (ex.: só o dono edita/remove seu próprio recurso)</td>
+</tr>
+<tr>
+<td>Documentação Swagger/OpenAPI completa</td>
+<td>1,5</td>
+<td>Todos os endpoints documentados, schemas reutilizáveis, segurança declarada, <code>/api-docs</code> acessível</td>
+</tr>
+<tr>
+<td>Deploy funcionando com URL pública</td>
+<td>2,0</td>
+<td>Front e back publicados, acessíveis externamente, sem depender de <code>localhost</code></td>
+</tr>
+<tr>
+<td>README e qualidade geral do código</td>
+<td>1,0</td>
+<td>README completo conforme estrutura da Aula 14; arquitetura em camadas aplicada; ao menos alguns testes automatizados presentes</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Formato de entrega:</strong> via <strong>SIGAA</strong>, até <strong>14/12/2026, 23h59</strong>, contendo:</p>
+<ul>
+<li>Link do repositório do front-end.</li>
+<li>Link do repositório do back-end (ou anotação de que o back é 100% Supabase, com link do projeto Supabase se aplicável).</li>
+<li>Link da aplicação publicada (URL pública funcionando).</li>
+<li>Link de <code>/api-docs</code> (se aplicável) ou da documentação equivalente.</li>
+</ul>
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+A entrega é considerada incompleta se qualquer um dos quatro links acima estiver ausente ou não funcionar no momento da correção. Teste os links em uma aba anônima do navegador antes de enviar, simulando o que o avaliador vai ver.</p>
+</blockquote>
+<p><strong>Política de atraso:</strong> entregas após 14/12/2026, 23h59 têm desconto de 1,0 ponto (sobre a nota final da Avaliação 3) por dia corrido de atraso, até o limite de 3 dias — após esse prazo, a avaliação recebe nota zero, exceto em casos de justificativa formal e documentada junto à coordenação do curso, conforme o regimento da UNEMAT.</p>
+<p><strong>Política de plágio e uso de IA:</strong> é permitido e esperado o uso de ferramentas de IA (como assistentes de código) como apoio ao desenvolvimento — é exatamente essa prática que a indústria de software usa hoje. O que não é aceito: (1) entregar código que você não é capaz de explicar linha a linha na apresentação; (2) copiar o projeto de outro colega, com ou sem alterações cosméticas; (3) apresentar como próprio um projeto gerado quase integralmente por IA sem compreensão do que foi produzido. A apresentação de 8 minutos (Seção 8) é, entre outras coisas, o mecanismo de verificação de autoria: perguntas técnicas sobre decisões do próprio código fazem parte da avaliação.</p>
+<h2 id="9-encerramento-caminhos-depois-da-disciplina">9. Encerramento: caminhos depois da disciplina<a class="anchor" href="#9-encerramento-caminhos-depois-da-disciplina" title="Permanent link">¶</a></h2>
+<p>O que foi construído neste semestre é uma base real de desenvolvimento full stack moderno — mas é só o começo. Caminhos naturais de continuidade:</p>
+<ul>
+<li><strong>Nuxt</strong> — framework full stack sobre o Vue, com SSR (Server-Side Rendering) e SSG (Static Site Generation) nativos, útil quando SEO ou performance de primeira carga importam mais do que em uma SPA pura.</li>
+<li><strong>TypeScript</strong> — adicionar tipagem estática ao que hoje é JavaScript puro; o Vue 3 e o Vuetify 4 têm suporte de primeira classe a TS, e o ganho em projetos maiores (detecção de erro em tempo de escrita, autocomplete mais forte) é significativo.</li>
+<li><strong>Testes E2E</strong> — Cypress ou Playwright, testando a aplicação inteira pela interface, como um usuário real faria — o topo da pirâmide de testes que só citamos na Aula 13.</li>
+<li><strong>Vue 3.6</strong> — acompanhar o roadmap oficial do Vue (Vapor Mode e otimizações de compilador são a fronteira de pesquisa ativa do framework no momento).</li>
+<li><strong>Mobile com Capacitor/Ionic</strong> — reaproveitar o conhecimento de Vue para publicar o mesmo código (ou uma variação) como app nativo Android/iOS.</li>
+<li><strong>Back-end com NestJS</strong> — um framework Node.js opinativo, construído sobre Express (ou Fastify), que formaliza com decorators e módulos exatamente a arquitetura em camadas que construímos manualmente na Aula 13.</li>
+</ul>
+<h3 id="91-como-montar-um-portfolio-a-partir-deste-semestre">9.1 Como montar um portfólio a partir deste semestre<a class="anchor" href="#91-como-montar-um-portfolio-a-partir-deste-semestre" title="Permanent link">¶</a></h3>
+<ul>
+<li>Deixe o projeto autoral <strong>publicado e funcionando</strong> — um link ao vivo vale mais, para quem recruta, do que um repositório que só roda localmente.</li>
+<li>Escreva um README que conte a história do projeto: problema, decisões técnicas, dificuldades reais (os ADRs da Aula 14 são ótimo material bruto para isso).</li>
+<li>Grave um vídeo curto de demonstração e fixe no topo do repositório (ou no README, como GIF).</li>
+<li>Continue commitando — um projeto "morto" no GitHub (sem commit há meses) comunica menos do que um projeto pequeno e ativo.</li>
+</ul>
+<h3 id="92-convite-para-iniciacao-cientifica-e-extensao">9.2 Convite para iniciação científica e extensão<a class="anchor" href="#92-convite-para-iniciacao-cientifica-e-extensao" title="Permanent link">¶</a></h3>
+<p>Muitos dos temas tocados de leve neste semestre — arquitetura de software, segurança de aplicações web, engenharia de dados, IA aplicada a desenvolvimento — são linhas de pesquisa ativas na FACET. Se algum tópico desta disciplina despertou curiosidade além do prazo de uma avaliação, procure o professor para conversar sobre projetos de iniciação científica ou extensão relacionados — é o próximo passo natural para quem quer ir além do conteúdo obrigatório da ementa.</p>
+<h2 id="para-aprofundar">📚 Para aprofundar<a class="anchor" href="#para-aprofundar" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="https://vercel.com/docs">Documentação oficial da Vercel</a></li>
+<li><a href="https://firebase.google.com/docs/hosting">Documentação oficial do Firebase Hosting</a></li>
+<li><a href="https://docs.github.com/pages">GitHub Pages — documentação oficial</a></li>
+<li><a href="https://render.com/docs">Documentação oficial da Render</a></li>
+<li><a href="https://docs.docker.com">Docker — documentação oficial</a></li>
+<li><a href="https://docs.github.com/actions">GitHub Actions — documentação oficial</a></li>
+<li><a href="https://vite.dev/guide/env-and-mode">Vite — variáveis de ambiente e modos</a></li>
+<li><a href="https://router.vuejs.org/guide/essentials/history-mode.html">Vue Router — histórico HTML5 e configuração de servidor</a></li>
+<li><a href="https://nuxt.com">Nuxt — site oficial</a></li>
+<li><a href="https://nestjs.com">NestJS — site oficial</a></li>
+</ul>
+<hr />
+<p><strong>Fim do semestre.</strong> Obrigado pelo empenho nas 15 aulas — do primeiro <code>console.log</code> da Aula 01 até uma aplicação full stack publicada, com autenticação, banco de dados e documentação. O exame final cobre teoria das três unidades; revise o guia de estudo da Seção 7 com antecedência, não na véspera. Bom exame, e bom portfólio.</p><nav class="navpe"><a data-nav="anterior" href="aula-14.html"><span class="rot">← Aula 14</span><span class="tit">Documentação com Swagger</span></a></nav>
+    <div class="rodape">
+      UNEMAT — Universidade do Estado de Mato Grosso · Campus Cáceres · FACET<br>
+      FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas · 2026.2<br>
+      Prof. Ivan Luiz Pedroso Pires
+    </div>
+  </main>
+  <aside class="toc"><h4>Nesta aula</h4><a class="" href="#objetivos-de-aprendizagem">🎯 Objetivos de aprendizagem</a><a class="" href="#pre-requisitos-desta-aula">📋 Pré-requisitos desta aula</a><a class="" href="#roteiro">🗺️ Roteiro</a><a class="" href="#retomando-a-aula-14">Retomando a Aula 14</a><a class="" href="#1-build-de-producao-do-front-end">1. Build de produção do front-end</a><a class="n3" href="#11-o-que-npm-run-build-faz">1.1 O que npm run build faz</a><a class="n3" href="#12-variaveis-de-ambiente-do-vite">1.2 Variáveis de ambiente do Vite</a><a class="n3" href="#13-base-no-viteconfigjs">1.3 base no vite.config.js</a><a class="n3" href="#14-por-que-spa-precisa-de-rewrite-para-indexhtml">1.4 Por que SPA precisa de rewrite para index.html</a><a class="" href="#2-deploy-do-front-end">2. Deploy do front-end</a><a class="n3" href="#21-vercel-recomendado-passo-a-passo-testado">2.1 Vercel (recomendado — passo a passo testado)</a><a class="n3" href="#22-alternativa-firebase-hosting">2.2 Alternativa: Firebase Hosting</a><a class="n3" href="#23-alternativa-github-pages">2.3 Alternativa: GitHub Pages</a><a class="" href="#3-deploy-do-back-end">3. Deploy do back-end</a><a class="n3" href="#31-o-essencial-independente-do-servico-escolhido">3.1 O essencial, independente do serviço escolhido</a><a class="n3" href="#32-opcoes-gratuitasbaratas-e-o-que-considerar">3.2 Opções gratuitas/baratas e o que considerar</a><a class="n3" href="#33-deploy-na-render-passo-a-passo">3.3 Deploy na Render (passo a passo)</a><a class="n3" href="#34-dockerfile-simples-para-a-api">3.4 Dockerfile simples para a API</a><a class="n3" href="#35-docker-composeyml-com-api-mysql">3.5 docker-compose.yml com API + MySQL</a><a class="" href="#4-cors-em-producao-e-diagnostico-de-erros-pos-deploy">4. CORS em produção e diagnóstico de erros pós-deploy</a><a class="n3" href="#41-erros-classicos-pos-deploy-e-como-diagnosticar">4.1 Erros clássicos pós-deploy e como diagnosticar</a><a class="" href="#5-cicd-introdutorio-com-github-actions">5. CI/CD introdutório com GitHub Actions</a><a class="" href="#6-retrospectiva-da-disciplina">6. Retrospectiva da disciplina</a><a class="n3" href="#61-mapa-mental-textual-do-que-foi-construido">6.1 Mapa mental textual do que foi construído</a><a class="n3" href="#todos-os-padroes-de-projeto-usados-no-semestre">🧩 Todos os padrões de projeto usados no semestre</a><a class="" href="#7-guia-de-estudo-para-o-exame-final">7. Guia de estudo para o exame final</a><a class="n3" href="#71-lista-de-25-a-30-questoes-de-estudo">7.1 Lista de 25 a 30 questões de estudo</a><a class="n3" href="#72-questoes-objetivas-de-exemplo-com-gabarito-comentado">7.2 Questões objetivas de exemplo, com gabarito comentado</a><a class="" href="#8-apresentacao-dos-resultados">8. Apresentação dos resultados</a><a class="n3" href="#81-formato-do-seminario-final">8.1 Formato do seminário final</a><a class="n3" href="#82-criterios-de-avaliacao-da-apresentacao">8.2 Critérios de avaliação da apresentação</a><a class="n3" href="#83-ordem-e-cronograma">8.3 Ordem e cronograma</a><a class="" href="#mao-na-massa-publicando-o-unieventos">💻 Mão na massa — publicando o UniEventos</a><a class="" href="#laboratorio">🧪 Laboratório</a><a class="" href="#erros-comuns-e-como-resolver">🐛 Erros comuns e como resolver</a><a class="" href="#atividade-assincrona-1-h">🏠 Atividade assíncrona (1 h)</a><a class="" href="#checkpoint-do-projeto-autoral">✅ Checkpoint do projeto autoral</a><a class="" href="#avaliacao-3-instrucoes-de-entrega">📝 Avaliação 3 — instruções de entrega</a><a class="" href="#9-encerramento-caminhos-depois-da-disciplina">9. Encerramento: caminhos depois da disciplina</a><a class="n3" href="#91-como-montar-um-portfolio-a-partir-deste-semestre">9.1 Como montar um portfólio a partir deste semestre</a><a class="n3" href="#92-convite-para-iniciacao-cientifica-e-extensao">9.2 Convite para iniciação científica e extensão</a><a class="" href="#para-aprofundar">📚 Para aprofundar</a></aside>
+</div>
+<script>
+(function(){
+  var raiz=document.documentElement;
+  var salvo=null;
+  try{salvo=window.localStorage&&localStorage.getItem('fds-tema')}catch(e){}
+  if(salvo){raiz.setAttribute('data-tema',salvo)}
+  var bt=document.getElementById('tema');
+  if(bt){bt.addEventListener('click',function(){
+    var novo=raiz.getAttribute('data-tema')==='claro'?'escuro':'claro';
+    raiz.setAttribute('data-tema',novo);
+    try{localStorage.setItem('fds-tema',novo)}catch(e){}
+    bt.textContent=novo==='claro'?'● Escuro':'○ Claro';
+  });
+  bt.textContent=raiz.getAttribute('data-tema')==='claro'?'● Escuro':'○ Claro';}
+
+  // copiar código
+  document.querySelectorAll('.copiar').forEach(function(b){
+    b.addEventListener('click',function(){
+      var pre=b.closest('.bloco').querySelector('pre');
+      var txt=pre.innerText;
+      var ok=function(){b.textContent='Copiado';b.classList.add('ok');
+        setTimeout(function(){b.textContent='Copiar';b.classList.remove('ok')},1600)};
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(ok)}
+      else{var t=document.createElement('textarea');t.value=txt;document.body.appendChild(t);
+           t.select();document.execCommand('copy');t.remove();ok()}
+    });
+  });
+
+  // barra de progresso
+  var pr=document.getElementById('progresso');
+  if(pr){window.addEventListener('scroll',function(){
+    var h=document.documentElement.scrollHeight-window.innerHeight;
+    pr.style.width=(h>0?(window.scrollY/h)*100:0)+'%';
+  },{passive:true})}
+
+  // sumário ativo
+  var alvos=[].slice.call(document.querySelectorAll('main h2[id],main h3[id]'));
+  var links={};
+  document.querySelectorAll('.toc a').forEach(function(a){links[a.getAttribute('href').slice(1)]=a});
+  if(alvos.length&&'IntersectionObserver' in window){
+    var obs=new IntersectionObserver(function(ents){
+      ents.forEach(function(e){
+        var a=links[e.target.id];
+        if(!a)return;
+        if(e.isIntersecting){
+          Object.keys(links).forEach(function(k){links[k].classList.remove('ativo')});
+          a.classList.add('ativo');
+        }
+      });
+    },{rootMargin:'-76px 0px -75% 0px'});
+    alvos.forEach(function(t){obs.observe(t)});
+  }
+
+  // busca no índice
+  var busca=document.getElementById('busca');
+  if(busca){
+    busca.addEventListener('input',function(){
+      var q=busca.value.toLowerCase().trim();
+      document.querySelectorAll('[data-busca]').forEach(function(el){
+        el.classList.toggle('oculto', q!=='' && el.getAttribute('data-busca').indexOf(q)===-1);
+      });
+    });
+  }
+
+  // atalhos de teclado
+  document.addEventListener('keydown',function(e){
+    if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+    var ant=document.querySelector('[data-nav="anterior"]');
+    var pro=document.querySelector('[data-nav="proxima"]');
+    if(e.key==='j'&&pro)pro.click();
+    if(e.key==='k'&&ant)ant.click();
+    if(e.key==='/'&&busca){e.preventDefault();busca.focus()}
+  });
+})();
+</script>
+</body>
+</html>

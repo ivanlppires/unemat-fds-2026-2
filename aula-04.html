@@ -1,0 +1,1535 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-tema="escuro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aula 04 — Introdução a Vuetify e Vue Router · FACET-SNP-310</title>
+<meta name="description" content="Unidade 1 · 31/08/2026 · Introdução a Vuetify e Vue Router">
+<style>
+:root{
+  --bg:#0f1117; --bg-soft:#161922; --bg-code:#11131a; --line:#272b38;
+  --fg:#e6e8ee; --fg-dim:#a6adbb; --fg-faint:#6f7686;
+  --accent:#5eead4; --accent-2:#818cf8; --warn:#fbbf24; --danger:#fb7185;
+  --u1:#5eead4; --u2:#818cf8; --u3:#f0abfc;
+  --radius:12px; --max:860px;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+}
+html[data-tema="claro"]{
+  --bg:#ffffff; --bg-soft:#f6f7f9; --bg-code:#f2f3f6; --line:#e2e5ea;
+  --fg:#1a1d24; --fg-dim:#4b5262; --fg-faint:#8a92a3;
+  --accent:#0d9488; --accent-2:#4f46e5; --warn:#b45309; --danger:#be123c;
+  --u1:#0d9488; --u2:#4f46e5; --u3:#a21caf;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:76px}
+body{
+  margin:0; background:var(--bg); color:var(--fg); font-family:var(--font);
+  font-size:16.5px; line-height:1.72; -webkit-font-smoothing:antialiased;
+}
+a{color:var(--accent); text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ---------- barra superior ---------- */
+.topo{
+  position:sticky; top:0; z-index:50; background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:blur(12px); border-bottom:1px solid var(--line);
+}
+.topo-in{max-width:1400px;margin:0 auto;display:flex;align-items:center;gap:14px;padding:10px 18px}
+.marca{font-weight:700;font-size:.82rem;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-dim);white-space:nowrap}
+.marca b{color:var(--accent)}
+.topo .espaco{flex:1}
+.btn{
+  background:var(--bg-soft); color:var(--fg-dim); border:1px solid var(--line);
+  border-radius:8px; padding:6px 12px; font-size:.82rem; cursor:pointer; font-family:inherit;
+  transition:.15s;
+}
+.btn:hover{color:var(--fg); border-color:var(--accent)}
+#busca{
+  background:var(--bg-soft); border:1px solid var(--line); border-radius:8px; color:var(--fg);
+  padding:6px 12px; font-size:.85rem; font-family:inherit; width:200px;
+}
+#busca:focus{outline:none;border-color:var(--accent)}
+
+/* ---------- layout ---------- */
+.wrap{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:260px minmax(0,1fr) 240px;gap:34px;padding:0 18px}
+@media(max-width:1150px){.wrap{grid-template-columns:240px minmax(0,1fr)} .toc{display:none}}
+@media(max-width:860px){.wrap{grid-template-columns:minmax(0,1fr)} .lateral{display:none}}
+
+.lateral,.toc{position:sticky;top:76px;align-self:start;max-height:calc(100vh - 90px);overflow-y:auto;padding:22px 0 60px;font-size:.85rem}
+.lateral::-webkit-scrollbar,.toc::-webkit-scrollbar{width:6px}
+.lateral::-webkit-scrollbar-thumb,.toc::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+.lateral h4,.toc h4{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-faint);margin:0 0 12px}
+.lateral ol{list-style:none;margin:0;padding:0}
+.lateral li a{
+  display:flex;gap:9px;align-items:baseline;padding:6px 10px;border-radius:7px;
+  color:var(--fg-dim);border-left:2px solid transparent;line-height:1.35;
+}
+.lateral li a:hover{background:var(--bg-soft);color:var(--fg);text-decoration:none}
+.lateral li a.ativo{background:var(--bg-soft);color:var(--fg);border-left-color:var(--accent);font-weight:600}
+.lateral .num{font-variant-numeric:tabular-nums;color:var(--fg-faint);font-size:.78rem;min-width:16px}
+.lateral .grupo{margin:18px 0 6px;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-faint);padding-left:10px}
+.toc a{display:block;padding:4px 0 4px 12px;color:var(--fg-dim);border-left:2px solid var(--line);line-height:1.35;font-size:.8rem}
+.toc a:hover{color:var(--fg);text-decoration:none}
+.toc a.ativo{color:var(--accent);border-left-color:var(--accent)}
+.toc a.n3{padding-left:24px;font-size:.76rem;opacity:.8}
+
+/* ---------- conteúdo ---------- */
+main{padding:34px 0 100px;min-width:0}
+.cabecalho{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:34px}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.tag{font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;font-weight:700;padding:4px 10px;border-radius:999px;border:1px solid var(--line);color:var(--fg-dim)}
+.tag.u1{color:var(--u1);border-color:color-mix(in srgb,var(--u1) 40%,transparent)}
+.tag.u2{color:var(--u2);border-color:color-mix(in srgb,var(--u2) 40%,transparent)}
+.tag.u3{color:var(--u3);border-color:color-mix(in srgb,var(--u3) 40%,transparent)}
+.tag.av{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 45%,transparent)}
+.cabecalho h1{margin:0;font-size:2.05rem;line-height:1.2;letter-spacing:-.02em}
+.cabecalho .sub{color:var(--fg-faint);font-size:.9rem;margin-top:10px}
+
+main h1{font-size:1.9rem;line-height:1.22;letter-spacing:-.02em;margin:0 0 .6em}
+main h2{font-size:1.4rem;margin:2.4em 0 .7em;padding-top:.5em;border-top:1px solid var(--line);letter-spacing:-.01em}
+main h3{font-size:1.12rem;margin:1.9em 0 .5em;color:var(--fg)}
+main h4{font-size:.98rem;margin:1.5em 0 .4em;color:var(--fg-dim)}
+main h2:first-of-type{border-top:none;padding-top:0}
+main p{margin:0 0 1.05em}
+main ul,main ol{margin:0 0 1.15em;padding-left:1.4em}
+main li{margin:.32em 0}
+main li>ul,main li>ol{margin:.35em 0}
+hr{border:none;border-top:1px solid var(--line);margin:2.6em 0}
+strong{color:var(--fg);font-weight:650}
+
+/* âncoras */
+.anchor{opacity:0;margin-left:.4em;font-weight:400;color:var(--fg-faint);text-decoration:none;font-size:.8em}
+h2:hover .anchor,h3:hover .anchor{opacity:1}
+
+/* citações / callouts */
+blockquote{
+  margin:1.4em 0;padding:14px 18px;background:var(--bg-soft);border-left:3px solid var(--accent-2);
+  border-radius:0 var(--radius) var(--radius) 0;color:var(--fg-dim);
+}
+blockquote p:last-child{margin-bottom:0}
+blockquote.dica{border-left-color:var(--accent)}
+blockquote.atencao{border-left-color:var(--warn)}
+blockquote.capo{border-left-color:var(--accent-2)}
+blockquote.prova{border-left-color:var(--danger)}
+
+/* tabelas */
+.tabela-wrap{overflow-x:auto;margin:1.4em 0;border:1px solid var(--line);border-radius:var(--radius)}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{padding:9px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--bg-soft);font-weight:650;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-dim);white-space:nowrap}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:color-mix(in srgb,var(--bg-soft) 60%,transparent)}
+
+/* código */
+code{font-family:var(--mono);font-size:.87em;background:var(--bg-soft);padding:.14em .42em;border-radius:5px;border:1px solid var(--line)}
+.bloco{position:relative;margin:1.3em 0}
+.bloco-topo{
+  display:flex;align-items:center;gap:10px;background:var(--bg-soft);border:1px solid var(--line);
+  border-bottom:none;border-radius:var(--radius) var(--radius) 0 0;padding:6px 12px;
+  font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;color:var(--fg-faint);font-family:var(--mono);
+}
+.bloco-topo .espaco{flex:1}
+.copiar{
+  background:transparent;border:1px solid var(--line);color:var(--fg-faint);border-radius:6px;
+  padding:2px 9px;font-size:.68rem;cursor:pointer;font-family:inherit;letter-spacing:.06em;text-transform:uppercase;transition:.15s;
+}
+.copiar:hover{color:var(--accent);border-color:var(--accent)}
+.copiar.ok{color:var(--accent);border-color:var(--accent)}
+.highlight{
+  margin:0;background:var(--bg-code)!important;border:1px solid var(--line);
+  border-radius:0 0 var(--radius) var(--radius);overflow-x:auto;
+}
+.bloco:not(:has(.bloco-topo)) .highlight{border-radius:var(--radius)}
+.highlight pre{margin:0;padding:15px 17px;font-family:var(--mono);font-size:.845rem;line-height:1.62;background:transparent!important}
+.highlight code{background:transparent;border:none;padding:0;font-size:inherit}
+html[data-tema="claro"] .highlight pre{color:#1a1d24}
+
+/* detalhes */
+details{background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px;margin:1.2em 0}
+details[open]{padding-bottom:6px}
+summary{cursor:pointer;font-weight:600;color:var(--fg-dim);font-size:.9rem;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▸ ";color:var(--accent)}
+details[open] summary::before{content:"▾ "}
+details[open] summary{margin-bottom:10px}
+
+img{max-width:100%;border-radius:var(--radius)}
+
+/* rodapé / navegação */
+.navpe{display:flex;gap:14px;margin-top:60px;padding-top:26px;border-top:1px solid var(--line)}
+.navpe a{
+  flex:1;padding:14px 18px;background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);
+  color:var(--fg-dim);transition:.15s;
+}
+.navpe a:hover{border-color:var(--accent);color:var(--fg);text-decoration:none}
+.navpe .rot{display:block;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-faint);margin-bottom:4px}
+.navpe .tit{font-weight:600;font-size:.9rem}
+.navpe .dir{text-align:right}
+.rodape{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:var(--fg-faint);font-size:.8rem}
+
+/* progresso */
+#progresso{position:fixed;top:0;left:0;height:2px;background:var(--accent);z-index:60;width:0}
+
+/* índice (home) */
+.hero{padding:56px 0 34px;border-bottom:1px solid var(--line);margin-bottom:38px}
+.hero h1{font-size:2.6rem;margin:0 0 12px;letter-spacing:-.03em;line-height:1.1}
+.hero p{color:var(--fg-dim);max-width:640px;font-size:1.02rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin:34px 0}
+.stat{background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px}
+.stat .n{font-size:1.7rem;font-weight:700;letter-spacing:-.02em;color:var(--accent)}
+.stat .l{font-size:.75rem;letter-spacing:.07em;text-transform:uppercase;color:var(--fg-faint);margin-top:2px}
+.grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;margin:20px 0 44px}
+.cartao{
+  display:block;background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);
+  padding:17px 19px;color:var(--fg);transition:.16s;position:relative;overflow:hidden;
+}
+.cartao::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--line);transition:.16s}
+.cartao.u1::before{background:var(--u1)} .cartao.u2::before{background:var(--u2)} .cartao.u3::before{background:var(--u3)}
+.cartao:hover{transform:translateY(-2px);border-color:var(--fg-faint);text-decoration:none}
+.cartao .meta{display:flex;justify-content:space-between;align-items:center;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-faint);margin-bottom:8px}
+.cartao .t{font-weight:650;line-height:1.35;font-size:.97rem}
+.cartao .av{display:inline-block;margin-top:9px;font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;color:var(--warn);border:1px solid color-mix(in srgb,var(--warn) 40%,transparent);border-radius:999px;padding:2px 9px}
+.oculto{display:none!important}
+@media print{
+  .topo,.lateral,.toc,.navpe,#progresso{display:none!important}
+  .wrap{display:block;max-width:none;padding:0}
+  body{background:#fff;color:#000;font-size:11pt}
+  .highlight{border:1px solid #ccc;background:#fafafa!important}
+  a{color:#000}
+}
+
+pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #49483e }
+.highlight { background: #232629; color: #CCC }
+.highlight .c { color: #777; font-style: italic } /* Comment */
+.highlight .err { color: #A61717; background-color: #E3D2D2 } /* Error */
+.highlight .esc { color: #CCC } /* Escape */
+.highlight .g { color: #CCC } /* Generic */
+.highlight .k { color: #7686BB; font-weight: bold } /* Keyword */
+.highlight .l { color: #CCC } /* Literal */
+.highlight .n { color: #CCC } /* Name */
+.highlight .o { color: #CCC } /* Operator */
+.highlight .x { color: #CCC } /* Other */
+.highlight .p { color: #CCC } /* Punctuation */
+.highlight .ch { color: #777; font-style: italic } /* Comment.Hashbang */
+.highlight .cm { color: #777; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #777; font-style: italic } /* Comment.Preproc */
+.highlight .cpf { color: #777; font-style: italic } /* Comment.PreprocFile */
+.highlight .c1 { color: #777; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #777; font-style: italic } /* Comment.Special */
+.highlight .gd { color: #CCC } /* Generic.Deleted */
+.highlight .ge { color: #CCC } /* Generic.Emph */
+.highlight .ges { color: #CCC } /* Generic.EmphStrong */
+.highlight .gr { color: #CCC } /* Generic.Error */
+.highlight .gh { color: #CCC } /* Generic.Heading */
+.highlight .gi { color: #CCC } /* Generic.Inserted */
+.highlight .go { color: #CCC } /* Generic.Output */
+.highlight .gp { color: #FFF } /* Generic.Prompt */
+.highlight .gs { color: #CCC } /* Generic.Strong */
+.highlight .gu { color: #CCC } /* Generic.Subheading */
+.highlight .gt { color: #CCC } /* Generic.Traceback */
+.highlight .kc { color: #7686BB; font-weight: bold } /* Keyword.Constant */
+.highlight .kd { color: #7686BB; font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { color: #7686BB; font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { color: #7686BB; font-weight: bold } /* Keyword.Pseudo */
+.highlight .kr { color: #7686BB; font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #7686BB; font-weight: bold } /* Keyword.Type */
+.highlight .ld { color: #CCC } /* Literal.Date */
+.highlight .m { color: #4FB8CC } /* Literal.Number */
+.highlight .s { color: #51CC99 } /* Literal.String */
+.highlight .na { color: #CCC } /* Name.Attribute */
+.highlight .nb { color: #CCC } /* Name.Builtin */
+.highlight .nc { color: #CCC } /* Name.Class */
+.highlight .no { color: #CCC } /* Name.Constant */
+.highlight .nd { color: #CCC } /* Name.Decorator */
+.highlight .ni { color: #CCC } /* Name.Entity */
+.highlight .ne { color: #CCC } /* Name.Exception */
+.highlight .nf { color: #6A6AFF } /* Name.Function */
+.highlight .nl { color: #CCC } /* Name.Label */
+.highlight .nn { color: #CCC } /* Name.Namespace */
+.highlight .nx { color: #E2828E } /* Name.Other */
+.highlight .py { color: #CCC } /* Name.Property */
+.highlight .nt { color: #CCC } /* Name.Tag */
+.highlight .nv { color: #7AB4DB; font-weight: bold } /* Name.Variable */
+.highlight .ow { color: #CCC } /* Operator.Word */
+.highlight .pm { color: #CCC } /* Punctuation.Marker */
+.highlight .w { color: #BBB } /* Text.Whitespace */
+.highlight .mb { color: #4FB8CC } /* Literal.Number.Bin */
+.highlight .mf { color: #4FB8CC } /* Literal.Number.Float */
+.highlight .mh { color: #4FB8CC } /* Literal.Number.Hex */
+.highlight .mi { color: #4FB8CC } /* Literal.Number.Integer */
+.highlight .mo { color: #4FB8CC } /* Literal.Number.Oct */
+.highlight .sa { color: #51CC99 } /* Literal.String.Affix */
+.highlight .sb { color: #51CC99 } /* Literal.String.Backtick */
+.highlight .sc { color: #51CC99 } /* Literal.String.Char */
+.highlight .dl { color: #51CC99 } /* Literal.String.Delimiter */
+.highlight .sd { color: #51CC99 } /* Literal.String.Doc */
+.highlight .s2 { color: #51CC99 } /* Literal.String.Double */
+.highlight .se { color: #51CC99 } /* Literal.String.Escape */
+.highlight .sh { color: #51CC99 } /* Literal.String.Heredoc */
+.highlight .si { color: #51CC99 } /* Literal.String.Interpol */
+.highlight .sx { color: #51CC99 } /* Literal.String.Other */
+.highlight .sr { color: #51CC99 } /* Literal.String.Regex */
+.highlight .s1 { color: #51CC99 } /* Literal.String.Single */
+.highlight .ss { color: #51CC99 } /* Literal.String.Symbol */
+.highlight .bp { color: #CCC } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #6A6AFF } /* Name.Function.Magic */
+.highlight .vc { color: #7AB4DB; font-weight: bold } /* Name.Variable.Class */
+.highlight .vg { color: #BE646C; font-weight: bold } /* Name.Variable.Global */
+.highlight .vi { color: #7AB4DB; font-weight: bold } /* Name.Variable.Instance */
+.highlight .vm { color: #7AB4DB; font-weight: bold } /* Name.Variable.Magic */
+.highlight .il { color: #4FB8CC } /* Literal.Number.Integer.Long */
+</style>
+</head>
+<body>
+<div id="progresso"></div>
+<header class="topo"><div class="topo-in">
+  <span class="marca"><b>FACET-SNP-310</b> &nbsp;Frameworks Modernos</span>
+  <span class="espaco"></span>
+  
+  <a class="btn" href="indice.html">Índice</a>
+  <button class="btn" id="tema" type="button">Tema</button>
+</div></header>
+<div class="wrap">
+  <nav class="lateral"><h4>Aulas</h4><ol><li class="grupo">Unidade 1</li><li><a class="" href="aula-01.html"><span class="num">01</span><span>Apresentação da Disciplina e Revisão JavaScript</span></a></li><li><a class="" href="aula-02.html"><span class="num">02</span><span>Introdução ao Vue: instância, ciclo de vida e diretivas</span></a></li><li><a class="" href="aula-03.html"><span class="num">03</span><span>Vue: listas, computed e ciclo de vida</span></a></li><li><a class="ativo" href="aula-04.html"><span class="num">04</span><span>Introdução a Vuetify e Vue Router</span></a></li><li class="grupo">Unidade 2</li><li><a class="" href="aula-05.html"><span class="num">05</span><span>Componentes, Vue Router e Vuetify avançado</span></a></li><li><a class="" href="aula-06.html"><span class="num">06</span><span>Axios e Pinia</span></a></li><li class="grupo">Unidade 3</li><li><a class="" href="aula-07.html"><span class="num">07</span><span>Introdução ao Firebase, Node.js e Express</span></a></li><li><a class="" href="aula-08.html"><span class="num">08</span><span>Definindo endpoints e middlewares</span></a></li><li><a class="" href="aula-09.html"><span class="num">09</span><span>Integrando com SGBD MySQL</span></a></li><li><a class="" href="aula-10.html"><span class="num">10</span><span>Requisições autenticadas com Firebase</span></a></li><li><a class="" href="aula-11.html"><span class="num">11</span><span>Integrando front-end com back-end: CRUD</span></a></li><li><a class="" href="aula-12.html"><span class="num">12</span><span>CRUD com banco em nuvem (Supabase)</span></a></li><li><a class="" href="aula-13.html"><span class="num">13</span><span>Desenvolvimento do Back-end</span></a></li><li><a class="" href="aula-14.html"><span class="num">14</span><span>Documentação com Swagger</span></a></li><li><a class="" href="aula-15.html"><span class="num">15</span><span>Deploy, apresentação e finalização</span></a></li></ol></nav>
+  <main class=""><div class="cabecalho"><div class="tags"><span class="tag u1">Unidade 1</span><span class="tag">31/08/2026</span><span class="tag">3 aulas de 50 min + 1 h EAD</span><span class="tag av">Entrega da Avaliação 1</span></div><h1>Aula 04 — Introdução a Vuetify e Vue Router</h1><div class="sub">FACET-SNP-310 · Frameworks Modernos para Desenvolvimento de Sistemas · UNEMAT/Cáceres · Prof. Ivan Luiz Pedroso Pires</div></div>
+<blockquote>
+<p><strong>FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas</strong> · Unidade 1
+UNEMAT/Cáceres — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
+<strong>Data:</strong> 31/08/2026 · <strong>Carga:</strong> 3 aulas de 50 min (síncrona) + 1 h (assíncrona)</p>
+</blockquote>
+<p>Nas Aulas 02 e 03 você construiu o UniEventos em Vue puro: listagem com <code>v-for</code>, filtros com <code>computed()</code>, carregamento assíncrono em <code>onMounted()</code> e HTML/CSS escritos à mão. Hoje ele ganha interface profissional com <strong>Vuetify</strong> e navegação real com <strong>Vue Router</strong>, virando uma SPA de verdade — e você recebe as instruções completas da Avaliação 1.</p>
+<h2 id="objetivos-de-aprendizagem">🎯 Objetivos de aprendizagem<a class="anchor" href="#objetivos-de-aprendizagem" title="Permanent link">¶</a></h2>
+<p>Ao final desta aula você será capaz de:</p>
+<ul>
+<li>Explicar o que é um design system e por que um framework de UI acelera (e padroniza) o desenvolvimento de interfaces.</li>
+<li>Instalar e configurar o Vuetify 4 em um projeto Vite/Vue 3 seguindo exatamente os passos testados nesta disciplina.</li>
+<li>Estruturar uma aplicação com <code>v-app</code>, <code>v-app-bar</code>, <code>v-navigation-drawer</code>, <code>v-main</code> e o sistema de grid <code>v-container</code>/<code>v-row</code>/<code>v-col</code>.</li>
+<li>Usar os componentes essenciais do Vuetify (<code>v-card</code>, <code>v-btn</code>, <code>v-chip</code>, <code>v-icon</code>, <code>v-list</code>, <code>v-alert</code>, <code>v-dialog</code>, <code>v-snackbar</code>, <code>v-text-field</code>, <code>v-select</code>, <code>v-img</code>, <code>v-progress-circular</code>) para montar telas reais.</li>
+<li>Configurar um tema institucional customizado e implementar um alternador de tema claro/escuro.</li>
+<li>Criar rotas com Vue Router 5 (<code>createRouter</code>, <code>createWebHistory</code>), navegar com <code>&lt;RouterLink&gt;</code>/<code>&lt;RouterView&gt;</code>, ler parâmetros de rota e tratar rota 404.</li>
+<li>Transformar o UniEventos de página única em uma SPA navegável com múltiplas views.</li>
+</ul>
+<h2 id="pre-requisitos-desta-aula">📋 Pré-requisitos desta aula<a class="anchor" href="#pre-requisitos-desta-aula" title="Permanent link">¶</a></h2>
+<p>Antes de começar, confirme que você tem:</p>
+<ul>
+<li>[ ] O projeto UniEventos das aulas 02–03 rodando localmente com <code>npm run dev</code> (lista de eventos com filtro, <code>v-for</code>, <code>v-if</code>, <code>computed</code>, <code>onMounted</code>, carregamento assíncrono com <code>fetch</code>).</li>
+<li>[ ] Node.js 22.22.2 LTS instalado (<code>node -v</code>). O <code>create-vue</code> exige <code>^22.18.0 || &gt;=24.12.0</code>.</li>
+<li>[ ] Git configurado e uma conta no GitHub — hoje você vai precisar de um repositório público para a Avaliação 1.</li>
+<li>[ ] Revisão rápida: <code>&lt;script setup&gt;</code>, <code>ref</code>, <code>computed</code>, <code>v-bind</code>, <code>v-on</code>, <code>v-model</code>, <code>v-if</code>/<code>v-for</code> com <code>:key</code>, <code>onMounted</code>.</li>
+</ul>
+<blockquote class="prova">
+<p><strong>📌 Na prova:</strong> hoje marca o fim da Unidade 1. Tudo que vier depois — Vuetify avançado, Axios, Pinia — pressupõe que você sabe montar uma SPA com rotas. Não pule esta aula.</p>
+</blockquote>
+<h2 id="roteiro">🗺️ Roteiro<a class="anchor" href="#roteiro" title="Permanent link">¶</a></h2>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Bloco</th>
+<th>Tempo</th>
+<th>Atividade</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>50 min</td>
+<td>Design system, Material Design 3, instalação do Vuetify 4, estrutura de aplicação e grid</td>
+</tr>
+<tr>
+<td>2</td>
+<td>50 min</td>
+<td>Componentes essenciais do Vuetify, tema customizado, Vue Router 5 (rotas, parâmetros, navegação)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>50 min</td>
+<td>Mão na massa: migração do UniEventos para SPA com layout, views e tema institucional + instruções da Avaliação 1</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="1-por-que-usar-um-framework-de-ui">1. Por que usar um framework de UI<a class="anchor" href="#1-por-que-usar-um-framework-de-ui" title="Permanent link">¶</a></h2>
+<p>Nas aulas 02 e 03 você escreveu HTML e CSS à mão para estilizar os cards de evento. Funciona, mas em um projeto real isso significa reinventar, para cada tela nova, decisões que já foram tomadas mil vezes por outras equipes: como um botão deve reagir ao toque, quanto de espaçamento um card precisa, que cor de texto garante contraste suficiente sobre um fundo azul.</p>
+<p>Um <strong>framework de UI</strong> (ou biblioteca de componentes) resolve isso entregando componentes prontos — botões, cartões, campos de formulário, tabelas, diálogos — que já implementam essas decisões de forma consistente. Isso é diferente de um framework como o Vue, que resolve <em>como a interface reage a dados</em>; um framework de UI resolve <em>como a interface se parece e se comporta visualmente</em>.</p>
+<p>A vantagem central é o <strong>design system</strong>: um conjunto de regras (cores, tipografia, espaçamento, elevação, animação) aplicado uniformemente em toda a aplicação. Sem um design system, cada componente vira uma ilha visual, e a interface fica com "cara de colcha de retalhos". Com um, o card de evento, o formulário de inscrição e o painel administrativo compartilham a mesma linguagem visual — mesmo que tenham sido escritos em dias diferentes por pessoas diferentes.</p>
+<h3 id="material-design-3-em-uma-pagina">Material Design 3 em uma página<a class="anchor" href="#material-design-3-em-uma-pagina" title="Permanent link">¶</a></h3>
+<p>O Vuetify 4 implementa o <strong>Material Design 3 (MD3)</strong>, o design system do Google usado no Android e em produtos como Gmail e YouTube. Os pilares que importam para o dia a dia:</p>
+<ul>
+<li><strong>Color roles</strong> — em vez de "azul" e "cinza", você pensa em papéis: <code>primary</code> (ação principal), <code>secondary</code> (ação de apoio), <code>error</code>, <code>success</code>, <code>warning</code>, <code>info</code>, <code>surface</code> (fundo de cartões) e <code>background</code>. Trocar o tema não exige trocar cada componente — só redefinir os papéis.</li>
+<li><strong>Elevação</strong> — sombras indicam hierarquia (o que está "mais perto" do usuário). O MD3 no Vuetify 4 trabalha com uma escala reduzida de 6 níveis (0 a 5), mais sutil que a escala antiga de 0 a 24 do Material Design 2.</li>
+<li><strong>Tipografia em escala</strong> — títulos, corpo e rótulos seguem uma escala tipográfica nomeada (<code>display</code>, <code>headline</code>, <code>title</code>, <code>body</code>, <code>label</code>), cada uma em tamanhos <code>large</code>/<code>medium</code>/<code>small</code>.</li>
+<li><strong>Forma e espaçamento</strong> — cantos arredondados e um sistema de espaçamento em múltiplos de 4px, aplicado por classes utilitárias.</li>
+</ul>
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção:</strong> o Vuetify 4 migrou a tipografia de MD2 para MD3. As classes antigas <code>text-h1</code> … <code>text-h6</code> continuam existindo, mas mudaram de tamanho e semântica. Os equivalentes MD3 são nomes como <code>text-display-large</code>, <code>text-headline-medium</code>, <code>text-title-large</code>, <code>text-body-medium</code>, <code>text-label-large</code>. Nesta disciplina, prefira citar explicitamente a classe MD3 ou definir sua própria tipografia — não assuma que <code>text-h4</code> de um tutorial antigo vai parecer do jeito que você viu em vídeo.</p>
+</blockquote>
+<h2 id="2-instalando-o-vuetify-4">2. Instalando o Vuetify 4<a class="anchor" href="#2-instalando-o-vuetify-4" title="Permanent link">¶</a></h2>
+<p>Vamos instalar o Vuetify no projeto UniEventos que você já tem. Os comandos abaixo são os mesmos testados no ambiente da disciplina — siga exatamente esta ordem.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>npm<span class="w"> </span>install<span class="w"> </span>vuetify<span class="w"> </span>@mdi/font
+npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </span>vite-plugin-vuetify
+</code></pre></div></div>
+
+<p>O primeiro comando instala o Vuetify em si e a fonte de ícones <strong>Material Design Icons</strong> (MDI), que usaremos em botões, listas e menus. O segundo instala o plugin do Vite que faz o <strong>autoimport</strong> dos componentes — sem ele, você teria que importar manualmente cada <code>v-card</code>, <code>v-btn</code> etc. em cada arquivo <code>.vue</code>, o que é inviável em um projeto com dezenas de telas.</p>
+<p>Configure o <code>vite.config.js</code>:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// vite.config.js</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">fileURLToPath</span><span class="p">,</span><span class="w"> </span><span class="nx">URL</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;node:url&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">defineConfig</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vite&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">vue</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@vitejs/plugin-vue&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">vuetify</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">transformAssetUrls</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vite-plugin-vuetify&#39;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">defineConfig</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">plugins</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="nx">vue</span><span class="p">({</span><span class="w"> </span><span class="nx">template</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">transformAssetUrls</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}),</span>
+<span class="w">    </span><span class="nx">vuetify</span><span class="p">({</span><span class="w"> </span><span class="nx">autoImport</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">}),</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nx">resolve</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">alias</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s1">&#39;@&#39;</span><span class="o">:</span><span class="w"> </span><span class="nx">fileURLToPath</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">URL</span><span class="p">(</span><span class="s1">&#39;./src&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">import</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">url</span><span class="p">))</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<p>Repare em dois detalhes:</p>
+<ul>
+<li><code>transformAssetUrls</code> é passado ao plugin do Vue para que caminhos de imagem usados dentro de props do Vuetify (como <code>src</code> de <code>v-img</code>) sejam resolvidos corretamente pelo Vite.</li>
+<li><code>vuetify({ autoImport: true })</code> é o que permite usar <code>&lt;v-card&gt;</code>, <code>&lt;v-btn&gt;</code> e qualquer outro componente do Vuetify <strong>sem importar nada</strong> no <code>&lt;script setup&gt;</code>. O plugin varre seus templates em tempo de build, detecta quais componentes e diretivas você usou, e injeta o registro automaticamente. Isso substitui o padrão antigo de fazer <code>import * as components from 'vuetify/components'</code> e registrar tudo manualmente (ou, pior, registrar tudo globalmente e inflar o bundle).</li>
+</ul>
+<p>Agora o <code>src/main.js</code>:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/main.js</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createApp</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createPinia</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;pinia&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">App</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./App.vue&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">router</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./router&#39;</span>
+
+<span class="k">import</span><span class="w"> </span><span class="s1">&#39;@mdi/font/css/materialdesignicons.css&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="s1">&#39;vuetify/styles&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createVuetify</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vuetify&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">vuetify</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">createVuetify</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">theme</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">defaultTheme</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;light&#39;</span><span class="w"> </span><span class="p">},</span><span class="w">   </span><span class="c1">// v4: o padrão virou &#39;system&#39;</span>
+<span class="p">})</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">app</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">createApp</span><span class="p">(</span><span class="nx">App</span><span class="p">)</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">createPinia</span><span class="p">())</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">router</span><span class="p">)</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">vuetify</span><span class="p">)</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">mount</span><span class="p">(</span><span class="s1">&#39;#app&#39;</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Três importações merecem atenção:</p>
+<ol>
+<li><code>'@mdi/font/css/materialdesignicons.css'</code> — carrega a fonte de ícones. Sem isso, <code>&lt;v-icon&gt;mdi-account&lt;/v-icon&gt;</code> aparece como um quadrado vazio.</li>
+<li><code>'vuetify/styles'</code> — o CSS base do Vuetify (grid, tipografia, reset parcial).</li>
+<li><code>createVuetify(...)</code> — cria a instância do Vuetify, análoga ao <code>createPinia()</code> ou <code>createRouter()</code>: você a registra na aplicação com <code>app.use(vuetify)</code>.</li>
+</ol>
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção:</strong> no Vuetify 4, o tema padrão passou a ser <code>'system'</code> — ou seja, se você não configurar nada, a aplicação vai seguir a preferência de tema (claro/escuro) do sistema operacional do usuário. Isso é ótimo em produção, mas péssimo para dar aula: metade da turma veria uma tela clara e a outra metade, escura, sem que ninguém tivesse mudado nada. Por isso declaramos <code>defaultTheme: 'light'</code> explicitamente — mais adiante, na seção de tema, vamos configurar isso de verdade com cores institucionais.</p>
+<p><strong>🔎 Por baixo do capô:</strong> <code>app.use(vuetify)</code> funciona exatamente como <code>app.use(router)</code> ou <code>app.use(pinia)</code> — é o mecanismo de <strong>plugin</strong> do Vue. Um plugin é um objeto com um método <code>install(app, options)</code> que o Vue chama internamente. Isso é o mesmo padrão que você vai usar para instalar qualquer biblioteca de terceiros no ecossistema Vue.</p>
+</blockquote>
+<p>Depois de configurar os dois arquivos, rode:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>npm<span class="w"> </span>run<span class="w"> </span>dev
+</code></pre></div></div>
+
+<p>Se a tela carregar sem erros no console, o Vuetify está funcionando. Um teste rápido: coloque <code>&lt;v-btn color="primary"&gt;Teste&lt;/v-btn&gt;</code> em qualquer template e veja se aparece um botão estilizado (não um <code>&lt;button&gt;</code> cru do navegador).</p>
+<h2 id="3-estrutura-de-aplicacao-vuetify">3. Estrutura de aplicação Vuetify<a class="anchor" href="#3-estrutura-de-aplicacao-vuetify" title="Permanent link">¶</a></h2>
+<p>Toda aplicação Vuetify é envolvida por um componente raiz obrigatório: <code>&lt;v-app&gt;</code>. Ele injeta o contexto de tema, o sistema de layout responsivo e o container onde diálogos e menus são renderizados (via teleport). <strong>Sem <code>v-app</code>, nada no Vuetify funciona direito</strong> — nem cores de tema, nem posicionamento de <code>v-dialog</code>.</p>
+<p>Dentro de <code>v-app</code>, os blocos estruturais mais comuns são:</p>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Componente</th>
+<th>Papel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>v-app-bar</code></td>
+<td>barra superior fixa — logotipo, título, ações, botão de menu</td>
+</tr>
+<tr>
+<td><code>v-navigation-drawer</code></td>
+<td>menu lateral (fixo ou retrátil)</td>
+</tr>
+<tr>
+<td><code>v-main</code></td>
+<td>área de conteúdo principal — se ajusta automaticamente ao espaço ocupado por app-bar e drawer</td>
+</tr>
+<tr>
+<td><code>v-footer</code></td>
+<td>rodapé</td>
+</tr>
+</tbody>
+</table></div>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="cm">&lt;!-- src/App.vue (esqueleto conceitual — vamos completar na seção Mão na massa) --&gt;</span>
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">v-app</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">v-app-bar</span> <span class="na">color</span><span class="o">=</span><span class="s">&quot;primary&quot;</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">v-app-bar-title</span><span class="p">&gt;</span>UniEventos<span class="p">&lt;/</span><span class="nt">v-app-bar-title</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">v-app-bar</span><span class="p">&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">v-navigation-drawer</span><span class="p">&gt;</span>
+      <span class="cm">&lt;!-- itens de menu aqui --&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">v-navigation-drawer</span><span class="p">&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">v-main</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">v-container</span><span class="p">&gt;</span>
+        <span class="cm">&lt;!-- conteúdo da página aqui --&gt;</span>
+      <span class="p">&lt;/</span><span class="nt">v-container</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">v-main</span><span class="p">&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">v-footer</span> <span class="na">app</span> <span class="na">color</span><span class="o">=</span><span class="s">&quot;primary&quot;</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">span</span><span class="p">&gt;</span>UNEMAT · FACET · 2026<span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">v-footer</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">v-app</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<p>Note que <code>v-main</code> já "sabe" que existe um <code>v-app-bar</code> acima dele e um <code>v-navigation-drawer</code> ao lado — o Vuetify calcula o espaçamento automaticamente. Você não precisa (e não deve) definir <code>margin-top</code> manualmente para compensar a barra fixa.</p>
+<h3 id="grid-v-container-v-row-v-col">Grid: <code>v-container</code> / <code>v-row</code> / <code>v-col</code><a class="anchor" href="#grid-v-container-v-row-v-col" title="Permanent link">¶</a></h3>
+<p>O Vuetify usa um grid de 12 colunas, parecido com o Bootstrap, mas com props reativas a breakpoints:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">v-container</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">v-row</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">v-col</span> <span class="na">cols</span><span class="o">=</span><span class="s">&quot;12&quot;</span> <span class="na">sm</span><span class="o">=</span><span class="s">&quot;6&quot;</span> <span class="na">md</span><span class="o">=</span><span class="s">&quot;4&quot;</span><span class="p">&gt;</span>
+      <span class="cm">&lt;!-- ocupa 12/12 no celular, 6/12 em tablet, 4/12 em desktop --&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">v-col</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">v-row</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">v-container</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<p>Os breakpoints do Vuetify 4 mudaram de valor em relação a versões anteriores — use os números abaixo, não os de tutoriais antigos:</p>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Breakpoint</th>
+<th>Largura mínima</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sm</code></td>
+<td>600px</td>
+</tr>
+<tr>
+<td><code>md</code></td>
+<td>840px</td>
+</tr>
+<tr>
+<td><code>lg</code></td>
+<td>1145px</td>
+</tr>
+<tr>
+<td><code>xl</code></td>
+<td>1545px</td>
+</tr>
+<tr>
+<td><code>xxl</code></td>
+<td>2138px</td>
+</tr>
+</tbody>
+</table></div>
+<p>Um grid de cards de evento responsivo típico:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">v-row</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">v-col</span> <span class="na">v-for</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">eventos</span><span class="s">&quot;</span> <span class="p">:</span><span class="na">key</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="p">.</span><span class="nx">id</span><span class="s">&quot;</span> <span class="na">cols</span><span class="o">=</span><span class="s">&quot;12&quot;</span> <span class="na">sm</span><span class="o">=</span><span class="s">&quot;6&quot;</span> <span class="na">md</span><span class="o">=</span><span class="s">&quot;4&quot;</span><span class="p">&gt;</span>
+    <span class="cm">&lt;!-- v-card do evento --&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">v-col</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">v-row</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<p>Em telas pequenas (<code>cols="12"</code>), um card por linha. A partir de 600px, dois por linha (<code>sm="6"</code>). A partir de 840px, três por linha (<code>md="4"</code>). Essa é a técnica que você vai usar no Mão na massa desta aula.</p>
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção — duas armadilhas comuns do grid no Vuetify 4:</strong>
+1. <code>&lt;v-container fill-height&gt;</code> <strong>não centraliza mais verticalmente</strong> como fazia antes. Se você precisa centralizar conteúdo na tela (por exemplo, uma tela de erro 404), use classes utilitárias: <code>&lt;v-container class="d-flex align-center justify-center" style="min-height: 100vh"&gt;</code>.
+2. As props <code>align</code>, <code>justify</code> e <code>dense</code> do <code>&lt;v-row&gt;</code> <strong>foram removidas</strong>. No lugar delas, use classes utilitárias de flexbox (<code>class="justify-space-between"</code>, <code>class="align-center"</code>) ou a prop <code>density="compact"</code> para reduzir o espaçamento entre colunas. Código copiado de tutoriais do Vuetify 3 que usa <code>&lt;v-row align="center"&gt;</code> <strong>vai quebrar silenciosamente</strong> — a prop simplesmente é ignorada.</p>
+</blockquote>
+<h2 id="4-componentes-essenciais">4. Componentes essenciais<a class="anchor" href="#4-componentes-essenciais" title="Permanent link">¶</a></h2>
+<p>Vamos conhecer os componentes que você vai usar em praticamente toda tela do UniEventos.</p>
+<h3 id="v-card"><code>v-card</code><a class="anchor" href="#v-card" title="Permanent link">¶</a></h3>
+<p>O cartão é a unidade básica de conteúdo agrupado — um evento, um resultado de busca, um formulário curto. Ele é composto por subcomponentes:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">v-card</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">v-img</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;/img/evento.jpg&quot;</span> <span class="na">height</span><span class="o">=</span><span class="s">&quot;180&quot;</span> <span class="na">cover</span> <span class="p">/&gt;</span>
+  <span class="p">&lt;</span><span class="nt">v-card-title</span><span class="p">&gt;</span>Semana Acadêmica de Computação<span class="p">&lt;/</span><span class="nt">v-card-title</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">v-card-subtitle</span><span class="p">&gt;</span>29/09/2026 · Auditório Central<span class="p">&lt;/</span><span class="nt">v-card-subtitle</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">v-card-text</span><span class="p">&gt;</span>
+    Palestras, minicursos e apresentação de projetos dos estudantes.
+  <span class="p">&lt;/</span><span class="nt">v-card-text</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">v-card-actions</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">v-btn</span> <span class="na">color</span><span class="o">=</span><span class="s">&quot;primary&quot;</span> <span class="na">variant</span><span class="o">=</span><span class="s">&quot;text&quot;</span><span class="p">&gt;</span>Ver detalhes<span class="p">&lt;/</span><span class="nt">v-btn</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">v-spacer</span> <span class="p">/&gt;</span>
+    <span class="p">&lt;</span><span class="nt">v-chip</span> <span class="na">color</span><span class="o">=</span><span class="s">&quot;success&quot;</span> <span class="na">size</span><span class="o">=</span><span class="s">&quot;small&quot;</span><span class="p">&gt;</span>32 vagas<span class="p">&lt;/</span><span class="nt">v-chip</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">v-card-actions</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">v-card</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<p><code>v-card-title</code>, <code>v-card-subtitle</code>, <code>v-card-text</code> e <code>v-card-actions</code> existem para dar estrutura semântica e espaçamento correto — evite substituí-los por <code>&lt;div&gt;</code> com classes manuais.</p>
+<h3 id="v-btn-e-suas-variantes"><code>v-btn</code> e suas variantes<a class="anchor" href="#v-btn-e-suas-variantes" title="Permanent link">¶</a></h3>
+<p>O <code>v-btn</code> tem seis variantes visuais (prop <code>variant</code>), cada uma com um uso recomendado:</p>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Variant</th>
+<th>Quando usar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>elevated</code></td>
+<td>ação de destaque, com sombra (padrão visual antigo do Material)</td>
+</tr>
+<tr>
+<td><code>flat</code></td>
+<td>ação primária sem sombra — a mais comum em toolbars</td>
+</tr>
+<tr>
+<td><code>tonal</code></td>
+<td>ação secundária, fundo suave na cor do tema</td>
+</tr>
+<tr>
+<td><code>outlined</code></td>
+<td>ação secundária, apenas borda</td>
+</tr>
+<tr>
+<td><code>text</code></td>
+<td>ação terciária, sem fundo — links de ação dentro de cards</td>
+</tr>
+<tr>
+<td><code>plain</code></td>
+<td>mínimo destaque visual, quase texto puro</td>
+</tr>
+</tbody>
+</table></div>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">v-btn</span> <span class="na">color</span><span class="o">=</span><span class="s">&quot;primary&quot;</span> <span class="na">variant</span><span class="o">=</span><span class="s">&quot;elevated&quot;</span><span class="p">&gt;</span>Inscrever-se<span class="p">&lt;/</span><span class="nt">v-btn</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">v-btn</span> <span class="na">color</span><span class="o">=</span><span class="s">&quot;primary&quot;</span> <span class="na">variant</span><span class="o">=</span><span class="s">&quot;tonal&quot;</span><span class="p">&gt;</span>Ver mais<span class="p">&lt;/</span><span class="nt">v-btn</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">v-btn</span> <span class="na">color</span><span class="o">=</span><span class="s">&quot;error&quot;</span> <span class="na">variant</span><span class="o">=</span><span class="s">&quot;outlined&quot;</span><span class="p">&gt;</span>Cancelar inscrição<span class="p">&lt;/</span><span class="nt">v-btn</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">v-btn</span> <span class="na">variant</span><span class="o">=</span><span class="s">&quot;text&quot;</span><span class="p">&gt;</span>Voltar<span class="p">&lt;/</span><span class="nt">v-btn</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção:</strong> no Vuetify 4, <code>v-btn</code> <strong>não</strong> transforma mais o texto em UPPERCASE automaticamente (era o comportamento padrão em versões antigas do Material Design). Se você escrever <code>Inscrever-se</code>, o texto aparece exatamente assim — não <code>INSCREVER-SE</code>. Isso é intencional: o MD3 abandonou a caixa alta como padrão de botão.</p>
+</blockquote>
+<h3 id="v-chip-v-icon-v-list"><code>v-chip</code>, <code>v-icon</code>, <code>v-list</code><a class="anchor" href="#v-chip-v-icon-v-list" title="Permanent link">¶</a></h3>
+<p><code>v-chip</code> é uma etiqueta compacta — categoria do evento, status, tag:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">v-chip</span> <span class="na">color</span><span class="o">=</span><span class="s">&quot;primary&quot;</span> <span class="na">size</span><span class="o">=</span><span class="s">&quot;small&quot;</span> <span class="na">prepend-icon</span><span class="o">=</span><span class="s">&quot;mdi-tag&quot;</span><span class="p">&gt;</span>Minicurso<span class="p">&lt;/</span><span class="nt">v-chip</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<p><code>v-icon</code> renderiza um ícone MDI (Material Design Icons) — o nome sempre começa com o prefixo <code>mdi-</code>:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">v-icon</span> <span class="na">icon</span><span class="o">=</span><span class="s">&quot;mdi-calendar&quot;</span> <span class="na">color</span><span class="o">=</span><span class="s">&quot;primary&quot;</span> <span class="p">/&gt;</span>
+<span class="p">&lt;</span><span class="nt">v-icon</span><span class="p">&gt;</span>mdi-map-marker<span class="p">&lt;/</span><span class="nt">v-icon</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<p><code>v-list</code> organiza itens verticais — menu de navegação, lista de eventos inscritos:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">v-list</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">v-list-item</span>
+    <span class="na">v-for</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">eventos</span><span class="s">&quot;</span>
+    <span class="p">:</span><span class="na">key</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="p">.</span><span class="nx">id</span><span class="s">&quot;</span>
+    <span class="p">:</span><span class="na">title</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="s">&quot;</span>
+    <span class="p">:</span><span class="na">subtitle</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="p">.</span><span class="nx">local</span><span class="s">&quot;</span>
+    <span class="na">prepend-icon</span><span class="o">=</span><span class="s">&quot;mdi-calendar-star&quot;</span>
+  <span class="p">/&gt;</span>
+<span class="p">&lt;/</span><span class="nt">v-list</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<h3 id="v-alert-v-dialog-v-snackbar"><code>v-alert</code>, <code>v-dialog</code>, <code>v-snackbar</code><a class="anchor" href="#v-alert-v-dialog-v-snackbar" title="Permanent link">¶</a></h3>
+<p>Três componentes de feedback com propósitos distintos:</p>
+<ul>
+<li><strong><code>v-alert</code></strong> — mensagem persistente embutida no fluxo da página (ex.: "nenhum evento encontrado com esse filtro").</li>
+<li><strong><code>v-dialog</code></strong> — janela modal que bloqueia a interação até ser fechada (ex.: confirmar exclusão de um evento).</li>
+<li><strong><code>v-snackbar</code></strong> — notificação temporária no rodapé da tela, some sozinha (ex.: "inscrição realizada com sucesso").</li>
+</ul>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">v-alert</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;info&quot;</span> <span class="na">variant</span><span class="o">=</span><span class="s">&quot;tonal&quot;</span> <span class="na">title</span><span class="o">=</span><span class="s">&quot;Nenhum evento encontrado&quot;</span><span class="p">&gt;</span>
+  Tente ajustar os filtros de categoria ou data.
+<span class="p">&lt;/</span><span class="nt">v-alert</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">mostrarDialogo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">v-btn</span> <span class="na">color</span><span class="o">=</span><span class="s">&quot;error&quot;</span> <span class="p">@</span><span class="na">click</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">mostrarDialogo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="s">&quot;</span><span class="p">&gt;</span>Excluir<span class="p">&lt;/</span><span class="nt">v-btn</span><span class="p">&gt;</span>
+
+  <span class="p">&lt;</span><span class="nt">v-dialog</span> <span class="na">v-model</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">mostrarDialogo</span><span class="s">&quot;</span> <span class="na">max-width</span><span class="o">=</span><span class="s">&quot;400&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">v-card</span> <span class="na">title</span><span class="o">=</span><span class="s">&quot;Confirmar exclusão&quot;</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">v-card-text</span><span class="p">&gt;</span>Esta ação não pode ser desfeita.<span class="p">&lt;/</span><span class="nt">v-card-text</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">v-card-actions</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">v-spacer</span> <span class="p">/&gt;</span>
+        <span class="p">&lt;</span><span class="nt">v-btn</span> <span class="na">variant</span><span class="o">=</span><span class="s">&quot;text&quot;</span> <span class="p">@</span><span class="na">click</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">mostrarDialogo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="s">&quot;</span><span class="p">&gt;</span>Cancelar<span class="p">&lt;/</span><span class="nt">v-btn</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">v-btn</span> <span class="na">color</span><span class="o">=</span><span class="s">&quot;error&quot;</span> <span class="na">variant</span><span class="o">=</span><span class="s">&quot;flat&quot;</span> <span class="p">@</span><span class="na">click</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">mostrarDialogo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="s">&quot;</span><span class="p">&gt;</span>Excluir<span class="p">&lt;/</span><span class="nt">v-btn</span><span class="p">&gt;</span>
+      <span class="p">&lt;/</span><span class="nt">v-card-actions</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">v-card</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">v-dialog</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<p>Repare que <code>v-dialog</code> usa <code>v-model</code> para controlar se está aberto ou fechado — o mesmo padrão de two-way binding que você já usa em <code>v-text-field</code>. Vamos usar <code>v-snackbar</code> de verdade na Aula 06, quando tivermos ações assíncronas (salvar, excluir) que precisam de feedback.</p>
+<h3 id="v-text-field-v-select-v-img-v-progress-circular"><code>v-text-field</code>, <code>v-select</code>, <code>v-img</code>, <code>v-progress-circular</code><a class="anchor" href="#v-text-field-v-select-v-img-v-progress-circular" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">v-text-field</span>
+  <span class="na">v-model</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">busca</span><span class="s">&quot;</span>
+  <span class="na">label</span><span class="o">=</span><span class="s">&quot;Buscar evento&quot;</span>
+  <span class="na">prepend-inner-icon</span><span class="o">=</span><span class="s">&quot;mdi-magnify&quot;</span>
+  <span class="na">variant</span><span class="o">=</span><span class="s">&quot;outlined&quot;</span>
+  <span class="na">clearable</span>
+<span class="p">/&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">v-select</span>
+  <span class="na">v-model</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">categoriaFiltro</span><span class="s">&quot;</span>
+  <span class="p">:</span><span class="na">items</span><span class="o">=</span><span class="s">&quot;</span><span class="p">[</span><span class="s1">&#39;Todas&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Palestra&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Minicurso&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Workshop&#39;</span><span class="p">]</span><span class="s">&quot;</span>
+  <span class="na">label</span><span class="o">=</span><span class="s">&quot;Categoria&quot;</span>
+  <span class="na">variant</span><span class="o">=</span><span class="s">&quot;outlined&quot;</span>
+<span class="p">/&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">v-img</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;/img/banner.jpg&quot;</span> <span class="na">height</span><span class="o">=</span><span class="s">&quot;200&quot;</span> <span class="na">cover</span> <span class="p">/&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">v-progress-circular</span> <span class="na">indeterminate</span> <span class="na">color</span><span class="o">=</span><span class="s">&quot;primary&quot;</span> <span class="p">/&gt;</span>
+</code></pre></div></div>
+
+<p><code>v-progress-circular</code> com <code>indeterminate</code> é o spinner de carregamento — você já usou um estado de "carregando" na Aula 03 com uma condição simples; agora vamos trocar o texto "Carregando..." por esse componente visual.</p>
+<h2 id="5-tema-cores-institucionais-e-alternador-claroescuro">5. Tema: cores institucionais e alternador claro/escuro<a class="anchor" href="#5-tema-cores-institucionais-e-alternador-claroescuro" title="Permanent link">¶</a></h2>
+<p>Um tema no Vuetify é declarado em <code>createVuetify</code>, com um conjunto de cores nomeadas por papel:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/main.js (trecho — configuração de tema)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">vuetify</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">createVuetify</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">theme</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">defaultTheme</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;light&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">themes</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">light</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">dark</span><span class="o">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">colors</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nx">primary</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#1B5E20&#39;</span><span class="p">,</span><span class="w">    </span><span class="c1">// verde institucional</span>
+<span class="w">          </span><span class="nx">secondary</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#F9A825&#39;</span><span class="p">,</span><span class="w">  </span><span class="c1">// amarelo de destaque</span>
+<span class="w">          </span><span class="nx">error</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#B00020&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">success</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#2E7D32&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">warning</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#F57F17&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">info</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#0277BD&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">background</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#F5F5F5&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">surface</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#FFFFFF&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nx">dark</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">dark</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">colors</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nx">primary</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#66BB6A&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">secondary</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#FFCA28&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">error</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#CF6679&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">success</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#66BB6A&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">warning</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#FFB300&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">info</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#4FC3F7&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">background</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#121212&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">surface</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#1E1E1E&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<p>Depois de declarado, qualquer componente usa <code>color="primary"</code> e recebe automaticamente a cor certa, seja no tema claro ou escuro — você nunca escreve um valor hexadecimal direto no template.</p>
+<p>Para alternar entre os temas em tempo de execução, o Vuetify expõe o composable <code>useTheme()</code>:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="cm">&lt;!-- src/components/AlternadorTema.vue --&gt;</span>
+<span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">computed</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">useTheme</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vuetify&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">tema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useTheme</span><span class="p">()</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">ehEscuro</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">computed</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">tema</span><span class="p">.</span><span class="nb">global</span><span class="p">.</span><span class="nx">name</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;dark&#39;</span><span class="p">)</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">alternarTema</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">tema</span><span class="p">.</span><span class="nb">global</span><span class="p">.</span><span class="nx">name</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ehEscuro</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;light&#39;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;dark&#39;</span>
+<span class="p">}</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">v-btn</span>
+    <span class="p">:</span><span class="na">icon</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">ehEscuro</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;mdi-weather-sunny&#39;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;mdi-weather-night&#39;</span><span class="s">&quot;</span>
+    <span class="na">variant</span><span class="o">=</span><span class="s">&quot;text&quot;</span>
+    <span class="p">@</span><span class="na">click</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">alternarTema</span><span class="s">&quot;</span>
+  <span class="p">/&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<p><code>useTheme()</code> é um composable — mesma ideia dos composables <code>useRoute()</code>/<code>useRouter()</code> que veremos já já, e dos que você vai escrever na Aula 05. Ele te dá acesso reativo ao estado global de tema: ler <code>tema.global.name.value</code> e escrever nele muda o tema da aplicação inteira instantaneamente.</p>
+<blockquote class="dica">
+<p><strong>💡 Dica:</strong> guarde a preferência de tema do usuário em <code>localStorage</code> para que ela persista entre visitas. Vamos formalizar esse padrão de persistência com Pinia na Aula 06 — por hoje, é suficiente saber alternar o tema em memória.</p>
+</blockquote>
+<h2 id="6-classes-utilitarias-de-espacamento-e-layout">6. Classes utilitárias de espaçamento e layout<a class="anchor" href="#6-classes-utilitarias-de-espacamento-e-layout" title="Permanent link">¶</a></h2>
+<p>O Vuetify gera classes utilitárias para espaçamento e flexbox, seguindo a convenção <code>{propriedade}{direção}-{tamanho}</code>:</p>
+<ul>
+<li><code>pa-4</code> — padding em todos os lados, tamanho 4 (múltiplo de 4px → 16px)</li>
+<li><code>ma-2</code> — margin em todos os lados, tamanho 2 (8px)</li>
+<li><code>mt-4</code>, <code>mb-2</code>, <code>mx-auto</code>, <code>py-6</code> — direções específicas (t=top, b=bottom, x=horizontal, y=vertical)</li>
+<li><code>d-flex</code> — <code>display: flex</code></li>
+<li><code>align-center</code> — <code>align-items: center</code> (funciona em contêiner flex)</li>
+<li><code>justify-space-between</code> — <code>justify-content: space-between</code></li>
+</ul>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;d-flex align-center justify-space-between pa-4&quot;</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">span</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;text-h6&quot;</span><span class="p">&gt;</span>Eventos disponíveis<span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">v-btn</span> <span class="na">color</span><span class="o">=</span><span class="s">&quot;primary&quot;</span> <span class="na">variant</span><span class="o">=</span><span class="s">&quot;tonal&quot;</span><span class="p">&gt;</span>Novo evento<span class="p">&lt;/</span><span class="nt">v-btn</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<p>Essas classes evitam CSS customizado para casos simples de espaçamento e alinhamento — e, por serem previsíveis, tornam o código mais fácil de ler entre desenvolvedores diferentes.</p>
+<h2 id="7-vue-router-5-transformando-paginas-em-rotas">7. Vue Router 5: transformando páginas em rotas<a class="anchor" href="#7-vue-router-5-transformando-paginas-em-rotas" title="Permanent link">¶</a></h2>
+<p>Até agora o UniEventos era uma única página com tudo dentro de <code>App.vue</code>. Uma aplicação real precisa de <strong>navegação</strong>: uma URL para a lista de eventos, outra para o detalhe de um evento específico, outra para "sobre". Isso é o papel do <strong>Vue Router</strong>.</p>
+<p>O UniEventos, se você criou o projeto com <code>--router</code> (como recomenda a §4 da especificação), já vem com Vue Router 5.2.0 instalado e configurado. Vamos entender e expandir essa configuração.</p>
+<h3 id="estrutura-basica">Estrutura básica<a class="anchor" href="#estrutura-basica" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/router/index.js</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createRouter</span><span class="p">,</span><span class="w"> </span><span class="nx">createWebHistory</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue-router&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">HomeView</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../views/HomeView.vue&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">router</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">createRouter</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">history</span><span class="o">:</span><span class="w"> </span><span class="nx">createWebHistory</span><span class="p">(</span><span class="k">import</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">BASE_URL</span><span class="p">),</span>
+<span class="w">  </span><span class="nx">routes</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;home&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="nx">HomeView</span><span class="p">,</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="p">})</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">router</span>
+</code></pre></div></div>
+
+<ul>
+<li><code>createRouter</code> monta a instância do roteador — assim como <code>createVuetify</code> e <code>createPinia</code>, ela é registrada com <code>app.use(router)</code> no <code>main.js</code> (isso já vem pronto no scaffold).</li>
+<li><code>createWebHistory</code> usa a API de histórico do navegador (<code>pushState</code>) para gerar URLs "limpas" (<code>/eventos/12</code>) em vez de usar <code>#</code> (hash). Isso exige que o servidor de produção redirecione todas as rotas para <code>index.html</code> — trataremos disso na Unidade 3, ao falar de deploy.</li>
+<li><code>routes</code> é um array de objetos <code>{ path, name, component }</code>. <code>name</code> permite navegar por nome em vez de string de URL, o que evita erros de digitação espalhados pelo código.</li>
+</ul>
+<h3 id="routerlink-e-routerview"><code>&lt;RouterLink&gt;</code> e <code>&lt;RouterView&gt;</code><a class="anchor" href="#routerlink-e-routerview" title="Permanent link">¶</a></h3>
+<p>Dois componentes globais, já registrados automaticamente pelo <code>app.use(router)</code>:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">nav</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">RouterLink</span> <span class="na">to</span><span class="o">=</span><span class="s">&quot;/&quot;</span><span class="p">&gt;</span>Home<span class="p">&lt;/</span><span class="nt">RouterLink</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">RouterLink</span> <span class="p">:</span><span class="na">to</span><span class="o">=</span><span class="s">&quot;</span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;sobre&#39;</span><span class="w"> </span><span class="p">}</span><span class="s">&quot;</span><span class="p">&gt;</span>Sobre<span class="p">&lt;/</span><span class="nt">RouterLink</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">nav</span><span class="p">&gt;</span>
+
+  <span class="p">&lt;</span><span class="nt">RouterView</span> <span class="p">/&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<ul>
+<li><code>&lt;RouterLink&gt;</code> renderiza um <code>&lt;a&gt;</code> de verdade (importante para acessibilidade e SEO), mas intercepta o clique para trocar de rota sem recarregar a página inteira.</li>
+<li><code>&lt;RouterView&gt;</code> é o "buraco" onde o componente da rota ativa é renderizado. Em <code>App.vue</code>, ele normalmente fica dentro de <code>v-main</code>.</li>
+</ul>
+<h3 id="rotas-com-parametros">Rotas com parâmetros<a class="anchor" href="#rotas-com-parametros" title="Permanent link">¶</a></h3>
+<p>A tela de detalhe de um evento precisa saber <em>qual</em> evento mostrar. Isso é feito com um segmento dinâmico na URL:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/router/index.js (trecho)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/eventos/:id&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;evento-detalhe&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">import</span><span class="p">(</span><span class="s1">&#39;../views/EventoDetalheView.vue&#39;</span><span class="p">),</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Dentro do componente, o parâmetro é lido com o composable <code>useRoute()</code>:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="cm">&lt;!-- src/views/EventoDetalheView.vue (trecho) --&gt;</span>
+<span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">useRoute</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue-router&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">rota</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useRoute</span><span class="p">()</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">rota</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">id</span><span class="p">)</span><span class="w"> </span><span class="c1">// string com o valor de :id na URL atual</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção:</strong> <code>rota.params.id</code> sempre vem como <strong>string</strong>, mesmo que o ID no seu array de dados seja um número. Se você comparar com <code>===</code>, compare string com string ou converta com <code>Number(rota.params.id)</code>.</p>
+</blockquote>
+<h3 id="rota-404-catch-all">Rota 404 (catch-all)<a class="anchor" href="#rota-404-catch-all" title="Permanent link">¶</a></h3>
+<p>Toda SPA precisa de uma rota que capture qualquer caminho não mapeado:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/router/index.js (trecho — sempre por último no array de routes)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/:pathMatch(.*)*&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;nao-encontrado&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">import</span><span class="p">(</span><span class="s1">&#39;../views/NaoEncontradoView.vue&#39;</span><span class="p">),</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>O padrão <code>/:pathMatch(.*)*</code> é a sintaxe do Vue Router para "qualquer caminho, com qualquer profundidade de segmentos". Ele precisa ficar <strong>por último</strong> na lista de rotas — o roteador testa as rotas na ordem declarada, e uma rota catch-all no início bloquearia todas as outras.</p>
+<h3 id="navegacao-programatica">Navegação programática<a class="anchor" href="#navegacao-programatica" title="Permanent link">¶</a></h3>
+<p>Além de <code>&lt;RouterLink&gt;</code>, você pode navegar via código — por exemplo, depois de confirmar uma inscrição:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">useRouter</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue-router&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">router</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useRouter</span><span class="p">()</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">confirmarInscricao</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// ... lógica de inscrição</span>
+<span class="w">  </span><span class="nx">router</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;home&#39;</span><span class="w"> </span><span class="p">})</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><code>useRouter()</code> (com R maiúsculo de Router) dá acesso ao roteador inteiro — inclusive ao método <code>push</code>, que navega para uma nova rota, empilhando-a no histórico do navegador (o botão "voltar" funciona). Note a diferença: <code>useRoute()</code> (singular, sem "r" no fim de Route) dá acesso somente à <strong>rota atual</strong>; <code>useRouter()</code> dá acesso ao <strong>roteador</strong>, que permite navegar.</p>
+<h3 id="lazy-loading-de-rotas">Lazy loading de rotas<a class="anchor" href="#lazy-loading-de-rotas" title="Permanent link">¶</a></h3>
+<p>Repare que, no exemplo de <code>/eventos/:id</code> acima, o componente foi importado como <code>() =&gt; import('../views/EventoDetalheView.vue')</code> em vez de um <code>import</code> estático no topo do arquivo. Essa é a técnica de <strong>lazy loading</strong> (carregamento tardio): o Vite gera um arquivo JavaScript separado para essa view, que só é baixado pelo navegador quando o usuário navega até ela.</p>
+<p>Em uma aplicação pequena isso não faz diferença perceptível, mas é o padrão recomendado desde já — conforme o UniEventos cresce (área administrativa, formulários, tabelas), o bundle inicial permanece pequeno porque cada view só é carregada quando necessária.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/router/index.js — versão completa recomendada, com lazy loading em tudo</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createRouter</span><span class="p">,</span><span class="w"> </span><span class="nx">createWebHistory</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue-router&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">router</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">createRouter</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">history</span><span class="o">:</span><span class="w"> </span><span class="nx">createWebHistory</span><span class="p">(</span><span class="k">import</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">BASE_URL</span><span class="p">),</span>
+<span class="w">  </span><span class="nx">routes</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;home&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">import</span><span class="p">(</span><span class="s1">&#39;../views/HomeView.vue&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/eventos/:id&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;evento-detalhe&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">import</span><span class="p">(</span><span class="s1">&#39;../views/EventoDetalheView.vue&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/sobre&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;sobre&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">import</span><span class="p">(</span><span class="s1">&#39;../views/SobreView.vue&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/:pathMatch(.*)*&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;nao-encontrado&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">import</span><span class="p">(</span><span class="s1">&#39;../views/NaoEncontradoView.vue&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="p">})</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">router</span>
+</code></pre></div></div>
+
+<h2 id="padrao-de-projeto-em-uso">🧩 Padrão de projeto em uso<a class="anchor" href="#padrao-de-projeto-em-uso" title="Permanent link">¶</a></h2>
+<blockquote>
+<h3 id="padrao-de-projeto-em-uso-composite-estrutural">🧩 Padrão de projeto em uso — Composite (estrutural)<a class="anchor" href="#padrao-de-projeto-em-uso-composite-estrutural" title="Permanent link">¶</a></h3>
+<p>A árvore de componentes do Vue é um exemplo direto do padrão <strong>Composite</strong>: um componente pode conter outros componentes, que por sua vez podem conter outros, formando uma hierarquia onde o "todo" e a "parte" são tratados de forma uniforme. <code>v-app</code> contém <code>v-app-bar</code>, <code>v-main</code> e <code>v-navigation-drawer</code>; <code>v-main</code> contém <code>RouterView</code>; <code>RouterView</code> renderiza uma view, que contém <code>v-container</code> &gt; <code>v-row</code> &gt; <code>v-col</code> &gt; <code>v-card</code>. Em cada nível, você trabalha com a mesma interface (props, slots, eventos) sem precisar saber o que está por dentro.</p>
+<p>O Vue Router aplica a mesma lógica na dimensão de <strong>navegação</strong>: rotas podem ter rotas-filhas (<code>children</code>), formando uma árvore de rotas que espelha uma árvore de <code>RouterView</code>s aninhados. Vamos explorar isso a fundo na Aula 05, quando construirmos a área administrativa com rotas aninhadas.</p>
+</blockquote>
+<h2 id="mao-na-massa-migrando-o-unieventos-para-uma-spa-de-verdade">💻 Mão na massa — migrando o UniEventos para uma SPA de verdade<a class="anchor" href="#mao-na-massa-migrando-o-unieventos-para-uma-spa-de-verdade" title="Permanent link">¶</a></h2>
+<p>Vamos transformar o projeto de página única em uma aplicação navegável com layout persistente, tema institucional e quatro views.</p>
+<h3 id="passo-1-instalar-o-vuetify-no-projeto">Passo 1 — instalar o Vuetify no projeto<a class="anchor" href="#passo-1-instalar-o-vuetify-no-projeto" title="Permanent link">¶</a></h3>
+<p>Se você ainda não instalou (parte da §2 desta aula), rode dentro da pasta do projeto:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>npm<span class="w"> </span>install<span class="w"> </span>vuetify<span class="w"> </span>@mdi/font
+npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </span>vite-plugin-vuetify
+</code></pre></div></div>
+
+<h3 id="passo-2-configurar-viteconfigjs">Passo 2 — configurar <code>vite.config.js</code><a class="anchor" href="#passo-2-configurar-viteconfigjs" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// vite.config.js</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">fileURLToPath</span><span class="p">,</span><span class="w"> </span><span class="nx">URL</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;node:url&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">defineConfig</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vite&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">vue</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@vitejs/plugin-vue&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">vuetify</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">transformAssetUrls</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vite-plugin-vuetify&#39;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">defineConfig</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">plugins</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="nx">vue</span><span class="p">({</span><span class="w"> </span><span class="nx">template</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">transformAssetUrls</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}),</span>
+<span class="w">    </span><span class="nx">vuetify</span><span class="p">({</span><span class="w"> </span><span class="nx">autoImport</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">}),</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nx">resolve</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">alias</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s1">&#39;@&#39;</span><span class="o">:</span><span class="w"> </span><span class="nx">fileURLToPath</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">URL</span><span class="p">(</span><span class="s1">&#39;./src&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">import</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">url</span><span class="p">))</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<h3 id="passo-3-criar-o-plugin-do-vuetify-com-tema-institucional">Passo 3 — criar o plugin do Vuetify com tema institucional<a class="anchor" href="#passo-3-criar-o-plugin-do-vuetify-com-tema-institucional" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/plugins/vuetify.js</span>
+<span class="k">import</span><span class="w"> </span><span class="s1">&#39;@mdi/font/css/materialdesignicons.css&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="s1">&#39;vuetify/styles&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createVuetify</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vuetify&#39;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">createVuetify</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">theme</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">defaultTheme</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;light&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">themes</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">light</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">dark</span><span class="o">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">colors</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nx">primary</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#1B5E20&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">secondary</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#F9A825&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">error</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#B00020&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">success</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#2E7D32&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">warning</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#F57F17&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">info</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#0277BD&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">background</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#F5F5F5&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">surface</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#FFFFFF&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nx">dark</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">dark</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">colors</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nx">primary</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#66BB6A&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">secondary</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#FFCA28&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">error</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#CF6679&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">success</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#66BB6A&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">warning</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#FFB300&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">info</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#4FC3F7&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">background</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#121212&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">surface</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#1E1E1E&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<p>Separar a configuração do Vuetify em <code>src/plugins/vuetify.js</code> (em vez de deixar tudo dentro de <code>main.js</code>) mantém o ponto de entrada da aplicação enxuto — uma prática que vamos repetir com o Axios na Aula 06.</p>
+<h3 id="passo-4-atualizar-srcmainjs">Passo 4 — atualizar <code>src/main.js</code><a class="anchor" href="#passo-4-atualizar-srcmainjs" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/main.js</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createApp</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createPinia</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;pinia&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">App</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./App.vue&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">router</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./router&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">vuetify</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./plugins/vuetify&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">app</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">createApp</span><span class="p">(</span><span class="nx">App</span><span class="p">)</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">createPinia</span><span class="p">())</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">router</span><span class="p">)</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">vuetify</span><span class="p">)</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">mount</span><span class="p">(</span><span class="s1">&#39;#app&#39;</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="passo-5-criar-o-modelo-de-dados-de-eventos">Passo 5 — criar o modelo de dados de eventos<a class="anchor" href="#passo-5-criar-o-modelo-de-dados-de-eventos" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/data/eventos.js</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">eventos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Semana Acadêmica de Computação&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">descricao</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Palestras e minicursos sobre tendências em tecnologia.&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;palestra&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">dataHora</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2026-09-29T19:00:00&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">local</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Auditório Central&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">40</span><span class="p">,</span><span class="w"> </span><span class="nx">imagemUrl</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://picsum.photos/seed/evento1/600/300&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">2</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Minicurso de Vue.js Avançado&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">descricao</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Componentização, roteamento e gerenciamento de estado.&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;minicurso&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">dataHora</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2026-09-15T18:30:00&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">local</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Laboratório 3&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">25</span><span class="p">,</span><span class="w"> </span><span class="nx">imagemUrl</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://picsum.photos/seed/evento2/600/300&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">3</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Workshop de Prototipação em Figma&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">descricao</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Fundamentos de design de interfaces para desenvolvedores.&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;workshop&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">dataHora</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2026-09-20T14:00:00&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">local</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Sala 12&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">30</span><span class="p">,</span><span class="w"> </span><span class="nx">imagemUrl</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://picsum.photos/seed/evento3/600/300&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">4</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Palestra: Carreira em Dados&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">descricao</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Trilhas profissionais em ciência e engenharia de dados.&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;palestra&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">dataHora</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2026-10-02T19:30:00&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">local</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Auditório Central&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">50</span><span class="p">,</span><span class="w"> </span><span class="nx">imagemUrl</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://picsum.photos/seed/evento4/600/300&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">5</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Minicurso de Banco de Dados NoSQL&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">descricao</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Modelagem de dados com MongoDB na prática.&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;minicurso&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">dataHora</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2026-09-22T18:30:00&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">local</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Laboratório 2&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">20</span><span class="p">,</span><span class="w"> </span><span class="nx">imagemUrl</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://picsum.photos/seed/evento5/600/300&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">6</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Workshop de Testes Automatizados&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">descricao</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Testes unitários e de integração em aplicações web.&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;workshop&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">dataHora</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2026-10-05T14:00:00&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">local</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Sala 12&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">25</span><span class="p">,</span><span class="w"> </span><span class="nx">imagemUrl</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://picsum.photos/seed/evento6/600/300&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">7</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Palestra: Ética em Inteligência Artificial&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">descricao</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Discussão sobre vieses e responsabilidade em sistemas de IA.&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;palestra&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">dataHora</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2026-10-10T19:00:00&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">local</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Auditório Central&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">60</span><span class="p">,</span><span class="w"> </span><span class="nx">imagemUrl</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://picsum.photos/seed/evento7/600/300&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">8</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Minicurso de Node.js e Express&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">descricao</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Construindo APIs REST do zero.&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;minicurso&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">dataHora</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2026-09-25T18:30:00&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">local</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Laboratório 1&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">25</span><span class="p">,</span><span class="w"> </span><span class="nx">imagemUrl</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://picsum.photos/seed/evento8/600/300&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="p">]</span>
+</code></pre></div></div>
+
+<p>Estes são os mesmos oito eventos-base que continuam evoluindo a partir de agora até a Unidade 3, quando virão de uma API de verdade.</p>
+<h3 id="passo-6-atualizar-srcrouterindexjs">Passo 6 — atualizar <code>src/router/index.js</code><a class="anchor" href="#passo-6-atualizar-srcrouterindexjs" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/router/index.js</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createRouter</span><span class="p">,</span><span class="w"> </span><span class="nx">createWebHistory</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue-router&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">router</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">createRouter</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">history</span><span class="o">:</span><span class="w"> </span><span class="nx">createWebHistory</span><span class="p">(</span><span class="k">import</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">BASE_URL</span><span class="p">),</span>
+<span class="w">  </span><span class="nx">routes</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;home&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">import</span><span class="p">(</span><span class="s1">&#39;../views/HomeView.vue&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/eventos/:id&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;evento-detalhe&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">import</span><span class="p">(</span><span class="s1">&#39;../views/EventoDetalheView.vue&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/sobre&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;sobre&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">import</span><span class="p">(</span><span class="s1">&#39;../views/SobreView.vue&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/:pathMatch(.*)*&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;nao-encontrado&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">import</span><span class="p">(</span><span class="s1">&#39;../views/NaoEncontradoView.vue&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="p">})</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">router</span>
+</code></pre></div></div>
+
+<h3 id="passo-7-criar-o-layout-em-appvue">Passo 7 — criar o layout em <code>App.vue</code><a class="anchor" href="#passo-7-criar-o-layout-em-appvue" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="cm">&lt;!-- src/App.vue --&gt;</span>
+<span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="p">,</span><span class="w"> </span><span class="nx">computed</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">useTheme</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vuetify&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">RouterLink</span><span class="p">,</span><span class="w"> </span><span class="nx">RouterView</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue-router&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">drawerAberto</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">tema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useTheme</span><span class="p">()</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">ehEscuro</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">computed</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">tema</span><span class="p">.</span><span class="nb">global</span><span class="p">.</span><span class="nx">name</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;dark&#39;</span><span class="p">)</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">alternarTema</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">tema</span><span class="p">.</span><span class="nb">global</span><span class="p">.</span><span class="nx">name</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ehEscuro</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;light&#39;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;dark&#39;</span>
+<span class="p">}</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">linksMenu</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Início&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">rota</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;home&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">icone</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;mdi-home&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Sobre&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">rota</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;sobre&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">icone</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;mdi-information&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="p">]</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">v-app</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">v-app-bar</span> <span class="na">color</span><span class="o">=</span><span class="s">&quot;primary&quot;</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">v-app-bar-nav-icon</span> <span class="p">@</span><span class="na">click</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">drawerAberto</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">!</span><span class="nx">drawerAberto</span><span class="s">&quot;</span> <span class="p">/&gt;</span>
+      <span class="p">&lt;</span><span class="nt">v-app-bar-title</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">RouterLink</span> <span class="na">to</span><span class="o">=</span><span class="s">&quot;/&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;text-white text-decoration-none&quot;</span><span class="p">&gt;</span>UniEventos<span class="p">&lt;/</span><span class="nt">RouterLink</span><span class="p">&gt;</span>
+      <span class="p">&lt;/</span><span class="nt">v-app-bar-title</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">v-spacer</span> <span class="p">/&gt;</span>
+      <span class="p">&lt;</span><span class="nt">v-btn</span>
+        <span class="p">:</span><span class="na">icon</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">ehEscuro</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;mdi-weather-sunny&#39;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;mdi-weather-night&#39;</span><span class="s">&quot;</span>
+        <span class="na">variant</span><span class="o">=</span><span class="s">&quot;text&quot;</span>
+        <span class="p">@</span><span class="na">click</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">alternarTema</span><span class="s">&quot;</span>
+      <span class="p">/&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">v-app-bar</span><span class="p">&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">v-navigation-drawer</span> <span class="na">v-model</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">drawerAberto</span><span class="s">&quot;</span> <span class="na">temporary</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">v-list</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">v-list-item</span>
+          <span class="na">v-for</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">link</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">linksMenu</span><span class="s">&quot;</span>
+          <span class="p">:</span><span class="na">key</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">link</span><span class="p">.</span><span class="nx">rota</span><span class="s">&quot;</span>
+          <span class="p">:</span><span class="na">to</span><span class="o">=</span><span class="s">&quot;</span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="nx">link</span><span class="p">.</span><span class="nx">rota</span><span class="w"> </span><span class="p">}</span><span class="s">&quot;</span>
+          <span class="p">:</span><span class="na">title</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">link</span><span class="p">.</span><span class="nx">titulo</span><span class="s">&quot;</span>
+          <span class="p">:</span><span class="na">prepend-icon</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">link</span><span class="p">.</span><span class="nx">icone</span><span class="s">&quot;</span>
+        <span class="p">/&gt;</span>
+      <span class="p">&lt;/</span><span class="nt">v-list</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">v-navigation-drawer</span><span class="p">&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">v-main</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">RouterView</span> <span class="p">/&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">v-main</span><span class="p">&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">v-footer</span> <span class="na">color</span><span class="o">=</span><span class="s">&quot;primary&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;d-flex justify-center pa-4&quot;</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">span</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;text-white&quot;</span><span class="p">&gt;</span>UNEMAT · FACET · FACET-SNP-310 · 2026.2<span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">v-footer</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">v-app</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<p>Repare que <code>v-list-item</code> aceita a prop <code>to</code>, exatamente como <code>RouterLink</code> — internamente, o Vuetify integra os dois. Isso evita ter que envolver cada item de menu em um <code>&lt;RouterLink&gt;</code> manualmente.</p>
+<h3 id="passo-8-criar-homeviewvue">Passo 8 — criar <code>HomeView.vue</code><a class="anchor" href="#passo-8-criar-homeviewvue" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="cm">&lt;!-- src/views/HomeView.vue --&gt;</span>
+<span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="p">,</span><span class="w"> </span><span class="nx">computed</span><span class="p">,</span><span class="w"> </span><span class="nx">onMounted</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">eventos</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../data/eventos&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">carregando</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">listaEventos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">([])</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">categoriaFiltro</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="s1">&#39;Todas&#39;</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">busca</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+<span class="nx">onMounted</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// simula uma chamada assíncrona, como fizemos na Aula 03 com fetch</span>
+<span class="w">  </span><span class="nx">setTimeout</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">listaEventos</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">eventos</span>
+<span class="w">    </span><span class="nx">carregando</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">  </span><span class="p">},</span><span class="w"> </span><span class="mf">400</span><span class="p">)</span>
+<span class="p">})</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">categorias</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;Todas&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Palestra&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Minicurso&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Workshop&#39;</span><span class="p">]</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">eventosFiltrados</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">computed</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">listaEventos</span><span class="p">.</span><span class="nx">value</span><span class="p">.</span><span class="nx">filter</span><span class="p">((</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">bateCategoria</span><span class="w"> </span><span class="o">=</span>
+<span class="w">      </span><span class="nx">categoriaFiltro</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;Todas&#39;</span><span class="w"> </span><span class="o">||</span>
+<span class="w">      </span><span class="nx">evento</span><span class="p">.</span><span class="nx">categoria</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">categoriaFiltro</span><span class="p">.</span><span class="nx">value</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">()</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">bateBusca</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">()</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="nx">busca</span><span class="p">.</span><span class="nx">value</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">())</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">bateCategoria</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">bateBusca</span>
+<span class="w">  </span><span class="p">})</span>
+<span class="p">})</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">formatarData</span><span class="p">(</span><span class="nx">dataIso</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">(</span><span class="nx">dataIso</span><span class="p">).</span><span class="nx">toLocaleDateString</span><span class="p">(</span><span class="s1">&#39;pt-BR&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">day</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2-digit&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">month</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2-digit&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">year</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;numeric&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">})</span>
+<span class="p">}</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">v-container</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">h1</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;text-h4 mb-4&quot;</span><span class="p">&gt;</span>Eventos disponíveis<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">v-row</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;mb-2&quot;</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">v-col</span> <span class="na">cols</span><span class="o">=</span><span class="s">&quot;12&quot;</span> <span class="na">md</span><span class="o">=</span><span class="s">&quot;6&quot;</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">v-text-field</span>
+          <span class="na">v-model</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">busca</span><span class="s">&quot;</span>
+          <span class="na">label</span><span class="o">=</span><span class="s">&quot;Buscar evento&quot;</span>
+          <span class="na">prepend-inner-icon</span><span class="o">=</span><span class="s">&quot;mdi-magnify&quot;</span>
+          <span class="na">variant</span><span class="o">=</span><span class="s">&quot;outlined&quot;</span>
+          <span class="na">density</span><span class="o">=</span><span class="s">&quot;compact&quot;</span>
+          <span class="na">clearable</span>
+        <span class="p">/&gt;</span>
+      <span class="p">&lt;/</span><span class="nt">v-col</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">v-col</span> <span class="na">cols</span><span class="o">=</span><span class="s">&quot;12&quot;</span> <span class="na">md</span><span class="o">=</span><span class="s">&quot;6&quot;</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">v-select</span>
+          <span class="na">v-model</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">categoriaFiltro</span><span class="s">&quot;</span>
+          <span class="p">:</span><span class="na">items</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">categorias</span><span class="s">&quot;</span>
+          <span class="na">label</span><span class="o">=</span><span class="s">&quot;Categoria&quot;</span>
+          <span class="na">variant</span><span class="o">=</span><span class="s">&quot;outlined&quot;</span>
+          <span class="na">density</span><span class="o">=</span><span class="s">&quot;compact&quot;</span>
+        <span class="p">/&gt;</span>
+      <span class="p">&lt;/</span><span class="nt">v-col</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">v-row</span><span class="p">&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">v-if</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">carregando</span><span class="s">&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;d-flex justify-center pa-8&quot;</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">v-progress-circular</span> <span class="na">indeterminate</span> <span class="na">color</span><span class="o">=</span><span class="s">&quot;primary&quot;</span> <span class="na">size</span><span class="o">=</span><span class="s">&quot;48&quot;</span> <span class="p">/&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">v-alert</span>
+      <span class="na">v-else-if</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">eventosFiltrados</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="s">&quot;</span>
+      <span class="na">type</span><span class="o">=</span><span class="s">&quot;info&quot;</span>
+      <span class="na">variant</span><span class="o">=</span><span class="s">&quot;tonal&quot;</span>
+      <span class="na">title</span><span class="o">=</span><span class="s">&quot;Nenhum evento encontrado&quot;</span>
+    <span class="p">&gt;</span>
+      Tente ajustar os filtros de categoria ou o termo de busca.
+    <span class="p">&lt;/</span><span class="nt">v-alert</span><span class="p">&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">v-row</span> <span class="na">v-else</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">v-col</span>
+        <span class="na">v-for</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">eventosFiltrados</span><span class="s">&quot;</span>
+        <span class="p">:</span><span class="na">key</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="p">.</span><span class="nx">id</span><span class="s">&quot;</span>
+        <span class="na">cols</span><span class="o">=</span><span class="s">&quot;12&quot;</span>
+        <span class="na">sm</span><span class="o">=</span><span class="s">&quot;6&quot;</span>
+        <span class="na">md</span><span class="o">=</span><span class="s">&quot;4&quot;</span>
+      <span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">v-card</span> <span class="p">:</span><span class="na">to</span><span class="o">=</span><span class="s">&quot;</span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;evento-detalhe&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">params</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span><span class="s">&quot;</span><span class="p">&gt;</span>
+          <span class="p">&lt;</span><span class="nt">v-img</span> <span class="p">:</span><span class="na">src</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="p">.</span><span class="nx">imagemUrl</span><span class="s">&quot;</span> <span class="na">height</span><span class="o">=</span><span class="s">&quot;160&quot;</span> <span class="na">cover</span> <span class="p">/&gt;</span>
+          <span class="p">&lt;</span><span class="nt">v-card-title</span><span class="p">&gt;</span><span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">v-card-title</span><span class="p">&gt;</span>
+          <span class="p">&lt;</span><span class="nt">v-card-subtitle</span><span class="p">&gt;</span>
+            <span class="cp">{{</span><span class="w"> </span><span class="nx">formatarData</span><span class="p">(</span><span class="nx">evento</span><span class="p">.</span><span class="nx">dataHora</span><span class="p">)</span><span class="w"> </span><span class="cp">}}</span> · <span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">local</span><span class="w"> </span><span class="cp">}}</span>
+          <span class="p">&lt;/</span><span class="nt">v-card-subtitle</span><span class="p">&gt;</span>
+          <span class="p">&lt;</span><span class="nt">v-card-actions</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">v-chip</span> <span class="na">color</span><span class="o">=</span><span class="s">&quot;secondary&quot;</span> <span class="na">size</span><span class="o">=</span><span class="s">&quot;small&quot;</span><span class="p">&gt;</span><span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">categoria</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">v-chip</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">v-spacer</span> <span class="p">/&gt;</span>
+            <span class="p">&lt;</span><span class="nt">v-chip</span> <span class="na">color</span><span class="o">=</span><span class="s">&quot;success&quot;</span> <span class="na">size</span><span class="o">=</span><span class="s">&quot;small&quot;</span><span class="p">&gt;</span><span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">vagas</span><span class="w"> </span><span class="cp">}}</span> vagas<span class="p">&lt;/</span><span class="nt">v-chip</span><span class="p">&gt;</span>
+          <span class="p">&lt;/</span><span class="nt">v-card-actions</span><span class="p">&gt;</span>
+        <span class="p">&lt;/</span><span class="nt">v-card</span><span class="p">&gt;</span>
+      <span class="p">&lt;/</span><span class="nt">v-col</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">v-row</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">v-container</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<p>Assim como <code>v-list-item</code>, o <code>v-card</code> aceita a prop <code>to</code> — o card inteiro vira clicável e navega para o detalhe do evento, sem precisar de um <code>@click</code> manual com <code>router.push</code>.</p>
+<h3 id="passo-9-criar-eventodetalheviewvue">Passo 9 — criar <code>EventoDetalheView.vue</code><a class="anchor" href="#passo-9-criar-eventodetalheviewvue" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="cm">&lt;!-- src/views/EventoDetalheView.vue --&gt;</span>
+<span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">computed</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">useRoute</span><span class="p">,</span><span class="w"> </span><span class="nx">useRouter</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue-router&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">eventos</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../data/eventos&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">rota</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useRoute</span><span class="p">()</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">router</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useRouter</span><span class="p">()</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">evento</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">computed</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span>
+<span class="w">  </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">find</span><span class="p">((</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nb">Number</span><span class="p">(</span><span class="nx">rota</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">id</span><span class="p">))</span>
+<span class="p">)</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">formatarDataHora</span><span class="p">(</span><span class="nx">dataIso</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">(</span><span class="nx">dataIso</span><span class="p">).</span><span class="nx">toLocaleString</span><span class="p">(</span><span class="s1">&#39;pt-BR&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">dateStyle</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;long&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">timeStyle</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;short&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">})</span>
+<span class="p">}</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">voltar</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">router</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;home&#39;</span><span class="w"> </span><span class="p">})</span>
+<span class="p">}</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">v-container</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">v-btn</span> <span class="na">variant</span><span class="o">=</span><span class="s">&quot;text&quot;</span> <span class="na">prepend-icon</span><span class="o">=</span><span class="s">&quot;mdi-arrow-left&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;mb-4&quot;</span> <span class="p">@</span><span class="na">click</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">voltar</span><span class="s">&quot;</span><span class="p">&gt;</span>
+      Voltar para eventos
+    <span class="p">&lt;/</span><span class="nt">v-btn</span><span class="p">&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">v-alert</span> <span class="na">v-if</span><span class="o">=</span><span class="s">&quot;</span><span class="o">!</span><span class="nx">evento</span><span class="s">&quot;</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;error&quot;</span> <span class="na">variant</span><span class="o">=</span><span class="s">&quot;tonal&quot;</span> <span class="na">title</span><span class="o">=</span><span class="s">&quot;Evento não encontrado&quot;</span><span class="p">&gt;</span>
+      Não existe evento com este identificador. Confira o link acessado.
+    <span class="p">&lt;/</span><span class="nt">v-alert</span><span class="p">&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">v-card</span> <span class="na">v-else</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">v-img</span> <span class="p">:</span><span class="na">src</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="p">.</span><span class="nx">imagemUrl</span><span class="s">&quot;</span> <span class="na">height</span><span class="o">=</span><span class="s">&quot;280&quot;</span> <span class="na">cover</span> <span class="p">/&gt;</span>
+      <span class="p">&lt;</span><span class="nt">v-card-title</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;text-h5&quot;</span><span class="p">&gt;</span><span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">v-card-title</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">v-card-subtitle</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">v-icon</span> <span class="na">icon</span><span class="o">=</span><span class="s">&quot;mdi-calendar&quot;</span> <span class="na">size</span><span class="o">=</span><span class="s">&quot;small&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;mr-1&quot;</span> <span class="p">/&gt;</span>
+        <span class="cp">{{</span><span class="w"> </span><span class="nx">formatarDataHora</span><span class="p">(</span><span class="nx">evento</span><span class="p">.</span><span class="nx">dataHora</span><span class="p">)</span><span class="w"> </span><span class="cp">}}</span>
+      <span class="p">&lt;/</span><span class="nt">v-card-subtitle</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">v-card-text</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">p</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;mb-4&quot;</span><span class="p">&gt;</span><span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">descricao</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;d-flex align-center mb-2&quot;</span><span class="p">&gt;</span>
+          <span class="p">&lt;</span><span class="nt">v-icon</span> <span class="na">icon</span><span class="o">=</span><span class="s">&quot;mdi-map-marker&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;mr-2&quot;</span> <span class="p">/&gt;</span>
+          <span class="p">&lt;</span><span class="nt">span</span><span class="p">&gt;</span><span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">local</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+        <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;d-flex align-center&quot;</span><span class="p">&gt;</span>
+          <span class="p">&lt;</span><span class="nt">v-icon</span> <span class="na">icon</span><span class="o">=</span><span class="s">&quot;mdi-account-group&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;mr-2&quot;</span> <span class="p">/&gt;</span>
+          <span class="p">&lt;</span><span class="nt">span</span><span class="p">&gt;</span><span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">vagas</span><span class="w"> </span><span class="cp">}}</span> vagas disponíveis<span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+        <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+      <span class="p">&lt;/</span><span class="nt">v-card-text</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">v-card-actions</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">v-chip</span> <span class="na">color</span><span class="o">=</span><span class="s">&quot;secondary&quot;</span><span class="p">&gt;</span><span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">categoria</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">v-chip</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">v-spacer</span> <span class="p">/&gt;</span>
+        <span class="p">&lt;</span><span class="nt">v-btn</span> <span class="na">color</span><span class="o">=</span><span class="s">&quot;primary&quot;</span> <span class="na">variant</span><span class="o">=</span><span class="s">&quot;flat&quot;</span><span class="p">&gt;</span>Inscrever-se<span class="p">&lt;/</span><span class="nt">v-btn</span><span class="p">&gt;</span>
+      <span class="p">&lt;/</span><span class="nt">v-card-actions</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">v-card</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">v-container</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<p>Note o uso de <code>Number(rota.params.id)</code> — como discutido na §7, o parâmetro de rota sempre chega como string, e nossos IDs no array <code>eventos</code> são números.</p>
+<h3 id="passo-10-criar-sobreviewvue-e-naoencontradoviewvue">Passo 10 — criar <code>SobreView.vue</code> e <code>NaoEncontradoView.vue</code><a class="anchor" href="#passo-10-criar-sobreviewvue-e-naoencontradoviewvue" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="cm">&lt;!-- src/views/SobreView.vue --&gt;</span>
+<span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">v-container</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">v-card</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;pa-4&quot;</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">v-card-title</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;text-h5&quot;</span><span class="p">&gt;</span>Sobre o UniEventos<span class="p">&lt;/</span><span class="nt">v-card-title</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">v-card-text</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">p</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;mb-2&quot;</span><span class="p">&gt;</span>
+          O UniEventos é uma plataforma para divulgação e inscrição em eventos
+          acadêmicos — palestras, minicursos e workshops.
+        <span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>
+          Projeto desenvolvido na disciplina FACET-SNP-310 — Frameworks Modernos
+          para Desenvolvimento de Sistemas, UNEMAT/Cáceres, 2026.2.
+        <span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+      <span class="p">&lt;/</span><span class="nt">v-card-text</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">v-card</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">v-container</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="cm">&lt;!-- src/views/NaoEncontradoView.vue --&gt;</span>
+<span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">RouterLink</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue-router&#39;</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">v-container</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;d-flex flex-column align-center justify-center&quot;</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;min-height: 60vh&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">v-icon</span> <span class="na">icon</span><span class="o">=</span><span class="s">&quot;mdi-alert-circle-outline&quot;</span> <span class="na">size</span><span class="o">=</span><span class="s">&quot;80&quot;</span> <span class="na">color</span><span class="o">=</span><span class="s">&quot;error&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;mb-4&quot;</span> <span class="p">/&gt;</span>
+    <span class="p">&lt;</span><span class="nt">h1</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;text-h4 mb-2&quot;</span><span class="p">&gt;</span>Página não encontrada<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">p</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;mb-6&quot;</span><span class="p">&gt;</span>O endereço acessado não existe no UniEventos.<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">v-btn</span> <span class="na">color</span><span class="o">=</span><span class="s">&quot;primary&quot;</span> <span class="na">variant</span><span class="o">=</span><span class="s">&quot;flat&quot;</span> <span class="p">:</span><span class="na">to</span><span class="o">=</span><span class="s">&quot;</span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;home&#39;</span><span class="w"> </span><span class="p">}</span><span class="s">&quot;</span><span class="p">&gt;</span>Voltar para o início<span class="p">&lt;/</span><span class="nt">v-btn</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">v-container</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<p>Repare que usamos <code>class="d-flex flex-column align-center justify-center"</code> em vez de <code>fill-height</code> — exatamente o alerta da §6 sobre a mudança de comportamento no Vuetify 4.</p>
+<h3 id="passo-11-testar-a-navegacao">Passo 11 — testar a navegação<a class="anchor" href="#passo-11-testar-a-navegacao" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>npm<span class="w"> </span>run<span class="w"> </span>dev
+</code></pre></div></div>
+
+<p>Confira: a home lista os eventos com filtro funcionando; clicar em um card navega para o detalhe com a URL <code>/eventos/3</code>; o menu lateral abre com o ícone de hambúrguer; o botão de sol/lua alterna o tema; acessar uma URL inexistente (<code>/qualquer-coisa</code>) mostra a tela 404.</p>
+<h2 id="laboratorio">🧪 Laboratório<a class="anchor" href="#laboratorio" title="Permanent link">¶</a></h2>
+<p><strong>1. Chip de vagas esgotadas</strong>
+No <code>HomeView.vue</code>, altere o chip de vagas para mostrar <code>"Esgotado"</code> em vermelho (<code>color="error"</code>) quando <code>evento.vagas === 0</code>. Adicione um evento de teste com <code>vagas: 0</code> no array de dados.</p>
+<details>
+<summary>Dica</summary>
+<p>Use um <code>v-if</code>/<code>v-else</code> dentro do <code>v-card-actions</code>, ou um <code>computed</code> que retorna a cor e o texto do chip com base em <code>evento.vagas</code>.</p>
+</details>
+<p><strong>2. Rota <code>/eventos</code> (lista) separada da rota <code>/eventos/:id</code> (detalhe)</strong>
+Hoje a home (<code>/</code>) já mostra a lista. Crie também uma rota nomeada <code>eventos-lista</code> no caminho <code>/eventos</code> que renderiza o mesmo componente que a home usa para a listagem. Use <code>&lt;RouterLink :to="{ name: 'eventos-lista' }"&gt;</code> em algum lugar do menu.</p>
+<details>
+<summary>Dica</summary>
+<p>Você pode apontar duas entradas de <code>routes</code> para o mesmo <code>component</code>, com <code>path</code> e <code>name</code> diferentes.</p>
+</details>
+<p><strong>3. Contador de eventos no app-bar</strong>
+No <code>App.vue</code>, mostre no <code>v-app-bar</code> (ao lado do título) um <code>v-chip</code> com o total de eventos cadastrados. Você vai precisar importar o array <code>eventos</code> também no <code>App.vue</code>.</p>
+<details>
+<summary>Dica</summary>
+<p><code>import { eventos } from './data/eventos'</code> e depois <code>{{ eventos.length }}</code> dentro de um <code>v-chip</code>.</p>
+</details>
+<p><strong>4. Tema alternativo com terceira paleta</strong>
+Adicione um terceiro tema chamado <code>contraste</code>, com cores de alto contraste (preto/amarelo), e um botão que cicla entre <code>light</code> → <code>dark</code> → <code>contraste</code> → <code>light</code>.</p>
+<details>
+<summary>Dica</summary>
+<p><code>themes: { light: {...}, dark: {...}, contraste: {...} }</code> no <code>createVuetify</code>, e uma função que usa um array <code>['light', 'dark', 'contraste']</code> com <code>indexOf</code> para descobrir o próximo tema.</p>
+</details>
+<p><strong>5. Rota protegida por parâmetro inválido</strong>
+No <code>EventoDetalheView.vue</code>, se <code>rota.params.id</code> não for um número válido (ex.: <code>/eventos/abc</code>), redirecione automaticamente para a rota <code>nao-encontrado</code> usando <code>router.push</code>.</p>
+<details>
+<summary>Dica</summary>
+<p><code>Number.isNaN(Number(rota.params.id))</code> dentro de um <code>onMounted</code> ou de um <code>watch</code> sobre <code>rota.params.id</code>.</p>
+</details>
+<h2 id="erros-comuns-e-como-resolver">🐛 Erros comuns e como resolver<a class="anchor" href="#erros-comuns-e-como-resolver" title="Permanent link">¶</a></h2>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Sintoma</th>
+<th>Causa</th>
+<th>Solução</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>v-card</code>, <code>v-btn</code> etc. aparecem como tags desconhecidas (sem estilo)</td>
+<td><code>vuetify({ autoImport: true })</code> não foi adicionado ao <code>vite.config.js</code>, ou o servidor não foi reiniciado após editar a config</td>
+<td>Confira o <code>vite.config.js</code> e reinicie <code>npm run dev</code></td>
+</tr>
+<tr>
+<td>Ícones MDI aparecem como quadrado vazio</td>
+<td>Faltou importar <code>@mdi/font/css/materialdesignicons.css</code></td>
+<td>Adicione o import no arquivo onde <code>createVuetify</code> é chamado</td>
+</tr>
+<tr>
+<td>Tela muda de clara para escura sozinha, sem clique</td>
+<td><code>defaultTheme</code> não foi definido — Vuetify 4 usa <code>'system'</code> por padrão</td>
+<td>Defina <code>theme: { defaultTheme: 'light' }</code> explicitamente</td>
+</tr>
+<tr>
+<td><code>v-row align="center"</code> não centraliza nada</td>
+<td>Prop removida no Vuetify 4</td>
+<td>Troque por <code>class="align-center"</code> no <code>v-row</code>, ou <code>d-flex align-center</code> num <code>&lt;div&gt;</code></td>
+</tr>
+<tr>
+<td><code>RouterLink</code>/<code>RouterView</code> não reconhecidos no template</td>
+<td>Componente não importado (fora do padrão de autoimport do Vuetify, que não cobre o Vue Router)</td>
+<td>Adicione <code>import { RouterLink, RouterView } from 'vue-router'</code> no <code>&lt;script setup&gt;</code></td>
+</tr>
+<tr>
+<td><code>rota.params.id</code> comparado com <code>===</code> a um número nunca bate</td>
+<td>Parâmetro de rota sempre é string</td>
+<td>Converta com <code>Number(rota.params.id)</code> antes de comparar</td>
+</tr>
+<tr>
+<td>Rota 404 nunca é acionada, mesmo em URL inválida</td>
+<td>Rota catch-all <code>/:pathMatch(.*)*</code> não está por último no array <code>routes</code></td>
+<td>Mova a rota catch-all para o final da lista</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="atividade-assincrona-1-h">🏠 Atividade assíncrona (1 h)<a class="anchor" href="#atividade-assincrona-1-h" title="Permanent link">¶</a></h2>
+<p>No <strong>seu projeto autoral</strong> (definido na Aula 01), aplique exatamente a mesma migração feita hoje no UniEventos:</p>
+<ol>
+<li>Instale o Vuetify seguindo os passos da §2.</li>
+<li>Crie um layout com <code>v-app-bar</code>, <code>v-navigation-drawer</code> (ou menu simples) e <code>v-main</code>.</li>
+<li>Configure um tema com pelo menos <code>primary</code> e <code>secondary</code> customizados, coerente com o domínio do seu projeto.</li>
+<li>Crie pelo menos três rotas: uma lista, um detalhe com parâmetro (<code>/:id</code>) e uma rota 404.</li>
+<li>Migre seus dados (mínimo 8 registros, já existentes desde a Aula 01/02) para os cards em grid responsivo.</li>
+</ol>
+<p><strong>Critério de pronto:</strong> <code>npm run dev</code> roda sem erros no console; navegar entre as três rotas funciona; o card de detalhe mostra os dados corretos ao clicar em um item da lista; acessar uma URL inexistente mostra a tela 404. Suba o commit no repositório do projeto autoral.</p>
+<h2 id="checkpoint-do-projeto-autoral">✅ Checkpoint do projeto autoral<a class="anchor" href="#checkpoint-do-projeto-autoral" title="Permanent link">¶</a></h2>
+<p>Ao final desta aula, seu repositório deve ter:</p>
+<ul>
+<li>[ ] Vuetify 4 instalado e funcionando (<code>v-card</code>, <code>v-btn</code> renderizando estilizados).</li>
+<li>[ ] Tema customizado com <code>defaultTheme: 'light'</code> declarado explicitamente.</li>
+<li>[ ] Layout com <code>v-app-bar</code> + <code>v-main</code> (e <code>v-navigation-drawer</code> se aplicável).</li>
+<li>[ ] Vue Router configurado com no mínimo: rota de lista, rota de detalhe com parâmetro <code>:id</code>, rota 404.</li>
+<li>[ ] Navegação funcionando via <code>&lt;RouterLink&gt;</code> e/ou <code>:to</code> em <code>v-card</code>/<code>v-list-item</code>.</li>
+<li>[ ] Dados de pelo menos 8 registros do domínio autoral, exibidos em grid responsivo (<code>v-row</code>/<code>v-col</code> com breakpoints).</li>
+<li>[ ] README atualizado com instruções de instalação e execução (<code>npm install</code>, <code>npm run dev</code>).</li>
+<li>[ ] Código versionado e enviado ao repositório GitHub público.</li>
+</ul>
+<h2 id="avaliacao-1-instrucoes-de-entrega">📝 Avaliação 1 — instruções de entrega<a class="anchor" href="#avaliacao-1-instrucoes-de-entrega" title="Permanent link">¶</a></h2>
+<h3 id="escopo">Escopo<a class="anchor" href="#escopo" title="Permanent link">¶</a></h3>
+<p>A Avaliação 1 cobre a <strong>Unidade 1</strong> inteira: estrutura de um projeto Vue 3 criado com CLI, componentes, diretivas, reatividade, ciclo de vida e — a partir de hoje — Vuetify e Vue Router básico. Você vai entregar o <strong>projeto autoral</strong> que vem evoluindo desde a Aula 01.</p>
+<p>O projeto deve:</p>
+<ul>
+<li>Ter sido criado com <code>npm create vue@latest</code> (ou <code>npx create-vue@latest</code>), com as flags <code>--router</code> no mínimo.</li>
+<li>Ser uma SPA de página única transformada em múltiplas views navegáveis (o que fizemos hoje).</li>
+<li>Usar <strong>Vuetify</strong> para toda a interface visual (não é permitido CSS puro substituindo os componentes do Vuetify nas telas principais).</li>
+<li>Ter um domínio de dados <strong>diferente</strong> do UniEventos construído em sala (ex.: catálogo de plantas do Pantanal, agenda de quadras esportivas, mural de estágios, brechó, controle de pescarias, cardápio de restaurante — ou outro tema aprovado na Aula 01).</li>
+</ul>
+<h3 id="requisitos-obrigatorios">Requisitos obrigatórios<a class="anchor" href="#requisitos-obrigatorios" title="Permanent link">¶</a></h3>
+<ol>
+<li><strong>Mínimo de 6 componentes <code>.vue</code></strong> próprios (views + componentes reutilizáveis), além do <code>App.vue</code>.</li>
+<li><strong>Uso comprovado</strong> — em código, não só em teoria — de: <code>v-if</code>/<code>v-else</code>, <code>v-for</code> com <code>:key</code>, <code>v-model</code>, <code>v-bind</code> (ou o atalho <code>:</code>), <code>v-on</code> (ou o atalho <code>@</code>), <code>computed</code> e <code>onMounted</code>.</li>
+<li><strong>Dados de pelo menos 8 registros</strong> do domínio escolhido, em um arquivo separado (<code>src/data/*.js</code>) ou vindos de <code>fetch</code> a uma API pública/mock.</li>
+<li><strong>Roteamento</strong> com Vue Router: no mínimo 3 rotas, sendo uma delas com parâmetro dinâmico e uma delas a rota 404.</li>
+<li><strong>README.md</strong> no repositório, com: nome do projeto, descrição de uma linha, instruções de instalação (<code>npm install</code>) e execução (<code>npm run dev</code>), e print de tela (opcional, mas recomendado).</li>
+<li><strong>Repositório GitHub público</strong>, com histórico de commits que mostre evolução incremental (não um único commit "projeto final").</li>
+</ol>
+<h3 id="formato-e-prazo-de-entrega">Formato e prazo de entrega<a class="anchor" href="#formato-e-prazo-de-entrega" title="Permanent link">¶</a></h3>
+<p>Entregue <strong>o link do repositório GitHub público</strong> via SIGAA, na atividade "Avaliação 1", até <strong>31/08/2026, 23h59</strong>. Cole o link diretamente no campo de texto da atividade — não anexe <code>.zip</code>.</p>
+<h3 id="rubrica-100-pontos">Rubrica (10,0 pontos)<a class="anchor" href="#rubrica-100-pontos" title="Permanent link">¶</a></h3>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Critério</th>
+<th>Peso</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Estrutura e organização do projeto (pastas, nomes, componentização mínima)</td>
+<td>2,0</td>
+</tr>
+<tr>
+<td>Uso correto de diretivas e reatividade (<code>v-if</code>, <code>v-for</code>, <code>v-model</code>, <code>v-bind</code>, <code>v-on</code>)</td>
+<td>3,0</td>
+</tr>
+<tr>
+<td>Uso de <code>computed</code> e ciclo de vida (<code>onMounted</code>) de forma coerente com o domínio</td>
+<td>2,0</td>
+</tr>
+<tr>
+<td>Interface visual com Vuetify e navegação com Vue Router funcionando</td>
+<td>1,5</td>
+</tr>
+<tr>
+<td>README, versionamento e histórico de commits</td>
+<td>1,5</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="politica-de-atraso">Política de atraso<a class="anchor" href="#politica-de-atraso" title="Permanent link">¶</a></h3>
+<p>Entregas após 31/08/2026 23h59 perdem <strong>1,0 ponto por dia corrido</strong> de atraso, até o limite de 5 dias. Após esse prazo, a atividade recebe nota zero, salvo justificativa formal protocolada junto à coordenação do curso.</p>
+<h3 id="politica-de-plagio-e-uso-de-ia">Política de plágio e uso de IA<a class="anchor" href="#politica-de-plagio-e-uso-de-ia" title="Permanent link">¶</a></h3>
+<p>É permitido usar ferramentas de IA como apoio (explicar erros, sugerir sintaxe, revisar código) — assim como é permitido consultar documentação e tutoriais. <strong>Não é permitido</strong> entregar um projeto gerado quase integralmente por IA sem compreensão do próprio código: na correção, qualquer estudante pode ser chamado para explicar oralmente uma parte do seu projeto, e a nota é ajustada conforme a clareza da explicação. Cópia integral do projeto de outro colega (mesmo com o domínio "trocado") é considerada plágio e resulta em nota zero para ambos os envolvidos, com encaminhamento ao regimento acadêmico da UNEMAT.</p>
+<h2 id="para-aprofundar">📚 Para aprofundar<a class="anchor" href="#para-aprofundar" title="Permanent link">¶</a></h2>
+<ul>
+<li>Documentação oficial do Vuetify 4: <a href="https://vuetifyjs.com/">https://vuetifyjs.com/</a></li>
+<li>Guia de instalação com Vite: <a href="https://vuetifyjs.com/en/getting-started/installation/">https://vuetifyjs.com/en/getting-started/installation/</a></li>
+<li>Material Design 3 — cores e temas: <a href="https://m3.material.io/styles/color/overview">https://m3.material.io/styles/color/overview</a></li>
+<li>Vue Router — guia oficial: <a href="https://router.vuejs.org/">https://router.vuejs.org/</a></li>
+<li>Vue Router — rotas dinâmicas e parâmetros: <a href="https://router.vuejs.org/guide/essentials/dynamic-matching.html">https://router.vuejs.org/guide/essentials/dynamic-matching.html</a></li>
+<li>Referências básicas do plano de curso: capítulos sobre componentização e roteamento client-side.</li>
+</ul>
+<p>Na Aula 05 vamos aprofundar componentização — <code>defineProps</code>, <code>defineEmits</code>, slots, composables — e o Vue Router avançado: rotas aninhadas, guards de navegação e query strings sincronizadas com filtros. É também quando o Vuetify ganha formulários com validação e <code>v-data-table</code>.</p><nav class="navpe"><a data-nav="anterior" href="aula-03.html"><span class="rot">← Aula 03</span><span class="tit">Vue: listas, computed e ciclo de vida</span></a><a class="dir" data-nav="proxima" href="aula-05.html"><span class="rot">Aula 05 →</span><span class="tit">Componentes, Vue Router e Vuetify avançado</span></a></nav>
+    <div class="rodape">
+      UNEMAT — Universidade do Estado de Mato Grosso · Campus Cáceres · FACET<br>
+      FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas · 2026.2<br>
+      Prof. Ivan Luiz Pedroso Pires
+    </div>
+  </main>
+  <aside class="toc"><h4>Nesta aula</h4><a class="" href="#objetivos-de-aprendizagem">🎯 Objetivos de aprendizagem</a><a class="" href="#pre-requisitos-desta-aula">📋 Pré-requisitos desta aula</a><a class="" href="#roteiro">🗺️ Roteiro</a><a class="" href="#1-por-que-usar-um-framework-de-ui">1. Por que usar um framework de UI</a><a class="n3" href="#material-design-3-em-uma-pagina">Material Design 3 em uma página</a><a class="" href="#2-instalando-o-vuetify-4">2. Instalando o Vuetify 4</a><a class="" href="#3-estrutura-de-aplicacao-vuetify">3. Estrutura de aplicação Vuetify</a><a class="n3" href="#grid-v-container-v-row-v-col">Grid: v-container / v-row / v-col</a><a class="" href="#4-componentes-essenciais">4. Componentes essenciais</a><a class="n3" href="#v-card">v-card</a><a class="n3" href="#v-btn-e-suas-variantes">v-btn e suas variantes</a><a class="n3" href="#v-chip-v-icon-v-list">v-chip, v-icon, v-list</a><a class="n3" href="#v-alert-v-dialog-v-snackbar">v-alert, v-dialog, v-snackbar</a><a class="n3" href="#v-text-field-v-select-v-img-v-progress-circular">v-text-field, v-select, v-img, v-progress-circular</a><a class="" href="#5-tema-cores-institucionais-e-alternador-claroescuro">5. Tema: cores institucionais e alternador claro/escuro</a><a class="" href="#6-classes-utilitarias-de-espacamento-e-layout">6. Classes utilitárias de espaçamento e layout</a><a class="" href="#7-vue-router-5-transformando-paginas-em-rotas">7. Vue Router 5: transformando páginas em rotas</a><a class="n3" href="#estrutura-basica">Estrutura básica</a><a class="n3" href="#routerlink-e-routerview">&amp;lt;RouterLink&amp;gt; e &amp;lt;RouterView&amp;gt;</a><a class="n3" href="#rotas-com-parametros">Rotas com parâmetros</a><a class="n3" href="#rota-404-catch-all">Rota 404 (catch-all)</a><a class="n3" href="#navegacao-programatica">Navegação programática</a><a class="n3" href="#lazy-loading-de-rotas">Lazy loading de rotas</a><a class="" href="#padrao-de-projeto-em-uso">🧩 Padrão de projeto em uso</a><a class="n3" href="#padrao-de-projeto-em-uso-composite-estrutural">🧩 Padrão de projeto em uso — Composite (estrutural)</a><a class="" href="#mao-na-massa-migrando-o-unieventos-para-uma-spa-de-verdade">💻 Mão na massa — migrando o UniEventos para uma SPA de verdade</a><a class="n3" href="#passo-1-instalar-o-vuetify-no-projeto">Passo 1 — instalar o Vuetify no projeto</a><a class="n3" href="#passo-2-configurar-viteconfigjs">Passo 2 — configurar vite.config.js</a><a class="n3" href="#passo-3-criar-o-plugin-do-vuetify-com-tema-institucional">Passo 3 — criar o plugin do Vuetify com tema institucional</a><a class="n3" href="#passo-4-atualizar-srcmainjs">Passo 4 — atualizar src/main.js</a><a class="n3" href="#passo-5-criar-o-modelo-de-dados-de-eventos">Passo 5 — criar o modelo de dados de eventos</a><a class="n3" href="#passo-6-atualizar-srcrouterindexjs">Passo 6 — atualizar src/router/index.js</a><a class="n3" href="#passo-7-criar-o-layout-em-appvue">Passo 7 — criar o layout em App.vue</a><a class="n3" href="#passo-8-criar-homeviewvue">Passo 8 — criar HomeView.vue</a><a class="n3" href="#passo-9-criar-eventodetalheviewvue">Passo 9 — criar EventoDetalheView.vue</a><a class="n3" href="#passo-10-criar-sobreviewvue-e-naoencontradoviewvue">Passo 10 — criar SobreView.vue e NaoEncontradoView.vue</a><a class="n3" href="#passo-11-testar-a-navegacao">Passo 11 — testar a navegação</a><a class="" href="#laboratorio">🧪 Laboratório</a><a class="" href="#erros-comuns-e-como-resolver">🐛 Erros comuns e como resolver</a><a class="" href="#atividade-assincrona-1-h">🏠 Atividade assíncrona (1 h)</a><a class="" href="#checkpoint-do-projeto-autoral">✅ Checkpoint do projeto autoral</a><a class="" href="#avaliacao-1-instrucoes-de-entrega">📝 Avaliação 1 — instruções de entrega</a><a class="n3" href="#escopo">Escopo</a><a class="n3" href="#requisitos-obrigatorios">Requisitos obrigatórios</a><a class="n3" href="#formato-e-prazo-de-entrega">Formato e prazo de entrega</a><a class="n3" href="#rubrica-100-pontos">Rubrica (10,0 pontos)</a><a class="n3" href="#politica-de-atraso">Política de atraso</a><a class="n3" href="#politica-de-plagio-e-uso-de-ia">Política de plágio e uso de IA</a><a class="" href="#para-aprofundar">📚 Para aprofundar</a></aside>
+</div>
+<script>
+(function(){
+  var raiz=document.documentElement;
+  var salvo=null;
+  try{salvo=window.localStorage&&localStorage.getItem('fds-tema')}catch(e){}
+  if(salvo){raiz.setAttribute('data-tema',salvo)}
+  var bt=document.getElementById('tema');
+  if(bt){bt.addEventListener('click',function(){
+    var novo=raiz.getAttribute('data-tema')==='claro'?'escuro':'claro';
+    raiz.setAttribute('data-tema',novo);
+    try{localStorage.setItem('fds-tema',novo)}catch(e){}
+    bt.textContent=novo==='claro'?'● Escuro':'○ Claro';
+  });
+  bt.textContent=raiz.getAttribute('data-tema')==='claro'?'● Escuro':'○ Claro';}
+
+  // copiar código
+  document.querySelectorAll('.copiar').forEach(function(b){
+    b.addEventListener('click',function(){
+      var pre=b.closest('.bloco').querySelector('pre');
+      var txt=pre.innerText;
+      var ok=function(){b.textContent='Copiado';b.classList.add('ok');
+        setTimeout(function(){b.textContent='Copiar';b.classList.remove('ok')},1600)};
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(ok)}
+      else{var t=document.createElement('textarea');t.value=txt;document.body.appendChild(t);
+           t.select();document.execCommand('copy');t.remove();ok()}
+    });
+  });
+
+  // barra de progresso
+  var pr=document.getElementById('progresso');
+  if(pr){window.addEventListener('scroll',function(){
+    var h=document.documentElement.scrollHeight-window.innerHeight;
+    pr.style.width=(h>0?(window.scrollY/h)*100:0)+'%';
+  },{passive:true})}
+
+  // sumário ativo
+  var alvos=[].slice.call(document.querySelectorAll('main h2[id],main h3[id]'));
+  var links={};
+  document.querySelectorAll('.toc a').forEach(function(a){links[a.getAttribute('href').slice(1)]=a});
+  if(alvos.length&&'IntersectionObserver' in window){
+    var obs=new IntersectionObserver(function(ents){
+      ents.forEach(function(e){
+        var a=links[e.target.id];
+        if(!a)return;
+        if(e.isIntersecting){
+          Object.keys(links).forEach(function(k){links[k].classList.remove('ativo')});
+          a.classList.add('ativo');
+        }
+      });
+    },{rootMargin:'-76px 0px -75% 0px'});
+    alvos.forEach(function(t){obs.observe(t)});
+  }
+
+  // busca no índice
+  var busca=document.getElementById('busca');
+  if(busca){
+    busca.addEventListener('input',function(){
+      var q=busca.value.toLowerCase().trim();
+      document.querySelectorAll('[data-busca]').forEach(function(el){
+        el.classList.toggle('oculto', q!=='' && el.getAttribute('data-busca').indexOf(q)===-1);
+      });
+    });
+  }
+
+  // atalhos de teclado
+  document.addEventListener('keydown',function(e){
+    if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+    var ant=document.querySelector('[data-nav="anterior"]');
+    var pro=document.querySelector('[data-nav="proxima"]');
+    if(e.key==='j'&&pro)pro.click();
+    if(e.key==='k'&&ant)ant.click();
+    if(e.key==='/'&&busca){e.preventDefault();busca.focus()}
+  });
+})();
+</script>
+</body>
+</html>

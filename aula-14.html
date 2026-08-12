@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-tema="escuro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aula 14 — Documentação com Swagger · FACET-SNP-310</title>
+<meta name="description" content="Unidade 3 · 07/12/2026 · Documentação com Swagger">
+<style>
+:root{
+  --bg:#0f1117; --bg-soft:#161922; --bg-code:#11131a; --line:#272b38;
+  --fg:#e6e8ee; --fg-dim:#a6adbb; --fg-faint:#6f7686;
+  --accent:#5eead4; --accent-2:#818cf8; --warn:#fbbf24; --danger:#fb7185;
+  --u1:#5eead4; --u2:#818cf8; --u3:#f0abfc;
+  --radius:12px; --max:860px;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+}
+html[data-tema="claro"]{
+  --bg:#ffffff; --bg-soft:#f6f7f9; --bg-code:#f2f3f6; --line:#e2e5ea;
+  --fg:#1a1d24; --fg-dim:#4b5262; --fg-faint:#8a92a3;
+  --accent:#0d9488; --accent-2:#4f46e5; --warn:#b45309; --danger:#be123c;
+  --u1:#0d9488; --u2:#4f46e5; --u3:#a21caf;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:76px}
+body{
+  margin:0; background:var(--bg); color:var(--fg); font-family:var(--font);
+  font-size:16.5px; line-height:1.72; -webkit-font-smoothing:antialiased;
+}
+a{color:var(--accent); text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ---------- barra superior ---------- */
+.topo{
+  position:sticky; top:0; z-index:50; background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:blur(12px); border-bottom:1px solid var(--line);
+}
+.topo-in{max-width:1400px;margin:0 auto;display:flex;align-items:center;gap:14px;padding:10px 18px}
+.marca{font-weight:700;font-size:.82rem;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-dim);white-space:nowrap}
+.marca b{color:var(--accent)}
+.topo .espaco{flex:1}
+.btn{
+  background:var(--bg-soft); color:var(--fg-dim); border:1px solid var(--line);
+  border-radius:8px; padding:6px 12px; font-size:.82rem; cursor:pointer; font-family:inherit;
+  transition:.15s;
+}
+.btn:hover{color:var(--fg); border-color:var(--accent)}
+#busca{
+  background:var(--bg-soft); border:1px solid var(--line); border-radius:8px; color:var(--fg);
+  padding:6px 12px; font-size:.85rem; font-family:inherit; width:200px;
+}
+#busca:focus{outline:none;border-color:var(--accent)}
+
+/* ---------- layout ---------- */
+.wrap{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:260px minmax(0,1fr) 240px;gap:34px;padding:0 18px}
+@media(max-width:1150px){.wrap{grid-template-columns:240px minmax(0,1fr)} .toc{display:none}}
+@media(max-width:860px){.wrap{grid-template-columns:minmax(0,1fr)} .lateral{display:none}}
+
+.lateral,.toc{position:sticky;top:76px;align-self:start;max-height:calc(100vh - 90px);overflow-y:auto;padding:22px 0 60px;font-size:.85rem}
+.lateral::-webkit-scrollbar,.toc::-webkit-scrollbar{width:6px}
+.lateral::-webkit-scrollbar-thumb,.toc::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+.lateral h4,.toc h4{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-faint);margin:0 0 12px}
+.lateral ol{list-style:none;margin:0;padding:0}
+.lateral li a{
+  display:flex;gap:9px;align-items:baseline;padding:6px 10px;border-radius:7px;
+  color:var(--fg-dim);border-left:2px solid transparent;line-height:1.35;
+}
+.lateral li a:hover{background:var(--bg-soft);color:var(--fg);text-decoration:none}
+.lateral li a.ativo{background:var(--bg-soft);color:var(--fg);border-left-color:var(--accent);font-weight:600}
+.lateral .num{font-variant-numeric:tabular-nums;color:var(--fg-faint);font-size:.78rem;min-width:16px}
+.lateral .grupo{margin:18px 0 6px;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-faint);padding-left:10px}
+.toc a{display:block;padding:4px 0 4px 12px;color:var(--fg-dim);border-left:2px solid var(--line);line-height:1.35;font-size:.8rem}
+.toc a:hover{color:var(--fg);text-decoration:none}
+.toc a.ativo{color:var(--accent);border-left-color:var(--accent)}
+.toc a.n3{padding-left:24px;font-size:.76rem;opacity:.8}
+
+/* ---------- conteúdo ---------- */
+main{padding:34px 0 100px;min-width:0}
+.cabecalho{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:34px}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.tag{font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;font-weight:700;padding:4px 10px;border-radius:999px;border:1px solid var(--line);color:var(--fg-dim)}
+.tag.u1{color:var(--u1);border-color:color-mix(in srgb,var(--u1) 40%,transparent)}
+.tag.u2{color:var(--u2);border-color:color-mix(in srgb,var(--u2) 40%,transparent)}
+.tag.u3{color:var(--u3);border-color:color-mix(in srgb,var(--u3) 40%,transparent)}
+.tag.av{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 45%,transparent)}
+.cabecalho h1{margin:0;font-size:2.05rem;line-height:1.2;letter-spacing:-.02em}
+.cabecalho .sub{color:var(--fg-faint);font-size:.9rem;margin-top:10px}
+
+main h1{font-size:1.9rem;line-height:1.22;letter-spacing:-.02em;margin:0 0 .6em}
+main h2{font-size:1.4rem;margin:2.4em 0 .7em;padding-top:.5em;border-top:1px solid var(--line);letter-spacing:-.01em}
+main h3{font-size:1.12rem;margin:1.9em 0 .5em;color:var(--fg)}
+main h4{font-size:.98rem;margin:1.5em 0 .4em;color:var(--fg-dim)}
+main h2:first-of-type{border-top:none;padding-top:0}
+main p{margin:0 0 1.05em}
+main ul,main ol{margin:0 0 1.15em;padding-left:1.4em}
+main li{margin:.32em 0}
+main li>ul,main li>ol{margin:.35em 0}
+hr{border:none;border-top:1px solid var(--line);margin:2.6em 0}
+strong{color:var(--fg);font-weight:650}
+
+/* âncoras */
+.anchor{opacity:0;margin-left:.4em;font-weight:400;color:var(--fg-faint);text-decoration:none;font-size:.8em}
+h2:hover .anchor,h3:hover .anchor{opacity:1}
+
+/* citações / callouts */
+blockquote{
+  margin:1.4em 0;padding:14px 18px;background:var(--bg-soft);border-left:3px solid var(--accent-2);
+  border-radius:0 var(--radius) var(--radius) 0;color:var(--fg-dim);
+}
+blockquote p:last-child{margin-bottom:0}
+blockquote.dica{border-left-color:var(--accent)}
+blockquote.atencao{border-left-color:var(--warn)}
+blockquote.capo{border-left-color:var(--accent-2)}
+blockquote.prova{border-left-color:var(--danger)}
+
+/* tabelas */
+.tabela-wrap{overflow-x:auto;margin:1.4em 0;border:1px solid var(--line);border-radius:var(--radius)}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{padding:9px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--bg-soft);font-weight:650;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-dim);white-space:nowrap}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:color-mix(in srgb,var(--bg-soft) 60%,transparent)}
+
+/* código */
+code{font-family:var(--mono);font-size:.87em;background:var(--bg-soft);padding:.14em .42em;border-radius:5px;border:1px solid var(--line)}
+.bloco{position:relative;margin:1.3em 0}
+.bloco-topo{
+  display:flex;align-items:center;gap:10px;background:var(--bg-soft);border:1px solid var(--line);
+  border-bottom:none;border-radius:var(--radius) var(--radius) 0 0;padding:6px 12px;
+  font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;color:var(--fg-faint);font-family:var(--mono);
+}
+.bloco-topo .espaco{flex:1}
+.copiar{
+  background:transparent;border:1px solid var(--line);color:var(--fg-faint);border-radius:6px;
+  padding:2px 9px;font-size:.68rem;cursor:pointer;font-family:inherit;letter-spacing:.06em;text-transform:uppercase;transition:.15s;
+}
+.copiar:hover{color:var(--accent);border-color:var(--accent)}
+.copiar.ok{color:var(--accent);border-color:var(--accent)}
+.highlight{
+  margin:0;background:var(--bg-code)!important;border:1px solid var(--line);
+  border-radius:0 0 var(--radius) var(--radius);overflow-x:auto;
+}
+.bloco:not(:has(.bloco-topo)) .highlight{border-radius:var(--radius)}
+.highlight pre{margin:0;padding:15px 17px;font-family:var(--mono);font-size:.845rem;line-height:1.62;background:transparent!important}
+.highlight code{background:transparent;border:none;padding:0;font-size:inherit}
+html[data-tema="claro"] .highlight pre{color:#1a1d24}
+
+/* detalhes */
+details{background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px;margin:1.2em 0}
+details[open]{padding-bottom:6px}
+summary{cursor:pointer;font-weight:600;color:var(--fg-dim);font-size:.9rem;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▸ ";color:var(--accent)}
+details[open] summary::before{content:"▾ "}
+details[open] summary{margin-bottom:10px}
+
+img{max-width:100%;border-radius:var(--radius)}
+
+/* rodapé / navegação */
+.navpe{display:flex;gap:14px;margin-top:60px;padding-top:26px;border-top:1px solid var(--line)}
+.navpe a{
+  flex:1;padding:14px 18px;background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);
+  color:var(--fg-dim);transition:.15s;
+}
+.navpe a:hover{border-color:var(--accent);color:var(--fg);text-decoration:none}
+.navpe .rot{display:block;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-faint);margin-bottom:4px}
+.navpe .tit{font-weight:600;font-size:.9rem}
+.navpe .dir{text-align:right}
+.rodape{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:var(--fg-faint);font-size:.8rem}
+
+/* progresso */
+#progresso{position:fixed;top:0;left:0;height:2px;background:var(--accent);z-index:60;width:0}
+
+/* índice (home) */
+.hero{padding:56px 0 34px;border-bottom:1px solid var(--line);margin-bottom:38px}
+.hero h1{font-size:2.6rem;margin:0 0 12px;letter-spacing:-.03em;line-height:1.1}
+.hero p{color:var(--fg-dim);max-width:640px;font-size:1.02rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin:34px 0}
+.stat{background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px}
+.stat .n{font-size:1.7rem;font-weight:700;letter-spacing:-.02em;color:var(--accent)}
+.stat .l{font-size:.75rem;letter-spacing:.07em;text-transform:uppercase;color:var(--fg-faint);margin-top:2px}
+.grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;margin:20px 0 44px}
+.cartao{
+  display:block;background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);
+  padding:17px 19px;color:var(--fg);transition:.16s;position:relative;overflow:hidden;
+}
+.cartao::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--line);transition:.16s}
+.cartao.u1::before{background:var(--u1)} .cartao.u2::before{background:var(--u2)} .cartao.u3::before{background:var(--u3)}
+.cartao:hover{transform:translateY(-2px);border-color:var(--fg-faint);text-decoration:none}
+.cartao .meta{display:flex;justify-content:space-between;align-items:center;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-faint);margin-bottom:8px}
+.cartao .t{font-weight:650;line-height:1.35;font-size:.97rem}
+.cartao .av{display:inline-block;margin-top:9px;font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;color:var(--warn);border:1px solid color-mix(in srgb,var(--warn) 40%,transparent);border-radius:999px;padding:2px 9px}
+.oculto{display:none!important}
+@media print{
+  .topo,.lateral,.toc,.navpe,#progresso{display:none!important}
+  .wrap{display:block;max-width:none;padding:0}
+  body{background:#fff;color:#000;font-size:11pt}
+  .highlight{border:1px solid #ccc;background:#fafafa!important}
+  a{color:#000}
+}
+
+pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #49483e }
+.highlight { background: #232629; color: #CCC }
+.highlight .c { color: #777; font-style: italic } /* Comment */
+.highlight .err { color: #A61717; background-color: #E3D2D2 } /* Error */
+.highlight .esc { color: #CCC } /* Escape */
+.highlight .g { color: #CCC } /* Generic */
+.highlight .k { color: #7686BB; font-weight: bold } /* Keyword */
+.highlight .l { color: #CCC } /* Literal */
+.highlight .n { color: #CCC } /* Name */
+.highlight .o { color: #CCC } /* Operator */
+.highlight .x { color: #CCC } /* Other */
+.highlight .p { color: #CCC } /* Punctuation */
+.highlight .ch { color: #777; font-style: italic } /* Comment.Hashbang */
+.highlight .cm { color: #777; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #777; font-style: italic } /* Comment.Preproc */
+.highlight .cpf { color: #777; font-style: italic } /* Comment.PreprocFile */
+.highlight .c1 { color: #777; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #777; font-style: italic } /* Comment.Special */
+.highlight .gd { color: #CCC } /* Generic.Deleted */
+.highlight .ge { color: #CCC } /* Generic.Emph */
+.highlight .ges { color: #CCC } /* Generic.EmphStrong */
+.highlight .gr { color: #CCC } /* Generic.Error */
+.highlight .gh { color: #CCC } /* Generic.Heading */
+.highlight .gi { color: #CCC } /* Generic.Inserted */
+.highlight .go { color: #CCC } /* Generic.Output */
+.highlight .gp { color: #FFF } /* Generic.Prompt */
+.highlight .gs { color: #CCC } /* Generic.Strong */
+.highlight .gu { color: #CCC } /* Generic.Subheading */
+.highlight .gt { color: #CCC } /* Generic.Traceback */
+.highlight .kc { color: #7686BB; font-weight: bold } /* Keyword.Constant */
+.highlight .kd { color: #7686BB; font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { color: #7686BB; font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { color: #7686BB; font-weight: bold } /* Keyword.Pseudo */
+.highlight .kr { color: #7686BB; font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #7686BB; font-weight: bold } /* Keyword.Type */
+.highlight .ld { color: #CCC } /* Literal.Date */
+.highlight .m { color: #4FB8CC } /* Literal.Number */
+.highlight .s { color: #51CC99 } /* Literal.String */
+.highlight .na { color: #CCC } /* Name.Attribute */
+.highlight .nb { color: #CCC } /* Name.Builtin */
+.highlight .nc { color: #CCC } /* Name.Class */
+.highlight .no { color: #CCC } /* Name.Constant */
+.highlight .nd { color: #CCC } /* Name.Decorator */
+.highlight .ni { color: #CCC } /* Name.Entity */
+.highlight .ne { color: #CCC } /* Name.Exception */
+.highlight .nf { color: #6A6AFF } /* Name.Function */
+.highlight .nl { color: #CCC } /* Name.Label */
+.highlight .nn { color: #CCC } /* Name.Namespace */
+.highlight .nx { color: #E2828E } /* Name.Other */
+.highlight .py { color: #CCC } /* Name.Property */
+.highlight .nt { color: #CCC } /* Name.Tag */
+.highlight .nv { color: #7AB4DB; font-weight: bold } /* Name.Variable */
+.highlight .ow { color: #CCC } /* Operator.Word */
+.highlight .pm { color: #CCC } /* Punctuation.Marker */
+.highlight .w { color: #BBB } /* Text.Whitespace */
+.highlight .mb { color: #4FB8CC } /* Literal.Number.Bin */
+.highlight .mf { color: #4FB8CC } /* Literal.Number.Float */
+.highlight .mh { color: #4FB8CC } /* Literal.Number.Hex */
+.highlight .mi { color: #4FB8CC } /* Literal.Number.Integer */
+.highlight .mo { color: #4FB8CC } /* Literal.Number.Oct */
+.highlight .sa { color: #51CC99 } /* Literal.String.Affix */
+.highlight .sb { color: #51CC99 } /* Literal.String.Backtick */
+.highlight .sc { color: #51CC99 } /* Literal.String.Char */
+.highlight .dl { color: #51CC99 } /* Literal.String.Delimiter */
+.highlight .sd { color: #51CC99 } /* Literal.String.Doc */
+.highlight .s2 { color: #51CC99 } /* Literal.String.Double */
+.highlight .se { color: #51CC99 } /* Literal.String.Escape */
+.highlight .sh { color: #51CC99 } /* Literal.String.Heredoc */
+.highlight .si { color: #51CC99 } /* Literal.String.Interpol */
+.highlight .sx { color: #51CC99 } /* Literal.String.Other */
+.highlight .sr { color: #51CC99 } /* Literal.String.Regex */
+.highlight .s1 { color: #51CC99 } /* Literal.String.Single */
+.highlight .ss { color: #51CC99 } /* Literal.String.Symbol */
+.highlight .bp { color: #CCC } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #6A6AFF } /* Name.Function.Magic */
+.highlight .vc { color: #7AB4DB; font-weight: bold } /* Name.Variable.Class */
+.highlight .vg { color: #BE646C; font-weight: bold } /* Name.Variable.Global */
+.highlight .vi { color: #7AB4DB; font-weight: bold } /* Name.Variable.Instance */
+.highlight .vm { color: #7AB4DB; font-weight: bold } /* Name.Variable.Magic */
+.highlight .il { color: #4FB8CC } /* Literal.Number.Integer.Long */
+</style>
+</head>
+<body>
+<div id="progresso"></div>
+<header class="topo"><div class="topo-in">
+  <span class="marca"><b>FACET-SNP-310</b> &nbsp;Frameworks Modernos</span>
+  <span class="espaco"></span>
+  
+  <a class="btn" href="indice.html">Índice</a>
+  <button class="btn" id="tema" type="button">Tema</button>
+</div></header>
+<div class="wrap">
+  <nav class="lateral"><h4>Aulas</h4><ol><li class="grupo">Unidade 1</li><li><a class="" href="aula-01.html"><span class="num">01</span><span>Apresentação da Disciplina e Revisão JavaScript</span></a></li><li><a class="" href="aula-02.html"><span class="num">02</span><span>Introdução ao Vue: instância, ciclo de vida e diretivas</span></a></li><li><a class="" href="aula-03.html"><span class="num">03</span><span>Vue: listas, computed e ciclo de vida</span></a></li><li><a class="" href="aula-04.html"><span class="num">04</span><span>Introdução a Vuetify e Vue Router</span></a></li><li class="grupo">Unidade 2</li><li><a class="" href="aula-05.html"><span class="num">05</span><span>Componentes, Vue Router e Vuetify avançado</span></a></li><li><a class="" href="aula-06.html"><span class="num">06</span><span>Axios e Pinia</span></a></li><li class="grupo">Unidade 3</li><li><a class="" href="aula-07.html"><span class="num">07</span><span>Introdução ao Firebase, Node.js e Express</span></a></li><li><a class="" href="aula-08.html"><span class="num">08</span><span>Definindo endpoints e middlewares</span></a></li><li><a class="" href="aula-09.html"><span class="num">09</span><span>Integrando com SGBD MySQL</span></a></li><li><a class="" href="aula-10.html"><span class="num">10</span><span>Requisições autenticadas com Firebase</span></a></li><li><a class="" href="aula-11.html"><span class="num">11</span><span>Integrando front-end com back-end: CRUD</span></a></li><li><a class="" href="aula-12.html"><span class="num">12</span><span>CRUD com banco em nuvem (Supabase)</span></a></li><li><a class="" href="aula-13.html"><span class="num">13</span><span>Desenvolvimento do Back-end</span></a></li><li><a class="ativo" href="aula-14.html"><span class="num">14</span><span>Documentação com Swagger</span></a></li><li><a class="" href="aula-15.html"><span class="num">15</span><span>Deploy, apresentação e finalização</span></a></li></ol></nav>
+  <main class=""><div class="cabecalho"><div class="tags"><span class="tag u3">Unidade 3</span><span class="tag">07/12/2026</span><span class="tag">3 aulas de 50 min + 1 h EAD</span></div><h1>Aula 14 — Documentação com Swagger</h1><div class="sub">FACET-SNP-310 · Frameworks Modernos para Desenvolvimento de Sistemas · UNEMAT/Cáceres · Prof. Ivan Luiz Pedroso Pires</div></div>
+<blockquote>
+<p><strong>FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas</strong> · Unidade 3
+UNEMAT/Cáceres — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
+<strong>Data:</strong> 07/12/2026 · <strong>Carga:</strong> 3 aulas de 50 min (síncrona) + 1 h (assíncrona)</p>
+</blockquote>
+<h2 id="objetivos-de-aprendizagem">🎯 Objetivos de aprendizagem<a class="anchor" href="#objetivos-de-aprendizagem" title="Permanent link">¶</a></h2>
+<p>Ao final desta aula você será capaz de:</p>
+<ul>
+<li>Explicar por que documentar uma API é parte do trabalho de engenharia, não um extra opcional.</li>
+<li>Diferenciar OpenAPI (a especificação) de Swagger (o conjunto de ferramentas que a implementa).</li>
+<li>Ler e escrever a anatomia de um documento OpenAPI 3.0: <code>info</code>, <code>servers</code>, <code>paths</code>, <code>components.schemas</code>, <code>components.securitySchemes</code>.</li>
+<li>Gerar a especificação a partir de anotações <code>@openapi</code> com <code>swagger-jsdoc</code>, usando corretamente a chave <code>definition</code>.</li>
+<li>Servir e customizar o Swagger UI com <code>swagger-ui-express</code>, incluindo o endpoint com o JSON cru.</li>
+<li>Documentar todos os endpoints do UniEventos com schemas reutilizáveis e segurança via <code>bearerAuth</code>.</li>
+<li>Testar endpoints protegidos direto pelo Swagger UI usando o botão "Authorize".</li>
+<li>Produzir um README de qualidade, um <code>CONTRIBUTING.md</code> mínimo e registrar decisões de arquitetura em formato ADR.</li>
+</ul>
+<h2 id="pre-requisitos-desta-aula">📋 Pré-requisitos desta aula<a class="anchor" href="#pre-requisitos-desta-aula" title="Permanent link">¶</a></h2>
+<ul>
+<li><code>unieventos-api</code> (ou projeto autoral) já refatorado para arquitetura em camadas (Aula 13), com rotas de eventos, inscrições e autenticação funcionando.</li>
+<li>Node.js 22 LTS e a API rodando localmente com <code>npm run dev</code>.</li>
+</ul>
+<p>Checklist antes de começar:</p>
+<ul>
+<li>[ ] <code>GET /health</code> responde <code>200</code> na sua API.</li>
+<li>[ ] Você consegue autenticar via Firebase e obter um token de ID (Aula 10) para testar rotas protegidas.</li>
+<li>[ ] Ferramenta para chamadas HTTP manuais disponível (Insomnia, Postman ou <code>curl</code>).</li>
+</ul>
+<h2 id="roteiro">🗺️ Roteiro<a class="anchor" href="#roteiro" title="Permanent link">¶</a></h2>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Bloco</th>
+<th>Tempo</th>
+<th>Atividade</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>50 min</td>
+<td>Por que documentar, OpenAPI vs. Swagger, anatomia do documento</td>
+</tr>
+<tr>
+<td>2</td>
+<td>50 min</td>
+<td><code>swagger-jsdoc</code> + <code>swagger-ui-express</code>: configuração e primeiros endpoints anotados</td>
+</tr>
+<tr>
+<td>3</td>
+<td>50 min</td>
+<td>Documentando toda a API do UniEventos, segurança com bearerAuth, README/ADR</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="retomando-a-aula-13">Retomando a Aula 13<a class="anchor" href="#retomando-a-aula-13" title="Permanent link">¶</a></h2>
+<p>Na Aula 13 transformamos o <code>unieventos-api</code> em uma arquitetura em camadas testável e segura. O código ficou sólido por dentro — mas de fora, para quem nunca viu o projeto (um colega de equipe, um avaliador, você mesmo em três meses), ele ainda é uma caixa-preta: só descobre o que a API faz lendo o código-fonte inteiro. Hoje resolvemos isso com um contrato formal e navegável: <strong>OpenAPI + Swagger UI</strong>.</p>
+<h2 id="1-por-que-documentar-uma-api">1. Por que documentar uma API<a class="anchor" href="#1-por-que-documentar-uma-api" title="Permanent link">¶</a></h2>
+<p>Um endpoint sem documentação obriga quem for consumi-lo a ler o código-fonte do back-end inteiro — ou pior, a adivinhar por tentativa e erro. Em qualquer cenário além do "eu programando sozinho e lembrando de tudo", isso custa tempo real:</p>
+<ul>
+<li><strong>Contrato entre times.</strong> O time de front-end pode começar a construir a tela de "Minhas inscrições" <strong>antes</strong> do endpoint estar pronto, desde que o contrato (formato de entrada/saída) esteja documentado e estável. Documentação é o que permite front e back trabalharem em paralelo.</li>
+<li><strong>Onboarding.</strong> Um novo integrante do time entende a API lendo uma página, não vasculhando 40 arquivos de rota.</li>
+<li><strong>Geração de clientes.</strong> A partir de um documento OpenAPI, ferramentas geram automaticamente SDKs tipados em várias linguagens — você escreve o contrato uma vez, o cliente sai de graça.</li>
+<li><strong>Contrato como teste.</strong> Ferramentas de teste de contrato conferem se a resposta real da API bate com o que foi documentado — a documentação vira uma fonte de verdade verificável, não um texto que fica defasado.</li>
+</ul>
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+Documentação que não é gerada a partir do código (ou vinculada a ele por anotação) apodrece rápido: alguém muda um campo na rota e esquece de atualizar o Word/Notion separado. É exatamente esse problema que o <code>swagger-jsdoc</code> resolve — a documentação vive ao lado do código, no mesmo arquivo, na mesma revisão de código.</p>
+</blockquote>
+<h3 id="11-openapi-vs-swagger-nao-sao-sinonimos">1.1 OpenAPI vs. Swagger — não são sinônimos<a class="anchor" href="#11-openapi-vs-swagger-nao-sao-sinonimos" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>OpenAPI</strong> é a <strong>especificação</strong>: um formato (YAML ou JSON) que descreve endpoints, parâmetros, corpos de requisição, respostas e esquemas de segurança de uma API REST, de forma independente de linguagem. A versão usada nesta disciplina é a <strong>OpenAPI 3.0</strong>.</li>
+<li><strong>Swagger</strong> é o <strong>conjunto de ferramentas</strong> (hoje mantido pela SmartBear) construído em torno da especificação OpenAPI — o nome "Swagger" é anterior ao nome "OpenAPI" (a especificação se chamava Swagger Specification até a versão 2.0; a partir da 3.0 passou a se chamar OpenAPI, mas o ecossistema de ferramentas manteve o nome Swagger).</li>
+</ul>
+<p>Duas ferramentas do ecossistema Swagger que usaremos hoje:</p>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Ferramenta</th>
+<th>Papel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>swagger-jsdoc</code></td>
+<td>Lê anotações <code>@openapi</code> em comentários JSDoc no seu código e gera o documento OpenAPI (JSON)</td>
+</tr>
+<tr>
+<td><code>swagger-ui-express</code></td>
+<td>Recebe esse documento OpenAPI e renderiza uma interface HTML interativa (o "Swagger UI")</td>
+</tr>
+</tbody>
+</table></div>
+<p>O <code>swagger-ui</code> é a interface visual que você provavelmente já viu em várias APIs públicas — aquela página com os endpoints agrupados por tag, cada um expansível, com botão "Try it out" para testar direto do navegador.</p>
+<h2 id="2-anatomia-de-um-documento-openapi-30">2. Anatomia de um documento OpenAPI 3.0<a class="anchor" href="#2-anatomia-de-um-documento-openapi-30" title="Permanent link">¶</a></h2>
+<p>Um documento OpenAPI é um único objeto JSON (ou YAML) com estas chaves de topo:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="nt">openapi</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3.0.0</span><span class="w">        </span><span class="c1"># versão da especificação usada</span>
+<span class="nt">info</span><span class="p">:</span><span class="w">                  </span><span class="c1"># metadados da API</span>
+<span class="w">  </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">UniEventos API</span>
+<span class="w">  </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0.0</span>
+<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">API de eventos acadêmicos do UniEventos</span>
+<span class="nt">servers</span><span class="p">:</span><span class="w">               </span><span class="c1"># onde a API está hospedada (pode ter vários)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://localhost:3000</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Ambiente local</span>
+<span class="nt">tags</span><span class="p">:</span><span class="w">                  </span><span class="c1"># agrupamento visual dos endpoints no Swagger UI</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Eventos</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Inscrições</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Autenticação</span>
+<span class="nt">paths</span><span class="p">:</span><span class="w">                 </span><span class="c1"># cada endpoint documentado</span>
+<span class="w">  </span><span class="nt">/api/eventos</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">get</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="w"> </span><span class="nv">...</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">    </span><span class="nt">post</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="w"> </span><span class="nv">...</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="nt">components</span><span class="p">:</span><span class="w">            </span><span class="c1"># peças reutilizáveis entre paths</span>
+<span class="w">  </span><span class="nt">schemas</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="w"> </span><span class="nv">...</span><span class="w"> </span><span class="p p-Indicator">}</span><span class="w">        </span><span class="c1"># formatos de objeto (Evento, EventoInput, Erro...)</span>
+<span class="w">  </span><span class="nt">securitySchemes</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="w"> </span><span class="nv">...</span><span class="w"> </span><span class="p p-Indicator">}</span><span class="w"> </span><span class="c1"># como a API autentica (ex.: bearerAuth)</span>
+</code></pre></div></div>
+
+<p>Explicando cada bloco com o UniEventos:</p>
+<ul>
+<li><strong><code>openapi</code></strong> — string fixa <code>3.0.0</code>, indica a versão da especificação. Não confunda com a versão da <strong>sua</strong> API (isso é <code>info.version</code>).</li>
+<li><strong><code>info</code></strong> — título, versão e descrição da API. É o que aparece no topo do Swagger UI.</li>
+<li><strong><code>servers</code></strong> — lista de URLs onde a API responde de verdade. Em desenvolvimento, <code>http://localhost:3000</code>; em produção, a URL pública (Aula 15). O Swagger UI usa isso para montar a URL completa quando você clica em "Try it out".</li>
+<li><strong><code>tags</code></strong> — só organiza visualmente os endpoints em grupos colapsáveis (Eventos, Inscrições, Autenticação).</li>
+<li><strong><code>paths</code></strong> — o coração do documento: cada rota (<code>/api/eventos</code>, <code>/api/eventos/{id}</code>...) e, dentro dela, cada método HTTP (<code>get</code>, <code>post</code>, <code>put</code>, <code>delete</code>), com <code>parameters</code>, <code>requestBody</code> e <code>responses</code>.</li>
+<li><strong><code>components.schemas</code></strong> — formatos de objeto reutilizáveis (o formato de um <code>Evento</code>, de um <code>EventoInput</code>, de um <code>Erro</code> padrão), referenciados de dentro de <code>paths</code> com <code>$ref</code> em vez de repetidos em cada endpoint.</li>
+<li><strong><code>components.securitySchemes</code></strong> — descreve <strong>como</strong> a API autentica (aqui, Bearer Token JWT do Firebase), sem misturar isso com a lógica de cada endpoint individual.</li>
+<li><strong><code>parameters</code></strong> — parâmetros de path (<code>{id}</code>), query (<code>?categoria=palestra</code>) ou header, com tipo e descrição.</li>
+<li><strong><code>requestBody</code></strong> — o formato esperado do corpo da requisição (POST/PUT), normalmente referenciando um schema via <code>$ref</code>.</li>
+<li><strong><code>responses</code></strong> — para cada status HTTP possível (<code>200</code>, <code>400</code>, <code>404</code>...), o formato do corpo de resposta.</li>
+<li><strong><code>$ref</code></strong> — mecanismo de referência: em vez de repetir a definição de <code>Evento</code> em 5 endpoints diferentes, cada um aponta para <code>#/components/schemas/Evento</code>. Mude uma vez, atualiza em todo lugar.</li>
+</ul>
+<h2 id="3-duas-abordagens-para-gerar-o-documento">3. Duas abordagens para gerar o documento<a class="anchor" href="#3-duas-abordagens-para-gerar-o-documento" title="Permanent link">¶</a></h2>
+<h3 id="31-abordagem-a-anotacoes-openapi-com-swagger-jsdoc-a-que-vamos-implementar">3.1 Abordagem (a): anotações <code>@openapi</code> com <code>swagger-jsdoc</code> — a que vamos implementar<a class="anchor" href="#31-abordagem-a-anotacoes-openapi-com-swagger-jsdoc-a-que-vamos-implementar" title="Permanent link">¶</a></h3>
+<p>A ideia: você escreve um comentário JSDoc especial, com bloco YAML dentro, logo acima da definição da rota no próprio arquivo de rotas. O <code>swagger-jsdoc</code> varre os arquivos configurados, extrai esses comentários e monta o documento OpenAPI completo em tempo de execução.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>npm<span class="w"> </span>install<span class="w"> </span>swagger-jsdoc<span class="w"> </span>swagger-ui-express
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/docs/swaggerSpec.js</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">swaggerJsdoc</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;swagger-jsdoc&#39;</span>
+
+<span class="c1">// ATENÇÃO: a chave é &quot;definition&quot;, NÃO &quot;swaggerDefinition&quot; — swagger-jsdoc 6.x</span>
+<span class="c1">// renomeou essa chave em relação a versões anteriores. Usar o nome errado faz</span>
+<span class="c1">// a spec sair vazia, sem erro nenhum no console.</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">opcoes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">definition</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">openapi</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;3.0.0&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">info</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;UniEventos API&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1.0.0&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">description</span><span class="o">:</span>
+<span class="w">        </span><span class="s1">&#39;API REST da plataforma UniEventos — divulgação e inscrição em eventos acadêmicos. &#39;</span><span class="w"> </span><span class="o">+</span>
+<span class="w">        </span><span class="s1">&#39;Desenvolvida na disciplina FACET-SNP-310 (UNEMAT/Cáceres).&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">contact</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Prof. Ivan Luiz Pedroso Pires&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">email</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;ivanpires@gmail.com&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nx">license</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;MIT&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nx">servers</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">url</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;http://localhost:3000&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">description</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Ambiente local&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">url</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://unieventos-api.onrender.com&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">description</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Produção&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nx">tags</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Eventos&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">description</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Cadastro e consulta de eventos acadêmicos&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Inscrições&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">description</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Inscrição de usuários autenticados em eventos&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Autenticação&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">description</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Fluxo de login com Firebase Auth&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nx">components</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">securitySchemes</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">bearerAuth</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;http&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">scheme</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;bearer&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">bearerFormat</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;JWT&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">description</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Token de ID do Firebase Auth, obtido após o login no front-end.&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="c1">// Arquivos onde o swagger-jsdoc procura comentários @openapi.</span>
+<span class="w">  </span><span class="nx">apis</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;./src/routes/*.js&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;./src/docs/schemas/*.js&#39;</span><span class="p">],</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">swaggerSpec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">swaggerJsdoc</span><span class="p">(</span><span class="nx">opcoes</span><span class="p">)</span>
+</code></pre></div></div>
+
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+Repare na chave <code>definition</code> dentro de <code>opcoes</code>. Em versões antigas do <code>swagger-jsdoc</code> (2.x/3.x) essa chave se chamava <code>swaggerDefinition</code>. Nesta disciplina usamos <code>swagger-jsdoc@6.3.0</code>, que exige <code>definition</code>. Se você copiar um tutorial antigo da internet com <code>swaggerDefinition</code>, a spec gerada fica com <code>paths: {}</code> vazio e nenhum erro é lançado — o bug é silencioso.</p>
+</blockquote>
+<h3 id="32-abordagem-b-openapiyaml-escrito-a-mao">3.2 Abordagem (b): <code>openapi.yaml</code> escrito à mão<a class="anchor" href="#32-abordagem-b-openapiyaml-escrito-a-mao" title="Permanent link">¶</a></h3>
+<p>A alternativa é escrever o documento OpenAPI inteiro em um arquivo <code>.yaml</code>, sem anotação nenhuma no código, e servir esse arquivo estático:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1"># openapi.yaml (resumo — não é o que vamos usar hoje, é só para você conhecer a alternativa)</span>
+<span class="nt">openapi</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3.0.0</span>
+<span class="nt">info</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">UniEventos API</span>
+<span class="w">  </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0.0</span>
+<span class="nt">paths</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">/api/eventos</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">get</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">tags</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">Eventos</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Lista eventos</span>
+<span class="w">      </span><span class="nt">responses</span><span class="p">:</span>
+<span class="w">        </span><span class="s">&#39;200&#39;</span><span class="p p-Indicator">:</span>
+<span class="w">          </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Lista de eventos</span>
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// server.js — servindo o YAML escrito à mão, em vez de gerado por anotação</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">readFileSync</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;node:fs&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">yaml</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;yaml&#39;</span><span class="w"> </span><span class="c1">// npm install yaml</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">swaggerUi</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;swagger-ui-express&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">documentoOpenApi</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">yaml</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">readFileSync</span><span class="p">(</span><span class="s1">&#39;./openapi.yaml&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="s1">&#39;/api-docs&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">swaggerUi</span><span class="p">.</span><span class="nx">serve</span><span class="p">,</span><span class="w"> </span><span class="nx">swaggerUi</span><span class="p">.</span><span class="nx">setup</span><span class="p">(</span><span class="nx">documentoOpenApi</span><span class="p">))</span>
+</code></pre></div></div>
+
+<p>Vantagem: controle total do texto, sem depender de comentário no meio do código. Desvantagem: fica fácil o YAML "descolar" do código real, porque nada obriga a atualizá-lo junto com a rota. Por isso, nesta disciplina, a abordagem oficial é a (a) — anotações junto ao código, sempre atualizadas na mesma revisão.</p>
+<h2 id="4-servindo-com-swagger-ui-express">4. Servindo com <code>swagger-ui-express</code><a class="anchor" href="#4-servindo-com-swagger-ui-express" title="Permanent link">¶</a></h2>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/app.js — trecho adicionado à montagem da aplicação (depois das rotas de negócio)</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">swaggerUi</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;swagger-ui-express&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">swaggerSpec</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./docs/swaggerSpec.js&#39;</span>
+
+<span class="c1">// Opções de customização visual do Swagger UI.</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">opcoesDoSwaggerUi</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">customSiteTitle</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;UniEventos API — Documentação&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">customCss</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;.swagger-ui .topbar { display: none }&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// esconde a barra verde padrão</span>
+<span class="p">}</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="s1">&#39;/api-docs&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">swaggerUi</span><span class="p">.</span><span class="nx">serve</span><span class="p">,</span><span class="w"> </span><span class="nx">swaggerUi</span><span class="p">.</span><span class="nx">setup</span><span class="p">(</span><span class="nx">swaggerSpec</span><span class="p">,</span><span class="w"> </span><span class="nx">opcoesDoSwaggerUi</span><span class="p">))</span>
+
+<span class="c1">// Expõe o JSON cru da spec — útil para importar em Insomnia/Postman</span>
+<span class="c1">// ou para ferramentas de geração de cliente consumirem diretamente.</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/api-docs.json&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">res</span><span class="p">.</span><span class="nx">status</span><span class="p">(</span><span class="mf">200</span><span class="p">).</span><span class="nx">json</span><span class="p">(</span><span class="nx">swaggerSpec</span><span class="p">)</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>npm<span class="w"> </span>run<span class="w"> </span>dev
+<span class="c1"># abra no navegador:</span>
+<span class="c1"># http://localhost:3000/api-docs       → interface interativa</span>
+<span class="c1"># http://localhost:3000/api-docs.json  → JSON cru da especificação</span>
+</code></pre></div></div>
+
+<blockquote class="dica">
+<p><strong>💡 Dica</strong>
+<code>swaggerUi.serve</code> é um <strong>array</strong> de middlewares (serve os arquivos estáticos da interface: CSS, JS, HTML); <code>swaggerUi.setup(spec, opcoes)</code> é o middleware que injeta sua spec nessa interface. Os dois sempre andam juntos, nessa ordem, no mesmo <code>app.use</code>.</p>
+</blockquote>
+<h2 id="padrao-de-projeto-em-uso">🧩 Padrão de projeto em uso<a class="anchor" href="#padrao-de-projeto-em-uso" title="Permanent link">¶</a></h2>
+<blockquote>
+<h3 id="padrao-de-projeto-em-uso-decorator-documentacao-como-anotacao">🧩 Padrão de projeto em uso — Decorator (documentação como anotação)<a class="anchor" href="#padrao-de-projeto-em-uso-decorator-documentacao-como-anotacao" title="Permanent link">¶</a></h3>
+<p>O padrão <strong>Decorator</strong> adiciona comportamento ou informação a um objeto sem alterar sua estrutura original. As anotações <code>@openapi</code> fazem exatamente isso, só que no nível de <strong>documentação de código-fonte</strong> em vez de tempo de execução: o comentário JSDoc "decora" a rota com metadados (parâmetros, respostas, segurança) sem alterar uma linha da lógica real do <code>router.get(...)</code>. Remova o comentário e a rota continua funcionando idêntica — a documentação é uma camada adicionada por cima, não uma dependência funcional.</p>
+<p><code>js
+/**
+ * @openapi
+ * /api/eventos:
+ *   get:
+ *     summary: Lista eventos                    ← "decoração": metadado
+ *     tags: [Eventos]                            ← "decoração": metadado
+ */
+router.get('/', eventosController.listar)         // ← comportamento real, intocado</code></p>
+<p>É a mesma lógica dos decorators de linguagens como TypeScript/Java (<code>@Component</code>, <code>@Test</code>) — mas aqui implementada via convenção de comentário, lida por uma ferramenta externa (<code>swagger-jsdoc</code>), porque JavaScript puro (sem TypeScript) não tem decorators nativos estáveis no runtime do Node.</p>
+</blockquote>
+<h2 id="5-documentando-os-schemas-reutilizaveis">5. Documentando os schemas reutilizáveis<a class="anchor" href="#5-documentando-os-schemas-reutilizaveis" title="Permanent link">¶</a></h2>
+<p>Antes de anotar cada rota, definimos os formatos de objeto que se repetem — assim cada endpoint só referencia (<code>$ref</code>) em vez de redigitar os mesmos campos.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/docs/schemas/evento.schema.js</span>
+<span class="cm">/**</span>
+<span class="cm"> * @openapi</span>
+<span class="cm"> * components:</span>
+<span class="cm"> *   schemas:</span>
+<span class="cm"> *     Evento:</span>
+<span class="cm"> *       type: object</span>
+<span class="cm"> *       properties:</span>
+<span class="cm"> *         id:</span>
+<span class="cm"> *           type: integer</span>
+<span class="cm"> *           example: 3</span>
+<span class="cm"> *         titulo:</span>
+<span class="cm"> *           type: string</span>
+<span class="cm"> *           example: Hackathon FACET</span>
+<span class="cm"> *         descricao:</span>
+<span class="cm"> *           type: string</span>
+<span class="cm"> *           example: Maratona de programação de 24 horas aberta a todos os cursos.</span>
+<span class="cm"> *         categoria:</span>
+<span class="cm"> *           type: string</span>
+<span class="cm"> *           enum: [palestra, minicurso, workshop]</span>
+<span class="cm"> *           example: workshop</span>
+<span class="cm"> *         dataHora:</span>
+<span class="cm"> *           type: string</span>
+<span class="cm"> *           format: date-time</span>
+<span class="cm"> *           example: 2026-10-05T08:00:00</span>
+<span class="cm"> *         local:</span>
+<span class="cm"> *           type: string</span>
+<span class="cm"> *           example: Bloco A, Auditório</span>
+<span class="cm"> *         vagas:</span>
+<span class="cm"> *           type: integer</span>
+<span class="cm"> *           example: 60</span>
+<span class="cm"> *         imagemUrl:</span>
+<span class="cm"> *           type: string</span>
+<span class="cm"> *           format: uri</span>
+<span class="cm"> *           example: https://storage.unieventos.dev/eventos/hackathon.jpg</span>
+<span class="cm"> *</span>
+<span class="cm"> *     EventoInput:</span>
+<span class="cm"> *       type: object</span>
+<span class="cm"> *       required: [titulo, categoria, dataHora, local, vagas]</span>
+<span class="cm"> *       properties:</span>
+<span class="cm"> *         titulo:</span>
+<span class="cm"> *           type: string</span>
+<span class="cm"> *           minLength: 3</span>
+<span class="cm"> *           maxLength: 150</span>
+<span class="cm"> *         descricao:</span>
+<span class="cm"> *           type: string</span>
+<span class="cm"> *         categoria:</span>
+<span class="cm"> *           type: string</span>
+<span class="cm"> *           enum: [palestra, minicurso, workshop]</span>
+<span class="cm"> *         dataHora:</span>
+<span class="cm"> *           type: string</span>
+<span class="cm"> *           format: date-time</span>
+<span class="cm"> *         local:</span>
+<span class="cm"> *           type: string</span>
+<span class="cm"> *         vagas:</span>
+<span class="cm"> *           type: integer</span>
+<span class="cm"> *           minimum: 0</span>
+<span class="cm"> *         imagemUrl:</span>
+<span class="cm"> *           type: string</span>
+<span class="cm"> *           format: uri</span>
+<span class="cm"> *</span>
+<span class="cm"> *     Erro:</span>
+<span class="cm"> *       type: object</span>
+<span class="cm"> *       properties:</span>
+<span class="cm"> *         mensagem:</span>
+<span class="cm"> *           type: string</span>
+<span class="cm"> *           example: Evento não encontrado</span>
+<span class="cm"> *         detalhes:</span>
+<span class="cm"> *           type: array</span>
+<span class="cm"> *           items:</span>
+<span class="cm"> *             type: object</span>
+<span class="cm"> *             properties:</span>
+<span class="cm"> *               campo:</span>
+<span class="cm"> *                 type: string</span>
+<span class="cm"> *               mensagem:</span>
+<span class="cm"> *                 type: string</span>
+<span class="cm"> *</span>
+<span class="cm"> *     Paginacao:</span>
+<span class="cm"> *       type: object</span>
+<span class="cm"> *       properties:</span>
+<span class="cm"> *         pagina:</span>
+<span class="cm"> *           type: integer</span>
+<span class="cm"> *           example: 1</span>
+<span class="cm"> *         porPagina:</span>
+<span class="cm"> *           type: integer</span>
+<span class="cm"> *           example: 20</span>
+<span class="cm"> *         total:</span>
+<span class="cm"> *           type: integer</span>
+<span class="cm"> *           example: 47</span>
+<span class="cm"> */</span>
+<span class="k">export</span><span class="w"> </span><span class="p">{}</span><span class="w"> </span><span class="c1">// arquivo só existe para hospedar o comentário — sem código de fato</span>
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/docs/schemas/inscricao.schema.js</span>
+<span class="cm">/**</span>
+<span class="cm"> * @openapi</span>
+<span class="cm"> * components:</span>
+<span class="cm"> *   schemas:</span>
+<span class="cm"> *     Inscricao:</span>
+<span class="cm"> *       type: object</span>
+<span class="cm"> *       properties:</span>
+<span class="cm"> *         id:</span>
+<span class="cm"> *           type: integer</span>
+<span class="cm"> *           example: 12</span>
+<span class="cm"> *         eventoId:</span>
+<span class="cm"> *           type: integer</span>
+<span class="cm"> *           example: 3</span>
+<span class="cm"> *         usuarioUid:</span>
+<span class="cm"> *           type: string</span>
+<span class="cm"> *           example: fY3k9sLp2QaB1cD4eF5gH6iJ7kL8</span>
+<span class="cm"> *         criadoEm:</span>
+<span class="cm"> *           type: string</span>
+<span class="cm"> *           format: date-time</span>
+<span class="cm"> *</span>
+<span class="cm"> *     InscricaoInput:</span>
+<span class="cm"> *       type: object</span>
+<span class="cm"> *       required: [eventoId]</span>
+<span class="cm"> *       properties:</span>
+<span class="cm"> *         eventoId:</span>
+<span class="cm"> *           type: integer</span>
+<span class="cm"> *           example: 3</span>
+<span class="cm"> */</span>
+<span class="k">export</span><span class="w"> </span><span class="p">{}</span>
+</code></pre></div></div>
+
+<blockquote class="capo">
+<p><strong>🔎 Por baixo do capô</strong>
+Esses arquivos <code>*.schema.js</code> não exportam nada útil em termos de código JavaScript — servem só para o <code>swagger-jsdoc</code> encontrar o comentário (por isso estão incluídos em <code>apis: [...]</code> na configuração da Seção 3.1). É uma convenção comum para não poluir arquivos de rota reais com blocos de schema grandes.</p>
+</blockquote>
+<h2 id="6-documentando-todos-os-endpoints-do-unieventos">6. Documentando todos os endpoints do UniEventos<a class="anchor" href="#6-documentando-todos-os-endpoints-do-unieventos" title="Permanent link">¶</a></h2>
+<h3 id="61-eventos-as-5-operacoes-crud-completo">6.1 Eventos — as 5 operações (CRUD completo)<a class="anchor" href="#61-eventos-as-5-operacoes-crud-completo" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/routes/eventos.routes.js — versão anotada</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Router</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;express&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">validar</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../middlewares/validar.js&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">eventoSchema</span><span class="p">,</span><span class="w"> </span><span class="nx">eventoAtualizacaoSchema</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../validators/eventoSchema.js&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">verificarToken</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../middlewares/autenticacao.js&#39;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">criarRotasDeEventos</span><span class="p">({</span><span class="w"> </span><span class="nx">eventosController</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">router</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">Router</span><span class="p">()</span>
+
+<span class="w">  </span><span class="cm">/**</span>
+<span class="cm">   * @openapi</span>
+<span class="cm">   * /api/eventos:</span>
+<span class="cm">   *   get:</span>
+<span class="cm">   *     summary: Lista eventos, com filtros opcionais</span>
+<span class="cm">   *     tags: [Eventos]</span>
+<span class="cm">   *     parameters:</span>
+<span class="cm">   *       - in: query</span>
+<span class="cm">   *         name: categoria</span>
+<span class="cm">   *         schema:</span>
+<span class="cm">   *           type: string</span>
+<span class="cm">   *           enum: [palestra, minicurso, workshop]</span>
+<span class="cm">   *         description: Filtra por categoria do evento</span>
+<span class="cm">   *       - in: query</span>
+<span class="cm">   *         name: busca</span>
+<span class="cm">   *         schema:</span>
+<span class="cm">   *           type: string</span>
+<span class="cm">   *         description: Filtra por trecho do título</span>
+<span class="cm">   *       - in: query</span>
+<span class="cm">   *         name: pagina</span>
+<span class="cm">   *         schema:</span>
+<span class="cm">   *           type: integer</span>
+<span class="cm">   *           default: 1</span>
+<span class="cm">   *       - in: query</span>
+<span class="cm">   *         name: porPagina</span>
+<span class="cm">   *         schema:</span>
+<span class="cm">   *           type: integer</span>
+<span class="cm">   *           default: 20</span>
+<span class="cm">   *     responses:</span>
+<span class="cm">   *       200:</span>
+<span class="cm">   *         description: Lista de eventos encontrados</span>
+<span class="cm">   *         content:</span>
+<span class="cm">   *           application/json:</span>
+<span class="cm">   *             schema:</span>
+<span class="cm">   *               type: array</span>
+<span class="cm">   *               items:</span>
+<span class="cm">   *                 $ref: &#39;#/components/schemas/Evento&#39;</span>
+<span class="cm">   */</span>
+<span class="w">  </span><span class="nx">router</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">eventosController</span><span class="p">.</span><span class="nx">listar</span><span class="p">)</span>
+
+<span class="w">  </span><span class="cm">/**</span>
+<span class="cm">   * @openapi</span>
+<span class="cm">   * /api/eventos/{id}:</span>
+<span class="cm">   *   get:</span>
+<span class="cm">   *     summary: Busca um evento pelo id</span>
+<span class="cm">   *     tags: [Eventos]</span>
+<span class="cm">   *     parameters:</span>
+<span class="cm">   *       - in: path</span>
+<span class="cm">   *         name: id</span>
+<span class="cm">   *         required: true</span>
+<span class="cm">   *         schema:</span>
+<span class="cm">   *           type: integer</span>
+<span class="cm">   *         description: Id numérico do evento</span>
+<span class="cm">   *     responses:</span>
+<span class="cm">   *       200:</span>
+<span class="cm">   *         description: Evento encontrado</span>
+<span class="cm">   *         content:</span>
+<span class="cm">   *           application/json:</span>
+<span class="cm">   *             schema:</span>
+<span class="cm">   *               $ref: &#39;#/components/schemas/Evento&#39;</span>
+<span class="cm">   *       404:</span>
+<span class="cm">   *         description: Evento não encontrado</span>
+<span class="cm">   *         content:</span>
+<span class="cm">   *           application/json:</span>
+<span class="cm">   *             schema:</span>
+<span class="cm">   *               $ref: &#39;#/components/schemas/Erro&#39;</span>
+<span class="cm">   */</span>
+<span class="w">  </span><span class="nx">router</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/:id&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">eventosController</span><span class="p">.</span><span class="nx">buscarPorId</span><span class="p">)</span>
+
+<span class="w">  </span><span class="cm">/**</span>
+<span class="cm">   * @openapi</span>
+<span class="cm">   * /api/eventos:</span>
+<span class="cm">   *   post:</span>
+<span class="cm">   *     summary: Cria um novo evento</span>
+<span class="cm">   *     tags: [Eventos]</span>
+<span class="cm">   *     security:</span>
+<span class="cm">   *       - bearerAuth: []</span>
+<span class="cm">   *     requestBody:</span>
+<span class="cm">   *       required: true</span>
+<span class="cm">   *       content:</span>
+<span class="cm">   *         application/json:</span>
+<span class="cm">   *           schema:</span>
+<span class="cm">   *             $ref: &#39;#/components/schemas/EventoInput&#39;</span>
+<span class="cm">   *     responses:</span>
+<span class="cm">   *       201:</span>
+<span class="cm">   *         description: Evento criado</span>
+<span class="cm">   *         content:</span>
+<span class="cm">   *           application/json:</span>
+<span class="cm">   *             schema:</span>
+<span class="cm">   *               $ref: &#39;#/components/schemas/Evento&#39;</span>
+<span class="cm">   *       400:</span>
+<span class="cm">   *         description: Dados inválidos</span>
+<span class="cm">   *         content:</span>
+<span class="cm">   *           application/json:</span>
+<span class="cm">   *             schema:</span>
+<span class="cm">   *               $ref: &#39;#/components/schemas/Erro&#39;</span>
+<span class="cm">   *       401:</span>
+<span class="cm">   *         description: Token ausente ou inválido</span>
+<span class="cm">   *         content:</span>
+<span class="cm">   *           application/json:</span>
+<span class="cm">   *             schema:</span>
+<span class="cm">   *               $ref: &#39;#/components/schemas/Erro&#39;</span>
+<span class="cm">   */</span>
+<span class="w">  </span><span class="nx">router</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">verificarToken</span><span class="p">,</span><span class="w"> </span><span class="nx">validar</span><span class="p">(</span><span class="nx">eventoSchema</span><span class="p">),</span><span class="w"> </span><span class="nx">eventosController</span><span class="p">.</span><span class="nx">criar</span><span class="p">)</span>
+
+<span class="w">  </span><span class="cm">/**</span>
+<span class="cm">   * @openapi</span>
+<span class="cm">   * /api/eventos/{id}:</span>
+<span class="cm">   *   put:</span>
+<span class="cm">   *     summary: Atualiza um evento existente</span>
+<span class="cm">   *     tags: [Eventos]</span>
+<span class="cm">   *     security:</span>
+<span class="cm">   *       - bearerAuth: []</span>
+<span class="cm">   *     parameters:</span>
+<span class="cm">   *       - in: path</span>
+<span class="cm">   *         name: id</span>
+<span class="cm">   *         required: true</span>
+<span class="cm">   *         schema:</span>
+<span class="cm">   *           type: integer</span>
+<span class="cm">   *     requestBody:</span>
+<span class="cm">   *       required: true</span>
+<span class="cm">   *       content:</span>
+<span class="cm">   *         application/json:</span>
+<span class="cm">   *           schema:</span>
+<span class="cm">   *             $ref: &#39;#/components/schemas/EventoInput&#39;</span>
+<span class="cm">   *     responses:</span>
+<span class="cm">   *       200:</span>
+<span class="cm">   *         description: Evento atualizado</span>
+<span class="cm">   *         content:</span>
+<span class="cm">   *           application/json:</span>
+<span class="cm">   *             schema:</span>
+<span class="cm">   *               $ref: &#39;#/components/schemas/Evento&#39;</span>
+<span class="cm">   *       404:</span>
+<span class="cm">   *         description: Evento não encontrado</span>
+<span class="cm">   *         content:</span>
+<span class="cm">   *           application/json:</span>
+<span class="cm">   *             schema:</span>
+<span class="cm">   *               $ref: &#39;#/components/schemas/Erro&#39;</span>
+<span class="cm">   */</span>
+<span class="w">  </span><span class="nx">router</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s1">&#39;/:id&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">verificarToken</span><span class="p">,</span><span class="w"> </span><span class="nx">validar</span><span class="p">(</span><span class="nx">eventoAtualizacaoSchema</span><span class="p">),</span><span class="w"> </span><span class="nx">eventosController</span><span class="p">.</span><span class="nx">atualizar</span><span class="p">)</span>
+
+<span class="w">  </span><span class="cm">/**</span>
+<span class="cm">   * @openapi</span>
+<span class="cm">   * /api/eventos/{id}:</span>
+<span class="cm">   *   delete:</span>
+<span class="cm">   *     summary: Remove um evento</span>
+<span class="cm">   *     tags: [Eventos]</span>
+<span class="cm">   *     security:</span>
+<span class="cm">   *       - bearerAuth: []</span>
+<span class="cm">   *     parameters:</span>
+<span class="cm">   *       - in: path</span>
+<span class="cm">   *         name: id</span>
+<span class="cm">   *         required: true</span>
+<span class="cm">   *         schema:</span>
+<span class="cm">   *           type: integer</span>
+<span class="cm">   *     responses:</span>
+<span class="cm">   *       204:</span>
+<span class="cm">   *         description: Evento removido com sucesso, sem corpo de resposta</span>
+<span class="cm">   *       404:</span>
+<span class="cm">   *         description: Evento não encontrado</span>
+<span class="cm">   *         content:</span>
+<span class="cm">   *           application/json:</span>
+<span class="cm">   *             schema:</span>
+<span class="cm">   *               $ref: &#39;#/components/schemas/Erro&#39;</span>
+<span class="cm">   */</span>
+<span class="w">  </span><span class="nx">router</span><span class="p">.</span><span class="ow">delete</span><span class="p">(</span><span class="s1">&#39;/:id&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">verificarToken</span><span class="p">,</span><span class="w"> </span><span class="nx">eventosController</span><span class="p">.</span><span class="nx">remover</span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">router</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="62-inscricoes">6.2 Inscrições<a class="anchor" href="#62-inscricoes" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/routes/inscricoes.routes.js — versão anotada</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Router</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;express&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">validar</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../middlewares/validar.js&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">inscricaoSchema</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../validators/inscricaoSchema.js&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">verificarToken</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../middlewares/autenticacao.js&#39;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">criarRotasDeInscricoes</span><span class="p">({</span><span class="w"> </span><span class="nx">inscricoesController</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">router</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">Router</span><span class="p">()</span>
+
+<span class="w">  </span><span class="cm">/**</span>
+<span class="cm">   * @openapi</span>
+<span class="cm">   * /api/inscricoes:</span>
+<span class="cm">   *   get:</span>
+<span class="cm">   *     summary: Lista as inscrições do usuário autenticado</span>
+<span class="cm">   *     tags: [Inscrições]</span>
+<span class="cm">   *     security:</span>
+<span class="cm">   *       - bearerAuth: []</span>
+<span class="cm">   *     responses:</span>
+<span class="cm">   *       200:</span>
+<span class="cm">   *         description: Lista de inscrições do usuário logado</span>
+<span class="cm">   *         content:</span>
+<span class="cm">   *           application/json:</span>
+<span class="cm">   *             schema:</span>
+<span class="cm">   *               type: array</span>
+<span class="cm">   *               items:</span>
+<span class="cm">   *                 $ref: &#39;#/components/schemas/Inscricao&#39;</span>
+<span class="cm">   *       401:</span>
+<span class="cm">   *         description: Token ausente ou inválido</span>
+<span class="cm">   */</span>
+<span class="w">  </span><span class="nx">router</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">verificarToken</span><span class="p">,</span><span class="w"> </span><span class="nx">inscricoesController</span><span class="p">.</span><span class="nx">listarMinhas</span><span class="p">)</span>
+
+<span class="w">  </span><span class="cm">/**</span>
+<span class="cm">   * @openapi</span>
+<span class="cm">   * /api/inscricoes:</span>
+<span class="cm">   *   post:</span>
+<span class="cm">   *     summary: Inscreve o usuário autenticado em um evento</span>
+<span class="cm">   *     tags: [Inscrições]</span>
+<span class="cm">   *     security:</span>
+<span class="cm">   *       - bearerAuth: []</span>
+<span class="cm">   *     requestBody:</span>
+<span class="cm">   *       required: true</span>
+<span class="cm">   *       content:</span>
+<span class="cm">   *         application/json:</span>
+<span class="cm">   *           schema:</span>
+<span class="cm">   *             $ref: &#39;#/components/schemas/InscricaoInput&#39;</span>
+<span class="cm">   *     responses:</span>
+<span class="cm">   *       201:</span>
+<span class="cm">   *         description: Inscrição criada</span>
+<span class="cm">   *         content:</span>
+<span class="cm">   *           application/json:</span>
+<span class="cm">   *             schema:</span>
+<span class="cm">   *               $ref: &#39;#/components/schemas/Inscricao&#39;</span>
+<span class="cm">   *       409:</span>
+<span class="cm">   *         description: Usuário já está inscrito neste evento</span>
+<span class="cm">   *         content:</span>
+<span class="cm">   *           application/json:</span>
+<span class="cm">   *             schema:</span>
+<span class="cm">   *               $ref: &#39;#/components/schemas/Erro&#39;</span>
+<span class="cm">   */</span>
+<span class="w">  </span><span class="nx">router</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">verificarToken</span><span class="p">,</span><span class="w"> </span><span class="nx">validar</span><span class="p">(</span><span class="nx">inscricaoSchema</span><span class="p">),</span><span class="w"> </span><span class="nx">inscricoesController</span><span class="p">.</span><span class="nx">criar</span><span class="p">)</span>
+
+<span class="w">  </span><span class="cm">/**</span>
+<span class="cm">   * @openapi</span>
+<span class="cm">   * /api/inscricoes/{id}:</span>
+<span class="cm">   *   delete:</span>
+<span class="cm">   *     summary: Cancela uma inscrição do próprio usuário</span>
+<span class="cm">   *     tags: [Inscrições]</span>
+<span class="cm">   *     security:</span>
+<span class="cm">   *       - bearerAuth: []</span>
+<span class="cm">   *     parameters:</span>
+<span class="cm">   *       - in: path</span>
+<span class="cm">   *         name: id</span>
+<span class="cm">   *         required: true</span>
+<span class="cm">   *         schema:</span>
+<span class="cm">   *           type: integer</span>
+<span class="cm">   *     responses:</span>
+<span class="cm">   *       204:</span>
+<span class="cm">   *         description: Inscrição cancelada</span>
+<span class="cm">   *       403:</span>
+<span class="cm">   *         description: A inscrição pertence a outro usuário</span>
+<span class="cm">   *         content:</span>
+<span class="cm">   *           application/json:</span>
+<span class="cm">   *             schema:</span>
+<span class="cm">   *               $ref: &#39;#/components/schemas/Erro&#39;</span>
+<span class="cm">   */</span>
+<span class="w">  </span><span class="nx">router</span><span class="p">.</span><span class="ow">delete</span><span class="p">(</span><span class="s1">&#39;/:id&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">verificarToken</span><span class="p">,</span><span class="w"> </span><span class="nx">inscricoesController</span><span class="p">.</span><span class="nx">cancelar</span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">router</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="63-autenticacao">6.3 Autenticação<a class="anchor" href="#63-autenticacao" title="Permanent link">¶</a></h3>
+<p>O UniEventos não implementa login no back-end — o login acontece no front, direto contra o Firebase Auth (Aula 10). O back-end só <strong>verifica</strong> o token recebido. Ainda assim, documentamos esse fluxo, porque quem consumir a API precisa saber como obter o token:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/routes/autenticacao.routes.js</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Router</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;express&#39;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">criarRotasDeAutenticacao</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">router</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">Router</span><span class="p">()</span>
+
+<span class="w">  </span><span class="cm">/**</span>
+<span class="cm">   * @openapi</span>
+<span class="cm">   * /api/auth/verificar:</span>
+<span class="cm">   *   get:</span>
+<span class="cm">   *     summary: Confirma se o token enviado é válido e devolve os dados do usuário</span>
+<span class="cm">   *     description: &gt;</span>
+<span class="cm">   *       Não existe endpoint de login nesta API — o login acontece no front-end,</span>
+<span class="cm">   *       diretamente contra o Firebase Auth (signInWithEmailAndPassword). Este</span>
+<span class="cm">   *       endpoint serve apenas para confirmar que um token de ID do Firebase é válido.</span>
+<span class="cm">   *     tags: [Autenticação]</span>
+<span class="cm">   *     security:</span>
+<span class="cm">   *       - bearerAuth: []</span>
+<span class="cm">   *     responses:</span>
+<span class="cm">   *       200:</span>
+<span class="cm">   *         description: Token válido</span>
+<span class="cm">   *         content:</span>
+<span class="cm">   *           application/json:</span>
+<span class="cm">   *             schema:</span>
+<span class="cm">   *               type: object</span>
+<span class="cm">   *               properties:</span>
+<span class="cm">   *                 uid:</span>
+<span class="cm">   *                   type: string</span>
+<span class="cm">   *                 email:</span>
+<span class="cm">   *                   type: string</span>
+<span class="cm">   *       401:</span>
+<span class="cm">   *         description: Token ausente, expirado ou inválido</span>
+<span class="cm">   *         content:</span>
+<span class="cm">   *           application/json:</span>
+<span class="cm">   *             schema:</span>
+<span class="cm">   *               $ref: &#39;#/components/schemas/Erro&#39;</span>
+<span class="cm">   */</span>
+<span class="w">  </span><span class="nx">router</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/verificar&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">res</span><span class="p">.</span><span class="nx">status</span><span class="p">(</span><span class="mf">200</span><span class="p">).</span><span class="nx">json</span><span class="p">({</span><span class="w"> </span><span class="nx">uid</span><span class="o">:</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">usuario</span><span class="p">.</span><span class="nx">uid</span><span class="p">,</span><span class="w"> </span><span class="nx">email</span><span class="o">:</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">usuario</span><span class="p">.</span><span class="nx">email</span><span class="w"> </span><span class="p">})</span>
+<span class="w">  </span><span class="p">})</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">router</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="7-seguranca-com-bearerauth-e-o-botao-authorize">7. Segurança com bearerAuth e o botão "Authorize"<a class="anchor" href="#7-seguranca-com-bearerauth-e-o-botao-authorize" title="Permanent link">¶</a></h2>
+<p>O esquema <code>bearerAuth</code> já foi declarado em <code>components.securitySchemes</code> (Seção 3.1):</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="nt">securitySchemes</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">bearerAuth</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http</span>
+<span class="w">    </span><span class="nt">scheme</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bearer</span>
+<span class="w">    </span><span class="nt">bearerFormat</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">JWT</span>
+</code></pre></div></div>
+
+<p>Cada endpoint protegido referencia esse esquema com <code>security: [{ bearerAuth: [] }]</code> (como fizemos em <code>POST /api/eventos</code>, <code>PUT /api/eventos/{id}</code>, <code>DELETE /api/eventos/{id}</code> e todas as rotas de inscrições). O efeito no Swagger UI:</p>
+<ol>
+<li>Um cadeado aparece ao lado de cada operação protegida.</li>
+<li>Um botão verde <strong>"Authorize"</strong> aparece no topo da página.</li>
+<li>Clicar nele abre um campo para colar o token — só o token puro, sem o prefixo <code>Bearer</code> (o Swagger UI adiciona isso sozinho no cabeçalho <code>Authorization</code>).</li>
+<li>Depois de autorizado, todo "Try it out" em endpoint protegido já envia o cabeçalho automaticamente.</li>
+</ol>
+<blockquote class="dica">
+<p><strong>💡 Dica</strong>
+Para obter um token de teste rápido, abra o console do navegador na sua aplicação front-end já logada e rode:
+<code>js
+import { getAuth } from 'firebase/auth'
+const token = await getAuth().currentUser.getIdToken()
+console.log(token)</code>
+Copie o valor impresso e cole no botão "Authorize" do Swagger UI.</p>
+</blockquote>
+<h2 id="8-testando-pelo-swagger-ui-try-it-out">8. Testando pelo Swagger UI ("Try it out")<a class="anchor" href="#8-testando-pelo-swagger-ui-try-it-out" title="Permanent link">¶</a></h2>
+<ol>
+<li>Abra <code>http://localhost:3000/api-docs</code>.</li>
+<li>Expanda <code>GET /api/eventos</code>, clique em <strong>"Try it out"</strong>, depois em <strong>"Execute"</strong> — a resposta real da API aparece embaixo, com status e corpo formatado.</li>
+<li>Para testar <code>POST /api/eventos</code>, clique em <strong>"Authorize"</strong> primeiro (Seção 7), depois expanda a operação, edite o JSON de exemplo no campo de corpo, e execute.</li>
+</ol>
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção — CORS e <code>servers</code></strong>
+O Swagger UI faz a requisição <strong>do navegador</strong>, então as mesmas regras de CORS da Aula 13 se aplicam: se <code>servers</code> apontar para uma URL diferente da que está rodando o front (ou se a API não liberar a origem da própria página do Swagger UI), o "Try it out" falha com erro de CORS no console — mesmo a API estando no ar. Garanta que <code>CORS_ORIGEM_PERMITIDA</code> inclua a origem de onde o Swagger UI está sendo servido (geralmente a própria API, <code>http://localhost:3000</code>, o que já é liberado por padrão pelo mesmo processo).</p>
+</blockquote>
+<h2 id="9-alem-do-swagger-documentacao-completa-do-projeto">9. Além do Swagger: documentação completa do projeto<a class="anchor" href="#9-alem-do-swagger-documentacao-completa-do-projeto" title="Permanent link">¶</a></h2>
+<h3 id="91-readme-de-qualidade">9.1 README de qualidade<a class="anchor" href="#91-readme-de-qualidade" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>&lt;!-- README.md --&gt;
+<span class="gh"># UniEventos API</span>
+
+![<span class="nt">Node.js</span>](<span class="na">https://img.shields.io/badge/node-22.x-green</span>)
+![<span class="nt">Express</span>](<span class="na">https://img.shields.io/badge/express-5.2.1-blue</span>)
+![<span class="nt">Licença</span>](<span class="na">https://img.shields.io/badge/licença-MIT-lightgrey</span>)
+
+API REST da plataforma <span class="gs">**UniEventos**</span> — divulgação e inscrição em eventos acadêmicos.
+Projeto desenvolvido na disciplina FACET-SNP-310 (UNEMAT/Cáceres, 2026.2).
+
+<span class="gu">## Requisitos</span>
+
+<span class="k">-</span><span class="w"> </span>Node.js 22 LTS
+<span class="k">-</span><span class="w"> </span>MySQL 8 (local ou gerenciado)
+<span class="k">-</span><span class="w"> </span>Conta de serviço do Firebase (arquivo de credenciais)
+
+<span class="gu">## Instalação</span>
+
+\`\`\`bash
+git clone https://github.com/seu-usuario/unieventos-api.git
+cd unieventos-api
+npm install
+cp .env.example .env   # preencha com suas credenciais
+npm run migrar
+npm run dev
+\`\`\`
+
+<span class="gu">## Variáveis de ambiente</span>
+
+| Variável | Descrição |
+|---|---|
+| <span class="sb">`PORT`</span> | Porta HTTP da API (padrão 3000) |
+| <span class="sb">`DB_HOST`</span> / <span class="sb">`DB_PORT`</span> / <span class="sb">`DB_USER`</span> / <span class="sb">`DB_PASSWORD`</span> / <span class="sb">`DB_NAME`</span> | Credenciais do MySQL |
+| <span class="sb">`FIREBASE_PROJECT_ID`</span> | Id do projeto Firebase usado na verificação de token |
+| <span class="sb">`CORS_ORIGEM_PERMITIDA`</span> | Origem do front-end autorizada pelo CORS |
+
+<span class="gu">## Scripts disponíveis</span>
+
+| Comando | Efeito |
+|---|---|
+| <span class="sb">`npm run dev`</span> | Sobe a API com recarregamento automático |
+| <span class="sb">`npm start`</span> | Sobe a API em modo produção |
+| <span class="sb">`npm test`</span> | Executa a suíte de testes (vitest) |
+| <span class="sb">`npm run migrar`</span> | Aplica migrations pendentes no banco |
+
+<span class="gu">## Endpoints</span>
+
+Documentação interativa completa em <span class="sb">`/api-docs`</span> (Swagger UI) com o projeto rodando.
+Resumo:
+
+| Método | Rota | Descrição |
+|---|---|---|
+| GET | <span class="sb">`/api/eventos`</span> | Lista eventos, com filtros |
+| GET | <span class="sb">`/api/eventos/:id`</span> | Detalha um evento |
+| POST | <span class="sb">`/api/eventos`</span> | Cria evento (autenticado) |
+| PUT | <span class="sb">`/api/eventos/:id`</span> | Atualiza evento (autenticado) |
+| DELETE | <span class="sb">`/api/eventos/:id`</span> | Remove evento (autenticado) |
+| GET | <span class="sb">`/api/inscricoes`</span> | Lista inscrições do usuário logado |
+| POST | <span class="sb">`/api/inscricoes`</span> | Inscreve o usuário em um evento |
+| DELETE | <span class="sb">`/api/inscricoes/:id`</span> | Cancela inscrição |
+
+<span class="gu">## Licença</span>
+
+MIT — veja o arquivo LICENSE.
+</code></pre></div></div>
+
+<h3 id="92-colecao-de-api-exportada">9.2 Coleção de API exportada<a class="anchor" href="#92-colecao-de-api-exportada" title="Permanent link">¶</a></h3>
+<p>Além do Swagger UI, exporte uma coleção do Insomnia ou Postman e comite no repositório em <code>docs/insomnia-collection.json</code> — facilita quem prefere testar fora do navegador. No Insomnia: menu <strong>Application → Preferences → Data → Export Data</strong>, escolha a workspace do projeto, formato Insomnia v4, e salve o arquivo na pasta <code>docs/</code> do repositório.</p>
+<h3 id="93-contributingmd-minimo">9.3 <code>CONTRIBUTING.md</code> mínimo<a class="anchor" href="#93-contributingmd-minimo" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>&lt;!-- CONTRIBUTING.md --&gt;
+<span class="gh"># Como contribuir</span>
+
+<span class="k">1.</span> Crie uma branch a partir de <span class="sb">`main`</span>: <span class="sb">`git checkout -b feature/nome-da-mudanca`</span>.
+<span class="k">2.</span> Rode <span class="sb">`npm test`</span> antes de abrir o Pull Request — a suíte precisa passar.
+<span class="k">3.</span> Siga o padrão de nomes em português para identificadores de domínio (<span class="sb">`eventos`</span>, <span class="sb">`criarEvento`</span>).
+<span class="k">4.</span> Toda rota nova precisa ter anotação <span class="sb">`@openapi`</span> correspondente (Aula 14).
+<span class="k">5.</span> Abra o Pull Request descrevendo o que mudou e por quê.
+</code></pre></div></div>
+
+<h3 id="94-documentacao-do-front-jsdoc-em-composables">9.4 Documentação do front: JSDoc em composables<a class="anchor" href="#94-documentacao-do-front-jsdoc-em-composables" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/composables/useEventos.js</span>
+<span class="cm">/**</span>
+<span class="cm"> * Composable que encapsula a busca e o estado de carregamento da lista de eventos.</span>
+<span class="cm"> *</span>
+<span class="cm"> * @param {Object} [opcoes] - opções de filtro inicial</span>
+<span class="cm"> * @param {string} [opcoes.categoria] - categoria para filtrar a busca inicial</span>
+<span class="cm"> * @returns {{</span>
+<span class="cm"> *   eventos: import(&#39;vue&#39;).Ref&lt;Array&gt;,</span>
+<span class="cm"> *   carregando: import(&#39;vue&#39;).Ref&lt;boolean&gt;,</span>
+<span class="cm"> *   erro: import(&#39;vue&#39;).Ref&lt;string|null&gt;,</span>
+<span class="cm"> *   buscarEventos: (filtros?: Object) =&gt; Promise&lt;void&gt;</span>
+<span class="cm"> * }}</span>
+<span class="cm"> */</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">useEventos</span><span class="p">(</span><span class="nx">opcoes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{})</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// implementação já construída na Aula 06/11 — reaproveitada aqui</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Comentários JSDoc em composables dão autocomplete e checagem de tipo básica no VS Code, mesmo em projetos JavaScript puro (sem TypeScript) — o editor lê o <code>@param</code>/<code>@returns</code> e sugere os campos corretos a quem consome o composable.</p>
+<h3 id="95-adr-architecture-decision-record">9.5 ADR — Architecture Decision Record<a class="anchor" href="#95-adr-architecture-decision-record" title="Permanent link">¶</a></h3>
+<p>Um ADR é um documento curto (10 a 20 linhas) que registra <strong>uma decisão técnica</strong>, o contexto que levou a ela, e as alternativas consideradas — para que, meses depois, ninguém precise adivinhar "por que fizemos assim?".</p>
+<p><strong>Formato em 10 linhas:</strong></p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="gh"># ADR 0001: &lt;título curto da decisão&gt;</span>
+
+<span class="gs">**Status:**</span> aceito | proposto | substituído por ADR-000X
+<span class="gs">**Data:**</span> AAAA-MM-DD
+
+<span class="gu">## Contexto</span>
+&lt;qual problema motivou esta decisão&gt;
+
+<span class="gu">## Decisão</span>
+&lt;o que foi decidido&gt;
+
+<span class="gu">## Consequências</span>
+&lt;o que fica mais fácil, o que fica mais difícil, o que foi trocado por quê&gt;
+</code></pre></div></div>
+
+<p><strong>Exemplo real do UniEventos:</strong></p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>&lt;!-- docs/adr/0001-escolha-do-repository-pattern.md --&gt;
+<span class="gh"># ADR 0001: Usar o padrão Repository para acesso a dados</span>
+
+<span class="gs">**Status:**</span> aceito
+<span class="gs">**Data:**</span> 2026-11-23
+
+<span class="gu">## Contexto</span>
+O service de eventos precisava consultar o MySQL diretamente, o que impedia
+testar as regras de negócio (ex.: &quot;vagas não pode ser negativo&quot;) sem subir
+um banco de dados real, e acoplava o service à sintaxe SQL do mysql2.
+
+<span class="gu">## Decisão</span>
+Extrair toda a lógica de acesso a dados para <span class="sb">`repositories/`</span>, com uma
+interface comum (<span class="sb">`listar`</span>, <span class="sb">`buscarPorId`</span>, <span class="sb">`criar`</span>, <span class="sb">`atualizar`</span>, <span class="sb">`remover`</span>),
+injetada no service por parâmetro (Dependency Injection). O ambiente de
+teste usa uma implementação em memória; produção usa a implementação MySQL.
+
+<span class="gu">## Consequências</span>
+Testes de service ficaram instantâneos e sem dependência externa. Trocar o
+banco de dados (como fizemos ao avaliar Supabase na Aula 12) passou a exigir
+apenas uma nova implementação de repositório, sem tocar em services ou
+controllers. Custo: uma camada de indireção a mais para quem está lendo o
+código pela primeira vez.
+</code></pre></div></div>
+
+<blockquote class="prova">
+<p><strong>📌 Na prova</strong>
+Um ADR não documenta código — documenta <strong>decisão e motivo</strong>. Se a resposta para "por que você fez assim?" está só na sua cabeça, ela vai se perder. Escrever ADRs curtos ao longo do desenvolvimento é mais barato do que reconstruir esse raciocínio depois.</p>
+</blockquote>
+<h2 id="laboratorio">🧪 Laboratório<a class="anchor" href="#laboratorio" title="Permanent link">¶</a></h2>
+<p><strong>1. Configure <code>swagger-jsdoc</code> e <code>swagger-ui-express</code></strong> no seu projeto autoral, com <code>definition</code> (não <code>swaggerDefinition</code>), <code>info</code>, pelo menos uma <code>tag</code> e o <code>securityScheme</code> <code>bearerAuth</code>.</p>
+<p>Resultado esperado: <code>http://localhost:3000/api-docs</code> abre com o título e a descrição da sua API.</p>
+<details>
+<summary>Dica</summary>
+<p>Copie <code>src/docs/swaggerSpec.js</code> da Seção 3.1 e troque só o <code>title</code>, <code>description</code> e as <code>tags</code> para o domínio do seu projeto.</p>
+</details>
+<p><strong>2. Documente 3 endpoints</strong> do seu projeto autoral com anotações <code>@openapi</code> completas (parâmetros, requestBody quando houver, respostas para pelo menos 2 status diferentes).</p>
+<p>Resultado esperado: os 3 endpoints aparecem expansíveis no Swagger UI, com exemplos de corpo preenchidos.</p>
+<details>
+<summary>Dica</summary>
+<p>Comece pelo endpoint de listagem (mais simples, sem <code>requestBody</code>) e depois avance para um de criação (com <code>requestBody</code> e <code>security</code>).</p>
+</details>
+<p><strong>3. Crie os schemas reutilizáveis</strong> da entidade principal do seu domínio (equivalente a <code>Evento</code>/<code>EventoInput</code>/<code>Erro</code>) e referencie com <code>$ref</code> nos 3 endpoints do exercício anterior.</p>
+<p>Resultado esperado: mudar um campo no schema reflete automaticamente em todos os endpoints que o referenciam.</p>
+<details>
+<summary>Dica</summary>
+<p>Coloque os schemas em <code>src/docs/schemas/*.schema.js</code> e inclua o caminho no array <code>apis</code> da configuração do <code>swagger-jsdoc</code>.</p>
+</details>
+<p><strong>4. Teste um endpoint protegido pelo "Authorize"</strong> — obtenha um token do Firebase (Seção 7) e confirme que a requisição autenticada funciona pelo Swagger UI.</p>
+<p>Resultado esperado: sem token, a rota protegida retorna <code>401</code>; com token válido, retorna <code>200</code>/<code>201</code>.</p>
+<details>
+<summary>Dica</summary>
+<p>Se a resposta continuar <code>401</code> mesmo com token colado, confira se você colou só o token puro, sem o prefixo <code>Bearer</code>.</p>
+</details>
+<p><strong>5. Escreva um ADR</strong> para uma decisão técnica real do seu projeto (ex.: por que escolheu MySQL ou Supabase, por que escolheu determinado padrão de rota).</p>
+<p>Resultado esperado: arquivo <code>docs/adr/0001-&lt;slug&gt;.md</code> seguindo o formato de 10 linhas da Seção 9.5.</p>
+<details>
+<summary>Dica</summary>
+<p>Escolha uma decisão que você realmente tomou e hesitou entre alternativas — é mais fácil escrever o "Contexto" quando a dúvida foi real.</p>
+</details>
+<h2 id="erros-comuns-e-como-resolver">🐛 Erros comuns e como resolver<a class="anchor" href="#erros-comuns-e-como-resolver" title="Permanent link">¶</a></h2>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Sintoma</th>
+<th>Causa</th>
+<th>Solução</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/api-docs</code> abre, mas <code>paths</code> está vazio</td>
+<td>Usou a chave <code>swaggerDefinition</code> em vez de <code>definition</code> nas opções do <code>swagger-jsdoc</code></td>
+<td>Troque para <code>definition</code> — é a chave exigida na versão 6.x</td>
+</tr>
+<tr>
+<td>Endpoint documentado não aparece no Swagger UI</td>
+<td>O arquivo onde está o comentário <code>@openapi</code> não está listado em <code>apis: [...]</code></td>
+<td>Adicione o caminho (ou glob) do arquivo à lista <code>apis</code> da configuração</td>
+</tr>
+<tr>
+<td><code>$ref: '#/components/schemas/Evento'</code> gera erro "not found"</td>
+<td>O schema <code>Evento</code> não foi anotado em nenhum arquivo varrido pelo <code>apis</code></td>
+<td>Confira se <code>src/docs/schemas/evento.schema.js</code> está no array <code>apis</code> e se o YAML do comentário está corretamente indentado</td>
+</tr>
+<tr>
+<td>Botão "Authorize" não aparece</td>
+<td>Nenhum endpoint tem <code>security: [{ bearerAuth: [] }]</code>, ou <code>securitySchemes</code> não foi declarado em <code>components</code></td>
+<td>Declare <code>securitySchemes.bearerAuth</code> em <code>definition.components</code> e adicione <code>security</code> nos endpoints protegidos</td>
+</tr>
+<tr>
+<td>"Try it out" falha com erro de CORS</td>
+<td>A origem da própria página do Swagger UI não está liberada pelo middleware de CORS da API</td>
+<td>Garanta que a origem da API (onde o <code>/api-docs</code> é servido) está coberta pela configuração de CORS, ou sirva o Swagger UI na mesma origem da API</td>
+</tr>
+<tr>
+<td>YAML do comentário <code>@openapi</code> quebra a spec inteira silenciosamente</td>
+<td>Indentação incorreta no bloco YAML dentro do comentário JSDoc</td>
+<td>YAML é sensível a espaços — nunca misture tabs, use 2 espaços por nível, consistentemente</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="atividade-assincrona-1-h">🏠 Atividade assíncrona (1 h)<a class="anchor" href="#atividade-assincrona-1-h" title="Permanent link">¶</a></h2>
+<ol>
+<li>Documente <strong>todos</strong> os endpoints do seu projeto autoral com anotações <code>@openapi</code> (não só os 3 do laboratório).</li>
+<li>Garanta que os schemas <code>Erro</code> e de paginação (se aplicável) estão presentes e referenciados.</li>
+<li>Revise o <code>README.md</code> seguindo a estrutura da Seção 9.1: badges, requisitos, instalação, variáveis de ambiente, scripts, endpoints (com link para <code>/api-docs</code>), licença.</li>
+<li>Escreva pelo menos 1 ADR adicional sobre uma decisão do seu back-end.</li>
+</ol>
+<p><strong>Critério de pronto:</strong> <code>/api-docs</code> mostra 100% dos endpoints do projeto autoral documentados; README revisado; ao menos 2 ADRs no repositório.</p>
+<h2 id="checkpoint-do-projeto-autoral">✅ Checkpoint do projeto autoral<a class="anchor" href="#checkpoint-do-projeto-autoral" title="Permanent link">¶</a></h2>
+<p>Ao final desta aula, seu repositório <code>&lt;tema&gt;-api</code> deve ter:</p>
+<ul>
+<li>[ ] <code>swagger-jsdoc</code> configurado com a chave <code>definition</code> e <code>swagger-ui-express</code> servindo em <code>/api-docs</code>.</li>
+<li>[ ] <code>/api-docs.json</code> expondo a spec crua.</li>
+<li>[ ] Schemas reutilizáveis (<code>$ref</code>) para a entidade principal, incluindo um schema de <code>Erro</code>.</li>
+<li>[ ] <code>securityScheme</code> <code>bearerAuth</code> configurado e usado em todos os endpoints protegidos.</li>
+<li>[ ] README revisado com badges, instalação, variáveis de ambiente, scripts e tabela de endpoints.</li>
+<li>[ ] Pasta <code>docs/adr/</code> com pelo menos 2 registros de decisão.</li>
+</ul>
+<h2 id="para-aprofundar">📚 Para aprofundar<a class="anchor" href="#para-aprofundar" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="https://spec.openapis.org/oas/v3.0.3">Especificação OpenAPI 3.0 (oficial)</a></li>
+<li><a href="https://github.com/Surnet/swagger-jsdoc">swagger-jsdoc — repositório no GitHub</a></li>
+<li><a href="https://github.com/scottie1984/swagger-ui-express">swagger-ui-express — repositório no GitHub</a></li>
+<li><a href="https://swagger.io/docs/specification/about/">Swagger.io — guia oficial de OpenAPI</a></li>
+<li><a href="https://adr.github.io">ADR GitHub organization — modelos de Architecture Decision Record</a></li>
+<li><a href="https://www.makeareadme.com/">Keep a README — checklist do que compõe um bom README</a></li>
+</ul>
+<hr />
+<p><strong>Próxima aula (15, 14/12/2026):</strong> fechamos o semestre com deploy real (front e back), CI/CD com GitHub Actions, retrospectiva de todos os padrões de projeto usados, guia de estudo para o exame final e as instruções completas da Avaliação 3. Traga a API documentada e pronta para publicar.</p><nav class="navpe"><a data-nav="anterior" href="aula-13.html"><span class="rot">← Aula 13</span><span class="tit">Desenvolvimento do Back-end</span></a><a class="dir" data-nav="proxima" href="aula-15.html"><span class="rot">Aula 15 →</span><span class="tit">Deploy, apresentação e finalização</span></a></nav>
+    <div class="rodape">
+      UNEMAT — Universidade do Estado de Mato Grosso · Campus Cáceres · FACET<br>
+      FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas · 2026.2<br>
+      Prof. Ivan Luiz Pedroso Pires
+    </div>
+  </main>
+  <aside class="toc"><h4>Nesta aula</h4><a class="" href="#objetivos-de-aprendizagem">🎯 Objetivos de aprendizagem</a><a class="" href="#pre-requisitos-desta-aula">📋 Pré-requisitos desta aula</a><a class="" href="#roteiro">🗺️ Roteiro</a><a class="" href="#retomando-a-aula-13">Retomando a Aula 13</a><a class="" href="#1-por-que-documentar-uma-api">1. Por que documentar uma API</a><a class="n3" href="#11-openapi-vs-swagger-nao-sao-sinonimos">1.1 OpenAPI vs. Swagger — não são sinônimos</a><a class="" href="#2-anatomia-de-um-documento-openapi-30">2. Anatomia de um documento OpenAPI 3.0</a><a class="" href="#3-duas-abordagens-para-gerar-o-documento">3. Duas abordagens para gerar o documento</a><a class="n3" href="#31-abordagem-a-anotacoes-openapi-com-swagger-jsdoc-a-que-vamos-implementar">3.1 Abordagem (a): anotações @openapi com swagger-jsdoc — a que vamos implementar</a><a class="n3" href="#32-abordagem-b-openapiyaml-escrito-a-mao">3.2 Abordagem (b): openapi.yaml escrito à mão</a><a class="" href="#4-servindo-com-swagger-ui-express">4. Servindo com swagger-ui-express</a><a class="" href="#padrao-de-projeto-em-uso">🧩 Padrão de projeto em uso</a><a class="n3" href="#padrao-de-projeto-em-uso-decorator-documentacao-como-anotacao">🧩 Padrão de projeto em uso — Decorator (documentação como anotação)</a><a class="" href="#5-documentando-os-schemas-reutilizaveis">5. Documentando os schemas reutilizáveis</a><a class="" href="#6-documentando-todos-os-endpoints-do-unieventos">6. Documentando todos os endpoints do UniEventos</a><a class="n3" href="#61-eventos-as-5-operacoes-crud-completo">6.1 Eventos — as 5 operações (CRUD completo)</a><a class="n3" href="#62-inscricoes">6.2 Inscrições</a><a class="n3" href="#63-autenticacao">6.3 Autenticação</a><a class="" href="#7-seguranca-com-bearerauth-e-o-botao-authorize">7. Segurança com bearerAuth e o botão &quot;Authorize&quot;</a><a class="" href="#8-testando-pelo-swagger-ui-try-it-out">8. Testando pelo Swagger UI (&quot;Try it out&quot;)</a><a class="" href="#9-alem-do-swagger-documentacao-completa-do-projeto">9. Além do Swagger: documentação completa do projeto</a><a class="n3" href="#91-readme-de-qualidade">9.1 README de qualidade</a><a class="n3" href="#92-colecao-de-api-exportada">9.2 Coleção de API exportada</a><a class="n3" href="#93-contributingmd-minimo">9.3 CONTRIBUTING.md mínimo</a><a class="n3" href="#94-documentacao-do-front-jsdoc-em-composables">9.4 Documentação do front: JSDoc em composables</a><a class="n3" href="#95-adr-architecture-decision-record">9.5 ADR — Architecture Decision Record</a><a class="" href="#laboratorio">🧪 Laboratório</a><a class="" href="#erros-comuns-e-como-resolver">🐛 Erros comuns e como resolver</a><a class="" href="#atividade-assincrona-1-h">🏠 Atividade assíncrona (1 h)</a><a class="" href="#checkpoint-do-projeto-autoral">✅ Checkpoint do projeto autoral</a><a class="" href="#para-aprofundar">📚 Para aprofundar</a></aside>
+</div>
+<script>
+(function(){
+  var raiz=document.documentElement;
+  var salvo=null;
+  try{salvo=window.localStorage&&localStorage.getItem('fds-tema')}catch(e){}
+  if(salvo){raiz.setAttribute('data-tema',salvo)}
+  var bt=document.getElementById('tema');
+  if(bt){bt.addEventListener('click',function(){
+    var novo=raiz.getAttribute('data-tema')==='claro'?'escuro':'claro';
+    raiz.setAttribute('data-tema',novo);
+    try{localStorage.setItem('fds-tema',novo)}catch(e){}
+    bt.textContent=novo==='claro'?'● Escuro':'○ Claro';
+  });
+  bt.textContent=raiz.getAttribute('data-tema')==='claro'?'● Escuro':'○ Claro';}
+
+  // copiar código
+  document.querySelectorAll('.copiar').forEach(function(b){
+    b.addEventListener('click',function(){
+      var pre=b.closest('.bloco').querySelector('pre');
+      var txt=pre.innerText;
+      var ok=function(){b.textContent='Copiado';b.classList.add('ok');
+        setTimeout(function(){b.textContent='Copiar';b.classList.remove('ok')},1600)};
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(ok)}
+      else{var t=document.createElement('textarea');t.value=txt;document.body.appendChild(t);
+           t.select();document.execCommand('copy');t.remove();ok()}
+    });
+  });
+
+  // barra de progresso
+  var pr=document.getElementById('progresso');
+  if(pr){window.addEventListener('scroll',function(){
+    var h=document.documentElement.scrollHeight-window.innerHeight;
+    pr.style.width=(h>0?(window.scrollY/h)*100:0)+'%';
+  },{passive:true})}
+
+  // sumário ativo
+  var alvos=[].slice.call(document.querySelectorAll('main h2[id],main h3[id]'));
+  var links={};
+  document.querySelectorAll('.toc a').forEach(function(a){links[a.getAttribute('href').slice(1)]=a});
+  if(alvos.length&&'IntersectionObserver' in window){
+    var obs=new IntersectionObserver(function(ents){
+      ents.forEach(function(e){
+        var a=links[e.target.id];
+        if(!a)return;
+        if(e.isIntersecting){
+          Object.keys(links).forEach(function(k){links[k].classList.remove('ativo')});
+          a.classList.add('ativo');
+        }
+      });
+    },{rootMargin:'-76px 0px -75% 0px'});
+    alvos.forEach(function(t){obs.observe(t)});
+  }
+
+  // busca no índice
+  var busca=document.getElementById('busca');
+  if(busca){
+    busca.addEventListener('input',function(){
+      var q=busca.value.toLowerCase().trim();
+      document.querySelectorAll('[data-busca]').forEach(function(el){
+        el.classList.toggle('oculto', q!=='' && el.getAttribute('data-busca').indexOf(q)===-1);
+      });
+    });
+  }
+
+  // atalhos de teclado
+  document.addEventListener('keydown',function(e){
+    if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+    var ant=document.querySelector('[data-nav="anterior"]');
+    var pro=document.querySelector('[data-nav="proxima"]');
+    if(e.key==='j'&&pro)pro.click();
+    if(e.key==='k'&&ant)ant.click();
+    if(e.key==='/'&&busca){e.preventDefault();busca.focus()}
+  });
+})();
+</script>
+</body>
+</html>

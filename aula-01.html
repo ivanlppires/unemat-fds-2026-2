@@ -1,0 +1,1578 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-tema="escuro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aula 01 — Apresentação da Disciplina e Revisão JavaScript · FACET-SNP-310</title>
+<meta name="description" content="Unidade 1 · 10/08/2026 · Apresentação da Disciplina e Revisão JavaScript">
+<style>
+:root{
+  --bg:#0f1117; --bg-soft:#161922; --bg-code:#11131a; --line:#272b38;
+  --fg:#e6e8ee; --fg-dim:#a6adbb; --fg-faint:#6f7686;
+  --accent:#5eead4; --accent-2:#818cf8; --warn:#fbbf24; --danger:#fb7185;
+  --u1:#5eead4; --u2:#818cf8; --u3:#f0abfc;
+  --radius:12px; --max:860px;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+}
+html[data-tema="claro"]{
+  --bg:#ffffff; --bg-soft:#f6f7f9; --bg-code:#f2f3f6; --line:#e2e5ea;
+  --fg:#1a1d24; --fg-dim:#4b5262; --fg-faint:#8a92a3;
+  --accent:#0d9488; --accent-2:#4f46e5; --warn:#b45309; --danger:#be123c;
+  --u1:#0d9488; --u2:#4f46e5; --u3:#a21caf;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:76px}
+body{
+  margin:0; background:var(--bg); color:var(--fg); font-family:var(--font);
+  font-size:16.5px; line-height:1.72; -webkit-font-smoothing:antialiased;
+}
+a{color:var(--accent); text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ---------- barra superior ---------- */
+.topo{
+  position:sticky; top:0; z-index:50; background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:blur(12px); border-bottom:1px solid var(--line);
+}
+.topo-in{max-width:1400px;margin:0 auto;display:flex;align-items:center;gap:14px;padding:10px 18px}
+.marca{font-weight:700;font-size:.82rem;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-dim);white-space:nowrap}
+.marca b{color:var(--accent)}
+.topo .espaco{flex:1}
+.btn{
+  background:var(--bg-soft); color:var(--fg-dim); border:1px solid var(--line);
+  border-radius:8px; padding:6px 12px; font-size:.82rem; cursor:pointer; font-family:inherit;
+  transition:.15s;
+}
+.btn:hover{color:var(--fg); border-color:var(--accent)}
+#busca{
+  background:var(--bg-soft); border:1px solid var(--line); border-radius:8px; color:var(--fg);
+  padding:6px 12px; font-size:.85rem; font-family:inherit; width:200px;
+}
+#busca:focus{outline:none;border-color:var(--accent)}
+
+/* ---------- layout ---------- */
+.wrap{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:260px minmax(0,1fr) 240px;gap:34px;padding:0 18px}
+@media(max-width:1150px){.wrap{grid-template-columns:240px minmax(0,1fr)} .toc{display:none}}
+@media(max-width:860px){.wrap{grid-template-columns:minmax(0,1fr)} .lateral{display:none}}
+
+.lateral,.toc{position:sticky;top:76px;align-self:start;max-height:calc(100vh - 90px);overflow-y:auto;padding:22px 0 60px;font-size:.85rem}
+.lateral::-webkit-scrollbar,.toc::-webkit-scrollbar{width:6px}
+.lateral::-webkit-scrollbar-thumb,.toc::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+.lateral h4,.toc h4{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-faint);margin:0 0 12px}
+.lateral ol{list-style:none;margin:0;padding:0}
+.lateral li a{
+  display:flex;gap:9px;align-items:baseline;padding:6px 10px;border-radius:7px;
+  color:var(--fg-dim);border-left:2px solid transparent;line-height:1.35;
+}
+.lateral li a:hover{background:var(--bg-soft);color:var(--fg);text-decoration:none}
+.lateral li a.ativo{background:var(--bg-soft);color:var(--fg);border-left-color:var(--accent);font-weight:600}
+.lateral .num{font-variant-numeric:tabular-nums;color:var(--fg-faint);font-size:.78rem;min-width:16px}
+.lateral .grupo{margin:18px 0 6px;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-faint);padding-left:10px}
+.toc a{display:block;padding:4px 0 4px 12px;color:var(--fg-dim);border-left:2px solid var(--line);line-height:1.35;font-size:.8rem}
+.toc a:hover{color:var(--fg);text-decoration:none}
+.toc a.ativo{color:var(--accent);border-left-color:var(--accent)}
+.toc a.n3{padding-left:24px;font-size:.76rem;opacity:.8}
+
+/* ---------- conteúdo ---------- */
+main{padding:34px 0 100px;min-width:0}
+.cabecalho{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:34px}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.tag{font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;font-weight:700;padding:4px 10px;border-radius:999px;border:1px solid var(--line);color:var(--fg-dim)}
+.tag.u1{color:var(--u1);border-color:color-mix(in srgb,var(--u1) 40%,transparent)}
+.tag.u2{color:var(--u2);border-color:color-mix(in srgb,var(--u2) 40%,transparent)}
+.tag.u3{color:var(--u3);border-color:color-mix(in srgb,var(--u3) 40%,transparent)}
+.tag.av{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 45%,transparent)}
+.cabecalho h1{margin:0;font-size:2.05rem;line-height:1.2;letter-spacing:-.02em}
+.cabecalho .sub{color:var(--fg-faint);font-size:.9rem;margin-top:10px}
+
+main h1{font-size:1.9rem;line-height:1.22;letter-spacing:-.02em;margin:0 0 .6em}
+main h2{font-size:1.4rem;margin:2.4em 0 .7em;padding-top:.5em;border-top:1px solid var(--line);letter-spacing:-.01em}
+main h3{font-size:1.12rem;margin:1.9em 0 .5em;color:var(--fg)}
+main h4{font-size:.98rem;margin:1.5em 0 .4em;color:var(--fg-dim)}
+main h2:first-of-type{border-top:none;padding-top:0}
+main p{margin:0 0 1.05em}
+main ul,main ol{margin:0 0 1.15em;padding-left:1.4em}
+main li{margin:.32em 0}
+main li>ul,main li>ol{margin:.35em 0}
+hr{border:none;border-top:1px solid var(--line);margin:2.6em 0}
+strong{color:var(--fg);font-weight:650}
+
+/* âncoras */
+.anchor{opacity:0;margin-left:.4em;font-weight:400;color:var(--fg-faint);text-decoration:none;font-size:.8em}
+h2:hover .anchor,h3:hover .anchor{opacity:1}
+
+/* citações / callouts */
+blockquote{
+  margin:1.4em 0;padding:14px 18px;background:var(--bg-soft);border-left:3px solid var(--accent-2);
+  border-radius:0 var(--radius) var(--radius) 0;color:var(--fg-dim);
+}
+blockquote p:last-child{margin-bottom:0}
+blockquote.dica{border-left-color:var(--accent)}
+blockquote.atencao{border-left-color:var(--warn)}
+blockquote.capo{border-left-color:var(--accent-2)}
+blockquote.prova{border-left-color:var(--danger)}
+
+/* tabelas */
+.tabela-wrap{overflow-x:auto;margin:1.4em 0;border:1px solid var(--line);border-radius:var(--radius)}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{padding:9px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--bg-soft);font-weight:650;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-dim);white-space:nowrap}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:color-mix(in srgb,var(--bg-soft) 60%,transparent)}
+
+/* código */
+code{font-family:var(--mono);font-size:.87em;background:var(--bg-soft);padding:.14em .42em;border-radius:5px;border:1px solid var(--line)}
+.bloco{position:relative;margin:1.3em 0}
+.bloco-topo{
+  display:flex;align-items:center;gap:10px;background:var(--bg-soft);border:1px solid var(--line);
+  border-bottom:none;border-radius:var(--radius) var(--radius) 0 0;padding:6px 12px;
+  font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;color:var(--fg-faint);font-family:var(--mono);
+}
+.bloco-topo .espaco{flex:1}
+.copiar{
+  background:transparent;border:1px solid var(--line);color:var(--fg-faint);border-radius:6px;
+  padding:2px 9px;font-size:.68rem;cursor:pointer;font-family:inherit;letter-spacing:.06em;text-transform:uppercase;transition:.15s;
+}
+.copiar:hover{color:var(--accent);border-color:var(--accent)}
+.copiar.ok{color:var(--accent);border-color:var(--accent)}
+.highlight{
+  margin:0;background:var(--bg-code)!important;border:1px solid var(--line);
+  border-radius:0 0 var(--radius) var(--radius);overflow-x:auto;
+}
+.bloco:not(:has(.bloco-topo)) .highlight{border-radius:var(--radius)}
+.highlight pre{margin:0;padding:15px 17px;font-family:var(--mono);font-size:.845rem;line-height:1.62;background:transparent!important}
+.highlight code{background:transparent;border:none;padding:0;font-size:inherit}
+html[data-tema="claro"] .highlight pre{color:#1a1d24}
+
+/* detalhes */
+details{background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px;margin:1.2em 0}
+details[open]{padding-bottom:6px}
+summary{cursor:pointer;font-weight:600;color:var(--fg-dim);font-size:.9rem;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▸ ";color:var(--accent)}
+details[open] summary::before{content:"▾ "}
+details[open] summary{margin-bottom:10px}
+
+img{max-width:100%;border-radius:var(--radius)}
+
+/* rodapé / navegação */
+.navpe{display:flex;gap:14px;margin-top:60px;padding-top:26px;border-top:1px solid var(--line)}
+.navpe a{
+  flex:1;padding:14px 18px;background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);
+  color:var(--fg-dim);transition:.15s;
+}
+.navpe a:hover{border-color:var(--accent);color:var(--fg);text-decoration:none}
+.navpe .rot{display:block;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-faint);margin-bottom:4px}
+.navpe .tit{font-weight:600;font-size:.9rem}
+.navpe .dir{text-align:right}
+.rodape{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:var(--fg-faint);font-size:.8rem}
+
+/* progresso */
+#progresso{position:fixed;top:0;left:0;height:2px;background:var(--accent);z-index:60;width:0}
+
+/* índice (home) */
+.hero{padding:56px 0 34px;border-bottom:1px solid var(--line);margin-bottom:38px}
+.hero h1{font-size:2.6rem;margin:0 0 12px;letter-spacing:-.03em;line-height:1.1}
+.hero p{color:var(--fg-dim);max-width:640px;font-size:1.02rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin:34px 0}
+.stat{background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px}
+.stat .n{font-size:1.7rem;font-weight:700;letter-spacing:-.02em;color:var(--accent)}
+.stat .l{font-size:.75rem;letter-spacing:.07em;text-transform:uppercase;color:var(--fg-faint);margin-top:2px}
+.grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;margin:20px 0 44px}
+.cartao{
+  display:block;background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);
+  padding:17px 19px;color:var(--fg);transition:.16s;position:relative;overflow:hidden;
+}
+.cartao::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--line);transition:.16s}
+.cartao.u1::before{background:var(--u1)} .cartao.u2::before{background:var(--u2)} .cartao.u3::before{background:var(--u3)}
+.cartao:hover{transform:translateY(-2px);border-color:var(--fg-faint);text-decoration:none}
+.cartao .meta{display:flex;justify-content:space-between;align-items:center;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-faint);margin-bottom:8px}
+.cartao .t{font-weight:650;line-height:1.35;font-size:.97rem}
+.cartao .av{display:inline-block;margin-top:9px;font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;color:var(--warn);border:1px solid color-mix(in srgb,var(--warn) 40%,transparent);border-radius:999px;padding:2px 9px}
+.oculto{display:none!important}
+@media print{
+  .topo,.lateral,.toc,.navpe,#progresso{display:none!important}
+  .wrap{display:block;max-width:none;padding:0}
+  body{background:#fff;color:#000;font-size:11pt}
+  .highlight{border:1px solid #ccc;background:#fafafa!important}
+  a{color:#000}
+}
+
+pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #49483e }
+.highlight { background: #232629; color: #CCC }
+.highlight .c { color: #777; font-style: italic } /* Comment */
+.highlight .err { color: #A61717; background-color: #E3D2D2 } /* Error */
+.highlight .esc { color: #CCC } /* Escape */
+.highlight .g { color: #CCC } /* Generic */
+.highlight .k { color: #7686BB; font-weight: bold } /* Keyword */
+.highlight .l { color: #CCC } /* Literal */
+.highlight .n { color: #CCC } /* Name */
+.highlight .o { color: #CCC } /* Operator */
+.highlight .x { color: #CCC } /* Other */
+.highlight .p { color: #CCC } /* Punctuation */
+.highlight .ch { color: #777; font-style: italic } /* Comment.Hashbang */
+.highlight .cm { color: #777; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #777; font-style: italic } /* Comment.Preproc */
+.highlight .cpf { color: #777; font-style: italic } /* Comment.PreprocFile */
+.highlight .c1 { color: #777; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #777; font-style: italic } /* Comment.Special */
+.highlight .gd { color: #CCC } /* Generic.Deleted */
+.highlight .ge { color: #CCC } /* Generic.Emph */
+.highlight .ges { color: #CCC } /* Generic.EmphStrong */
+.highlight .gr { color: #CCC } /* Generic.Error */
+.highlight .gh { color: #CCC } /* Generic.Heading */
+.highlight .gi { color: #CCC } /* Generic.Inserted */
+.highlight .go { color: #CCC } /* Generic.Output */
+.highlight .gp { color: #FFF } /* Generic.Prompt */
+.highlight .gs { color: #CCC } /* Generic.Strong */
+.highlight .gu { color: #CCC } /* Generic.Subheading */
+.highlight .gt { color: #CCC } /* Generic.Traceback */
+.highlight .kc { color: #7686BB; font-weight: bold } /* Keyword.Constant */
+.highlight .kd { color: #7686BB; font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { color: #7686BB; font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { color: #7686BB; font-weight: bold } /* Keyword.Pseudo */
+.highlight .kr { color: #7686BB; font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #7686BB; font-weight: bold } /* Keyword.Type */
+.highlight .ld { color: #CCC } /* Literal.Date */
+.highlight .m { color: #4FB8CC } /* Literal.Number */
+.highlight .s { color: #51CC99 } /* Literal.String */
+.highlight .na { color: #CCC } /* Name.Attribute */
+.highlight .nb { color: #CCC } /* Name.Builtin */
+.highlight .nc { color: #CCC } /* Name.Class */
+.highlight .no { color: #CCC } /* Name.Constant */
+.highlight .nd { color: #CCC } /* Name.Decorator */
+.highlight .ni { color: #CCC } /* Name.Entity */
+.highlight .ne { color: #CCC } /* Name.Exception */
+.highlight .nf { color: #6A6AFF } /* Name.Function */
+.highlight .nl { color: #CCC } /* Name.Label */
+.highlight .nn { color: #CCC } /* Name.Namespace */
+.highlight .nx { color: #E2828E } /* Name.Other */
+.highlight .py { color: #CCC } /* Name.Property */
+.highlight .nt { color: #CCC } /* Name.Tag */
+.highlight .nv { color: #7AB4DB; font-weight: bold } /* Name.Variable */
+.highlight .ow { color: #CCC } /* Operator.Word */
+.highlight .pm { color: #CCC } /* Punctuation.Marker */
+.highlight .w { color: #BBB } /* Text.Whitespace */
+.highlight .mb { color: #4FB8CC } /* Literal.Number.Bin */
+.highlight .mf { color: #4FB8CC } /* Literal.Number.Float */
+.highlight .mh { color: #4FB8CC } /* Literal.Number.Hex */
+.highlight .mi { color: #4FB8CC } /* Literal.Number.Integer */
+.highlight .mo { color: #4FB8CC } /* Literal.Number.Oct */
+.highlight .sa { color: #51CC99 } /* Literal.String.Affix */
+.highlight .sb { color: #51CC99 } /* Literal.String.Backtick */
+.highlight .sc { color: #51CC99 } /* Literal.String.Char */
+.highlight .dl { color: #51CC99 } /* Literal.String.Delimiter */
+.highlight .sd { color: #51CC99 } /* Literal.String.Doc */
+.highlight .s2 { color: #51CC99 } /* Literal.String.Double */
+.highlight .se { color: #51CC99 } /* Literal.String.Escape */
+.highlight .sh { color: #51CC99 } /* Literal.String.Heredoc */
+.highlight .si { color: #51CC99 } /* Literal.String.Interpol */
+.highlight .sx { color: #51CC99 } /* Literal.String.Other */
+.highlight .sr { color: #51CC99 } /* Literal.String.Regex */
+.highlight .s1 { color: #51CC99 } /* Literal.String.Single */
+.highlight .ss { color: #51CC99 } /* Literal.String.Symbol */
+.highlight .bp { color: #CCC } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #6A6AFF } /* Name.Function.Magic */
+.highlight .vc { color: #7AB4DB; font-weight: bold } /* Name.Variable.Class */
+.highlight .vg { color: #BE646C; font-weight: bold } /* Name.Variable.Global */
+.highlight .vi { color: #7AB4DB; font-weight: bold } /* Name.Variable.Instance */
+.highlight .vm { color: #7AB4DB; font-weight: bold } /* Name.Variable.Magic */
+.highlight .il { color: #4FB8CC } /* Literal.Number.Integer.Long */
+</style>
+</head>
+<body>
+<div id="progresso"></div>
+<header class="topo"><div class="topo-in">
+  <span class="marca"><b>FACET-SNP-310</b> &nbsp;Frameworks Modernos</span>
+  <span class="espaco"></span>
+  
+  <a class="btn" href="indice.html">Índice</a>
+  <button class="btn" id="tema" type="button">Tema</button>
+</div></header>
+<div class="wrap">
+  <nav class="lateral"><h4>Aulas</h4><ol><li class="grupo">Unidade 1</li><li><a class="ativo" href="aula-01.html"><span class="num">01</span><span>Apresentação da Disciplina e Revisão JavaScript</span></a></li><li><a class="" href="aula-02.html"><span class="num">02</span><span>Introdução ao Vue: instância, ciclo de vida e diretivas</span></a></li><li><a class="" href="aula-03.html"><span class="num">03</span><span>Vue: listas, computed e ciclo de vida</span></a></li><li><a class="" href="aula-04.html"><span class="num">04</span><span>Introdução a Vuetify e Vue Router</span></a></li><li class="grupo">Unidade 2</li><li><a class="" href="aula-05.html"><span class="num">05</span><span>Componentes, Vue Router e Vuetify avançado</span></a></li><li><a class="" href="aula-06.html"><span class="num">06</span><span>Axios e Pinia</span></a></li><li class="grupo">Unidade 3</li><li><a class="" href="aula-07.html"><span class="num">07</span><span>Introdução ao Firebase, Node.js e Express</span></a></li><li><a class="" href="aula-08.html"><span class="num">08</span><span>Definindo endpoints e middlewares</span></a></li><li><a class="" href="aula-09.html"><span class="num">09</span><span>Integrando com SGBD MySQL</span></a></li><li><a class="" href="aula-10.html"><span class="num">10</span><span>Requisições autenticadas com Firebase</span></a></li><li><a class="" href="aula-11.html"><span class="num">11</span><span>Integrando front-end com back-end: CRUD</span></a></li><li><a class="" href="aula-12.html"><span class="num">12</span><span>CRUD com banco em nuvem (Supabase)</span></a></li><li><a class="" href="aula-13.html"><span class="num">13</span><span>Desenvolvimento do Back-end</span></a></li><li><a class="" href="aula-14.html"><span class="num">14</span><span>Documentação com Swagger</span></a></li><li><a class="" href="aula-15.html"><span class="num">15</span><span>Deploy, apresentação e finalização</span></a></li></ol></nav>
+  <main class=""><div class="cabecalho"><div class="tags"><span class="tag u1">Unidade 1</span><span class="tag">10/08/2026</span><span class="tag">3 aulas de 50 min + 1 h EAD</span></div><h1>Aula 01 — Apresentação da Disciplina e Revisão JavaScript</h1><div class="sub">FACET-SNP-310 · Frameworks Modernos para Desenvolvimento de Sistemas · UNEMAT/Cáceres · Prof. Ivan Luiz Pedroso Pires</div></div>
+<blockquote>
+<p><strong>FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas</strong> · Unidade 1
+UNEMAT/Cáceres — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
+<strong>Data:</strong> 10/08/2026 · <strong>Carga:</strong> 3 aulas de 50 min (síncrona) + 1 h (assíncrona)</p>
+</blockquote>
+<h2 id="objetivos-de-aprendizagem">🎯 Objetivos de aprendizagem<a class="anchor" href="#objetivos-de-aprendizagem" title="Permanent link">¶</a></h2>
+<p>Ao final desta aula você será capaz de:</p>
+<ul>
+<li>Descrever a estrutura da disciplina: unidades, cronograma, avaliações e regras de aprovação.</li>
+<li>Configurar o ambiente de desenvolvimento (Node.js 22 LTS, VS Code, Git) e validar a instalação.</li>
+<li>Explicar por que frameworks front-end existem, comparando manipulação manual do DOM com um paradigma declarativo.</li>
+<li>Escrever e ler código JavaScript moderno (ES2015+): <code>let</code>/<code>const</code>, arrow functions, desestruturação, spread/rest, template literals, optional chaining e nullish coalescing.</li>
+<li>Transformar coleções de dados com <code>map</code>, <code>filter</code>, <code>reduce</code>, <code>find</code>, <code>some</code>, <code>every</code> e <code>sort</code> sem mutar o array original.</li>
+<li>Organizar código em módulos ES (<code>import</code>/<code>export</code>) e em classes.</li>
+<li>Consumir uma API pública com <code>fetch</code> usando <code>async/await</code> e tratamento de erro com <code>try/catch</code>.</li>
+<li>Definir o tema do seu projeto autoral e modelar as entidades iniciais em um <code>README.md</code>.</li>
+</ul>
+<h2 id="pre-requisitos-desta-aula">📋 Pré-requisitos desta aula<a class="anchor" href="#pre-requisitos-desta-aula" title="Permanent link">¶</a></h2>
+<p>Esta é a primeira aula — não há pré-requisito de conteúdo da disciplina. Você precisa apenas de:</p>
+<ul>
+<li>Um notebook capaz de rodar Node.js 22 e o VS Code (Windows, Linux ou macOS).</li>
+<li>Conta no <a href="https://github.com">GitHub</a> criada antes da aula.</li>
+<li>Conhecimento prévio de lógica de programação e alguma exposição a HTML/CSS/JS (pré-requisito formal: FACET-SNP-307).</li>
+</ul>
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+Se você nunca escreveu uma linha de JavaScript, não entre em pânico — a Seção 3 desta aula é uma revisão completa. Mas reserve um tempo extra para os laboratórios em casa.</p>
+</blockquote>
+<h2 id="roteiro">🗺️ Roteiro<a class="anchor" href="#roteiro" title="Permanent link">¶</a></h2>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Bloco</th>
+<th>Tempo</th>
+<th>Atividade</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>50 min</td>
+<td>Apresentação da disciplina, cronograma, avaliações, instalação do ambiente</td>
+</tr>
+<tr>
+<td>2</td>
+<td>50 min</td>
+<td>Por que frameworks existem: DOM manual vs. paradigma declarativo</td>
+</tr>
+<tr>
+<td>3</td>
+<td>50 min</td>
+<td>Revisão de JavaScript moderno (ES2015+) com foco no domínio de dados do curso</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="1-apresentacao-da-disciplina">1. Apresentação da disciplina<a class="anchor" href="#1-apresentacao-da-disciplina" title="Permanent link">¶</a></h2>
+<h3 id="11-quem-sou-eu-e-como-essa-disciplina-funciona">1.1 Quem sou eu e como essa disciplina funciona<a class="anchor" href="#11-quem-sou-eu-e-como-essa-disciplina-funciona" title="Permanent link">¶</a></h3>
+<p>Meu nome é Ivan Luiz Pedroso Pires, professor da FACET/UNEMAT — Campus Cáceres. Esta disciplina, <strong>FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas</strong>, tem carga horária de 60 horas: 45h de aulas síncronas presenciais (15 encontros de 3 aulas de 50 minutos, às noites, horário 4N234) e 15h de atividades assíncronas — uma hora de trabalho fora de sala a cada encontro.</p>
+<p>A ementa oficial do curso é:</p>
+<blockquote>
+<p>"Desenvolvimento com uso de frameworks; padrões: criacionais, estruturais e comportamentais; aplicação conjunta das abordagens de frameworks e componentes no desenvolvimento de software."</p>
+</blockquote>
+<p>Isso significa duas coisas na prática: (1) você vai aprender a construir aplicações reais com um framework front-end moderno e depois integrá-las a um back-end; (2) ao longo do caminho, vamos identificar <strong>padrões de projeto clássicos (GoF)</strong> escondidos dentro das ferramentas que usamos — Vue, Vuetify, Pinia, Express — porque a ementa exige isso explicitamente, e porque entender o padrão por trás da ferramenta é o que separa quem usa framework de quem entende framework.</p>
+<h3 id="12-as-tres-unidades">1.2 As três unidades<a class="anchor" href="#12-as-tres-unidades" title="Permanent link">¶</a></h3>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Unidade</th>
+<th>Conteúdo</th>
+<th>Aulas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>U1</td>
+<td>Fundamentos de front-end com Vue.js</td>
+<td>01–04</td>
+</tr>
+<tr>
+<td>U2</td>
+<td>Vue.js avançado: Vuetify, Axios, Vue Router, Pinia</td>
+<td>04–06</td>
+</tr>
+<tr>
+<td>U3</td>
+<td>Integração front-end/back-end: Firebase, Supabase, Express, autenticação, banco de dados, deploy</td>
+<td>07–15</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="13-cronograma-completo">1.3 Cronograma completo<a class="anchor" href="#13-cronograma-completo" title="Permanent link">¶</a></h3>
+<p>Guarde esta tabela — ela é o mapa do semestre inteiro.</p>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Data</th>
+<th>Unidade</th>
+<th>Tema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>01</td>
+<td>10/08/2026</td>
+<td>U1</td>
+<td>Apresentação da disciplina e revisão de JavaScript</td>
+</tr>
+<tr>
+<td>02</td>
+<td>17/08/2026</td>
+<td>U1</td>
+<td>Introdução ao Vue: lifecycle, instância, data e methods, diretivas básicas</td>
+</tr>
+<tr>
+<td>03</td>
+<td>24/08/2026</td>
+<td>U1</td>
+<td>Vue: v-if, v-else, v-for, computed e onMounted</td>
+</tr>
+<tr>
+<td>04</td>
+<td>31/08/2026</td>
+<td>U1</td>
+<td>Introdução a Vuetify e Vue Router — <strong>entrega da Avaliação 1</strong></td>
+</tr>
+<tr>
+<td>05</td>
+<td>14/09/2026</td>
+<td>U2</td>
+<td>Componentes, Vue Router e Vuetify</td>
+</tr>
+<tr>
+<td>06</td>
+<td>21/09/2026</td>
+<td>U2</td>
+<td>Axios e Pinia</td>
+</tr>
+<tr>
+<td>07</td>
+<td>28/09/2026</td>
+<td>U3</td>
+<td>Firebase, Node.js e Express</td>
+</tr>
+<tr>
+<td>08</td>
+<td>05/10/2026</td>
+<td>U3</td>
+<td>Endpoints e middlewares — <strong>entrega da Avaliação 2</strong></td>
+</tr>
+<tr>
+<td>09</td>
+<td>19/10/2026</td>
+<td>U3</td>
+<td>Integração com MySQL</td>
+</tr>
+<tr>
+<td>10</td>
+<td>26/10/2026</td>
+<td>U3</td>
+<td>Requisições autenticadas com Firebase</td>
+</tr>
+<tr>
+<td>11</td>
+<td>09/11/2026</td>
+<td>U3</td>
+<td>CRUD front-end + back-end</td>
+</tr>
+<tr>
+<td>12</td>
+<td>16/11/2026</td>
+<td>U3</td>
+<td>CRUD com banco de dados em nuvem (Supabase)</td>
+</tr>
+<tr>
+<td>13</td>
+<td>23/11/2026</td>
+<td>U3</td>
+<td>Desenvolvimento do back-end em camadas</td>
+</tr>
+<tr>
+<td>14</td>
+<td>07/12/2026</td>
+<td>U3</td>
+<td>Documentação com Swagger</td>
+</tr>
+<tr>
+<td>15</td>
+<td>14/12/2026</td>
+<td>U3</td>
+<td>Apresentação dos resultados — <strong>entrega da Avaliação 3</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p>Todas as aulas 01 a 15 constroem, em sala, uma aplicação de referência chamada <strong>UniEventos</strong> — uma plataforma de divulgação e inscrição em eventos acadêmicos. Você vai acompanhar essa construção passo a passo, mas seu <strong>projeto autoral</strong> (o que você entrega nas avaliações) terá a mesma arquitetura aplicada a um domínio diferente, escolhido por você. Falamos disso na Seção 1.6.</p>
+<h3 id="14-avaliacoes">1.4 Avaliações<a class="anchor" href="#14-avaliacoes" title="Permanent link">¶</a></h3>
+<p>A nota final é a <strong>média aritmética simples das três avaliações</strong>.</p>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Avaliação</th>
+<th>Escopo</th>
+<th>Entrega</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Avaliação 1</td>
+<td>Vue 3 com CLI: estrutura de projeto, componentes, diretivas</td>
+<td>até 31/08/2026, 23h59</td>
+</tr>
+<tr>
+<td>Avaliação 2</td>
+<td>Vue avançado: Vuetify + Axios + Vue Router + Pinia</td>
+<td>até 05/10/2026, 23h59</td>
+</tr>
+<tr>
+<td>Avaliação 3</td>
+<td>Back-end: Firebase/Express/Supabase, banco de dados, autenticação</td>
+<td>até 14/12/2026, 23h59</td>
+</tr>
+</tbody>
+</table></div>
+<p>Todas as entregas são feitas <strong>via SIGAA</strong>, dentro do prazo. As instruções detalhadas de cada avaliação (escopo exato, rubrica, formato de entrega) serão publicadas na aula correspondente — a Avaliação 1 será detalhada na Aula 04.</p>
+<blockquote class="prova">
+<p><strong>📌 Na prova</strong>
+Existe também um <strong>exame final</strong>: prova teórica, presencial e individual, cobrindo as três unidades. Ele é aplicado a quem não atinge a média mínima de aprovação direta pelas três avaliações, conforme o regimento da UNEMAT. Estude a teoria, não só a prática — o exame não é sobre "rodar o código", é sobre entender os conceitos.</p>
+</blockquote>
+<h3 id="15-frequencia-e-comunicacao">1.5 Frequência e comunicação<a class="anchor" href="#15-frequencia-e-comunicacao" title="Permanent link">¶</a></h3>
+<p>A frequência é obrigatória e verificada em cada um dos 15 encontros presenciais — o mínimo de 75% de presença é exigência regimental para aprovação, independente da nota. Encontros faltados não podem ser compensados só com a atividade assíncrona: a atividade assíncrona é conteúdo adicional, não substituto de presença.</p>
+<p>Canais oficiais de comunicação:</p>
+<ul>
+<li><strong>SIGAA</strong> — avisos oficiais, entrega de avaliações, notas.</li>
+<li><strong>E-mail institucional</strong> — dúvidas individuais e assuntos administrativos.</li>
+<li><strong>GitHub</strong> — cada estudante mantém um repositório público do projeto autoral; é ali que o professor acompanha o progresso semana a semana.</li>
+</ul>
+<blockquote class="dica">
+<p><strong>💡 Dica</strong>
+Comite no seu repositório do projeto autoral <strong>toda semana</strong>, mesmo que pouco. Um histórico de commits ao longo do semestre vale mais, na avaliação de processo, do que um único commit gigante na véspera da entrega.</p>
+</blockquote>
+<h3 id="16-o-projeto-autoral">1.6 O projeto autoral<a class="anchor" href="#16-o-projeto-autoral" title="Permanent link">¶</a></h3>
+<p>Cada estudante escolhe, ainda nesta primeira semana, um <strong>domínio de aplicação diferente</strong> do UniEventos (o projeto que construiremos em sala), mas segue exatamente a mesma arquitetura técnica: Vue 3 → Vuetify + Vue Router → Axios + Pinia → back-end Express → banco de dados → autenticação → deploy.</p>
+<p>Exemplos de temas válidos:</p>
+<ul>
+<li>Catálogo de plantas do Pantanal, com filtro por bioma e época de floração.</li>
+<li>Agenda de quadras esportivas do bairro, com reserva de horário.</li>
+<li>Mural de estágios e vagas para estudantes da FACET.</li>
+<li>Brechó colaborativo, com peças, categorias e reserva.</li>
+<li>Controle de pescarias, com espécies, rio e datas.</li>
+<li>Cardápio digital de um restaurante, com categorias de prato e pedidos.</li>
+</ul>
+<p>Regras para o tema:</p>
+<ol>
+<li><strong>Precisa ter pelo menos duas entidades relacionadas</strong> (ex.: "Evento" e "Inscrição", "Quadra" e "Reserva") — um cadastro único sem relacionamento não sustenta as três unidades.</li>
+<li><strong>Precisa ter uma tela de listagem com filtro</strong>, uma tela de detalhe e uma área que exija autenticação — isso espelha as telas do UniEventos (Home, Detalhe, Minhas inscrições, Login, Área administrativa).</li>
+<li><strong>Não pode ser o próprio UniEventos</strong> copiado — o domínio precisa ser outro.</li>
+</ol>
+<h3 id="17-ambiente-de-desenvolvimento">1.7 Ambiente de desenvolvimento<a class="anchor" href="#17-ambiente-de-desenvolvimento" title="Permanent link">¶</a></h3>
+<p>Vamos instalar, nesta aula, tudo que será usado até o fim do semestre. As versões abaixo foram testadas em 12/08/2026 no ambiente real da disciplina — use exatamente estas.</p>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Ferramenta</th>
+<th>Versão usada na disciplina</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Node.js</td>
+<td>22.22.2 LTS</td>
+</tr>
+<tr>
+<td>npm</td>
+<td>10.9.7 (vem com o Node)</td>
+</tr>
+<tr>
+<td>VS Code</td>
+<td>versão estável mais recente</td>
+</tr>
+<tr>
+<td>Git</td>
+<td>versão estável mais recente</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Passo a passo:</strong></p>
+<ol>
+<li><strong>Node.js 22 LTS.</strong> Baixe em <a href="https://nodejs.org">nodejs.org</a> a versão "LTS" (não a "Current"). No Linux, você também pode usar o gerenciador de versões <code>nvm</code>:</li>
+</ol>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1"># instalar nvm (se ainda não tiver)</span>
+curl<span class="w"> </span>-o-<span class="w"> </span>https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>bash
+
+<span class="c1"># instalar e usar o Node 22 LTS</span>
+nvm<span class="w"> </span>install<span class="w"> </span><span class="m">22</span>
+nvm<span class="w"> </span>use<span class="w"> </span><span class="m">22</span>
+</code></pre></div></div>
+
+<ol start="2">
+<li><strong>Verifique a instalação:</strong></li>
+</ol>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>node<span class="w"> </span>-v
+<span class="c1"># esperado: v22.22.2 (ou outra 22.x LTS)</span>
+
+npm<span class="w"> </span>-v
+<span class="c1"># esperado: 10.9.7 (ou próxima)</span>
+</code></pre></div></div>
+
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+Se <code>node -v</code> mostrar uma versão 16, 18 ou 20, desinstale-a ou troque com o <code>nvm</code> antes de continuar. Ferramentas que usaremos mais à frente, como o <code>create-vue</code>, exigem Node <code>^22.18.0</code> ou <code>&gt;=24.12.0</code> — versões antigas simplesmente falham na instalação.</p>
+</blockquote>
+<ol start="3">
+<li><strong>VS Code.</strong> Baixe em <a href="https://code.visualstudio.com">code.visualstudio.com</a>. Instale estas extensões (aba Extensions, <code>Ctrl+Shift+X</code>):</li>
+</ol>
+<ul>
+<li><strong>Vue - Official</strong> (antigo Volar) — suporte a arquivos <code>.vue</code>, autocomplete, checagem de tipos no template.</li>
+<li><strong>ESLint</strong> — aponta erros e más práticas enquanto você digita.</li>
+<li><strong>Prettier - Code formatter</strong> — formatação automática e consistente.</li>
+</ul>
+<ol start="4">
+<li>
+<p><strong>Navegador com DevTools.</strong> Use Chrome, Edge ou Firefox — qualquer um com um bom painel de DevTools (<code>F12</code>). Vamos usar a aba <strong>Elements</strong> (inspecionar DOM), <strong>Console</strong> e <strong>Network</strong> (ver requisições) o semestre inteiro.</p>
+</li>
+<li>
+<p><strong>Git e GitHub.</strong></p>
+</li>
+</ol>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>git<span class="w"> </span>--version
+<span class="c1"># se não tiver, instale: sudo apt install git (Linux) ou baixe em git-scm.com</span>
+
+git<span class="w"> </span>config<span class="w"> </span>--global<span class="w"> </span>user.name<span class="w"> </span><span class="s2">&quot;Seu Nome&quot;</span>
+git<span class="w"> </span>config<span class="w"> </span>--global<span class="w"> </span>user.email<span class="w"> </span><span class="s2">&quot;seu-email@exemplo.com&quot;</span>
+</code></pre></div></div>
+
+<p>Crie uma conta em <a href="https://github.com">github.com</a> se ainda não tiver. Vamos usar o GitHub para hospedar o código do projeto autoral e, mais adiante no semestre, para o deploy.</p>
+<blockquote class="dica">
+<p><strong>💡 Dica</strong>
+Depois de instalar tudo, rode <code>node -v</code>, <code>npm -v</code> e <code>git --version</code> e tire um print. Cole no seu README como evidência de ambiente pronto — é o primeiro item do checkpoint desta aula.</p>
+</blockquote>
+<h2 id="2-por-que-frameworks-existem">2. Por que frameworks existem<a class="anchor" href="#2-por-que-frameworks-existem" title="Permanent link">¶</a></h2>
+<h3 id="21-um-problema-concreto-lista-de-eventos-com-filtro">2.1 Um problema concreto: lista de eventos com filtro<a class="anchor" href="#21-um-problema-concreto-lista-de-eventos-com-filtro" title="Permanent link">¶</a></h3>
+<p>Imagine que você precisa mostrar uma lista de eventos acadêmicos na tela, com um campo de busca por texto e um filtro por categoria. Sem framework nenhum, em JavaScript puro manipulando o DOM diretamente, o código fica assim:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="cm">&lt;!-- index.html --&gt;</span>
+<span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="p">&lt;</span><span class="nt">html</span> <span class="na">lang</span><span class="o">=</span><span class="s">&quot;pt-BR&quot;</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">&quot;UTF-8&quot;</span> <span class="p">/&gt;</span>
+  <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>Eventos — DOM manual<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">input</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;busca&quot;</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;text&quot;</span> <span class="na">placeholder</span><span class="o">=</span><span class="s">&quot;Buscar evento...&quot;</span> <span class="p">/&gt;</span>
+  <span class="p">&lt;</span><span class="nt">select</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;categoria&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">option</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">&gt;</span>Todas as categorias<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">option</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;palestra&quot;</span><span class="p">&gt;</span>Palestra<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">option</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;minicurso&quot;</span><span class="p">&gt;</span>Minicurso<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">option</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;workshop&quot;</span><span class="p">&gt;</span>Workshop<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">select</span><span class="p">&gt;</span>
+
+  <span class="p">&lt;</span><span class="nt">ul</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;lista-eventos&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
+
+  <span class="p">&lt;</span><span class="nt">script</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;app-dom-manual.js&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// app-dom-manual.js</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">eventos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Semana da Computação&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;palestra&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">40</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">2</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Oficina de Vue.js&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;minicurso&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">25</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">3</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Hackathon FACET&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;workshop&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">60</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">4</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Introdução a IA&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;palestra&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">80</span><span class="w"> </span><span class="p">},</span>
+<span class="p">]</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">inputBusca</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;busca&#39;</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">selectCategoria</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;categoria&#39;</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">listaEl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;lista-eventos&#39;</span><span class="p">)</span>
+
+<span class="c1">// Função que decide QUAIS eventos mostrar e depois</span>
+<span class="c1">// PRECISA, na mão, apagar o DOM antigo e reconstruir tudo.</span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">renderizar</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">termo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">inputBusca</span><span class="p">.</span><span class="nx">value</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">()</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">categoria</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">selectCategoria</span><span class="p">.</span><span class="nx">value</span>
+
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">filtrados</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">filter</span><span class="p">((</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">bateTexto</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">().</span><span class="nx">includes</span><span class="p">(</span><span class="nx">termo</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">bateCategoria</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">categoria</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">categoria</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">categoria</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">bateTexto</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">bateCategoria</span>
+<span class="w">  </span><span class="p">})</span>
+
+<span class="w">  </span><span class="c1">// Passo manual 1: limpar o que já estava na tela.</span>
+<span class="w">  </span><span class="nx">listaEl</span><span class="p">.</span><span class="nx">innerHTML</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&#39;</span>
+
+<span class="w">  </span><span class="c1">// Passo manual 2: recriar cada item, um por um.</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">filtrados</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">li</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s1">&#39;li&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">li</span><span class="p">.</span><span class="nx">textContent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;Nenhum evento encontrado.&#39;</span>
+<span class="w">    </span><span class="nx">listaEl</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">li</span><span class="p">)</span>
+<span class="w">    </span><span class="k">return</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">filtrados</span><span class="p">.</span><span class="nx">forEach</span><span class="p">((</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">li</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s1">&#39;li&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">li</span><span class="p">.</span><span class="nx">textContent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`</span><span class="si">${</span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="si">}</span><span class="sb"> (</span><span class="si">${</span><span class="nx">evento</span><span class="p">.</span><span class="nx">categoria</span><span class="si">}</span><span class="sb">) — </span><span class="si">${</span><span class="nx">evento</span><span class="p">.</span><span class="nx">vagas</span><span class="si">}</span><span class="sb"> vagas`</span>
+<span class="w">    </span><span class="nx">listaEl</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">li</span><span class="p">)</span>
+<span class="w">  </span><span class="p">})</span>
+<span class="p">}</span>
+
+<span class="c1">// Passo manual 3: escutar cada evento de interação e chamar renderizar() de novo.</span>
+<span class="nx">inputBusca</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;input&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">renderizar</span><span class="p">)</span>
+<span class="nx">selectCategoria</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">&#39;change&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">renderizar</span><span class="p">)</span>
+
+<span class="nx">renderizar</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>Funciona. Mas repare no que <strong>você</strong>, programador, teve que fazer manualmente:</p>
+<ol>
+<li>Escutar cada evento de UI (<code>input</code>, <code>change</code>) e lembrar de chamar <code>renderizar()</code>.</li>
+<li>Dentro de <code>renderizar()</code>, apagar o HTML antigo (<code>innerHTML = ''</code>) e reconstruir do zero.</li>
+<li>Manter sincronizado, na sua cabeça, o <strong>estado</strong> (<code>eventos</code>, o termo de busca, a categoria) com o que está na tela.</li>
+</ol>
+<p>Em uma lista de 4 eventos isso é trivial. Em uma aplicação real — com dezenas de componentes, cada um reagindo a mudanças de estado de outros — esse sincronismo manual vira a maior fonte de bugs: tela desatualizada, elementos duplicados, listeners que vazam memória.</p>
+<h3 id="22-a-mesma-ideia-em-paradigma-declarativo">2.2 A mesma ideia, em paradigma declarativo<a class="anchor" href="#22-a-mesma-ideia-em-paradigma-declarativo" title="Permanent link">¶</a></h3>
+<p>Compare com o que faremos a partir da Aula 02, em Vue:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="cm">&lt;!-- Antecipação — ainda NÃO é o que vamos escrever hoje, é só para criar contraste --&gt;</span>
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">input</span> <span class="na">v-model</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">busca</span><span class="s">&quot;</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;text&quot;</span> <span class="na">placeholder</span><span class="o">=</span><span class="s">&quot;Buscar evento...&quot;</span> <span class="p">/&gt;</span>
+  <span class="p">&lt;</span><span class="nt">select</span> <span class="na">v-model</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">categoria</span><span class="s">&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">option</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">&gt;</span>Todas as categorias<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">option</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;palestra&quot;</span><span class="p">&gt;</span>Palestra<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">option</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;minicurso&quot;</span><span class="p">&gt;</span>Minicurso<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">option</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;workshop&quot;</span><span class="p">&gt;</span>Workshop<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">select</span><span class="p">&gt;</span>
+
+  <span class="p">&lt;</span><span class="nt">ul</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">li</span> <span class="na">v-for</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">eventosFiltrados</span><span class="s">&quot;</span> <span class="p">:</span><span class="na">key</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="p">.</span><span class="nx">id</span><span class="s">&quot;</span><span class="p">&gt;</span>
+      <span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="w"> </span><span class="cp">}}</span> (<span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">categoria</span><span class="w"> </span><span class="cp">}}</span>) — <span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">vagas</span><span class="w"> </span><span class="cp">}}</span> vagas
+    <span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">li</span> <span class="na">v-if</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">eventosFiltrados</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="s">&quot;</span><span class="p">&gt;</span>Nenhum evento encontrado.<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<p>Note a diferença de raciocínio: no código Vue você <strong>descreve o resultado desejado</strong> ("a lista deve mostrar <code>eventosFiltrados</code>") e o framework decide, sozinho, quando e como atualizar o DOM. Você não escreve <code>innerHTML = ''</code>, não escreve <code>addEventListener</code>, não gerencia manualmente qual elemento criar ou remover. Isso é <strong>programação declarativa</strong>: você declara o "o quê", o framework resolve o "como".</p>
+<p>Essa é a promessa central de um framework front-end reativo como o Vue — e é o fio condutor do semestre inteiro. Ainda não vamos escrever Vue hoje (isso começa na Aula 02); hoje construímos a base de JavaScript que sustenta tudo isso.</p>
+<h3 id="23-conceitos-que-voce-vai-ouvir-o-semestre-inteiro">2.3 Conceitos que você vai ouvir o semestre inteiro<a class="anchor" href="#23-conceitos-que-voce-vai-ouvir-o-semestre-inteiro" title="Permanent link">¶</a></h3>
+<ul>
+<li><strong>SPA (Single Page Application) vs. MPA (Multi Page Application).</strong> Uma MPA tradicional recarrega o HTML inteiro do servidor a cada navegação. Uma SPA carrega um único HTML inicial e, depois, troca apenas os pedaços de tela necessários via JavaScript — é o modelo que o Vue Router (Aula 04) implementa.</li>
+<li><strong>Client-side rendering (CSR).</strong> O HTML final da página é montado no navegador do usuário, em JavaScript, a partir de dados — em vez de vir pronto do servidor. É o padrão que usaremos com Vue + Vite.</li>
+<li><strong>Bundler.</strong> Ferramenta que pega seus arquivos-fonte (<code>.vue</code>, <code>.js</code>, <code>.css</code>, módulos separados) e os empacota em arquivos otimizados para o navegador. Usaremos o <strong>Vite</strong> a partir da Aula 02.</li>
+<li><strong>Transpilação.</strong> Processo de converter uma sintaxe moderna (ES2022+, ou até TypeScript) em um JavaScript que rode em navegadores mais antigos ou que corresponda ao que o navegador entende nativamente. O Vite faz isso por baixo dos panos.</li>
+<li><strong>npm e <code>package.json</code>.</strong> O <code>npm</code> (Node Package Manager) instala bibliotecas de terceiros. O <code>package.json</code> é o arquivo que lista essas dependências e os scripts do projeto (<code>npm run dev</code>, por exemplo).</li>
+<li><strong>SemVer (versionamento semântico).</strong> Versões no formato <code>MAIOR.MENOR.PATCH</code> (ex.: <code>3.5.41</code>). Mudanças de <code>MAIOR</code> podem quebrar compatibilidade; <code>MENOR</code> adiciona funcionalidade sem quebrar; <code>PATCH</code> corrige bugs. É por isso que, nesta disciplina, <strong>fixamos versões exatas</strong> — evita que seu projeto quebre por uma atualização automática no meio do semestre.</li>
+</ul>
+<h2 id="3-revisao-de-javascript-moderno-es2015">3. Revisão de JavaScript moderno (ES2015+)<a class="anchor" href="#3-revisao-de-javascript-moderno-es2015" title="Permanent link">¶</a></h2>
+<p>Esta é a espinha dorsal da aula de hoje. O Vue é, por baixo, "só" JavaScript — cada recurso que revisamos aqui reaparece dentro de um <code>&lt;script setup&gt;</code> já na próxima aula.</p>
+<h3 id="31-let-const-e-escopo-de-bloco">3.1 <code>let</code>, <code>const</code> e escopo de bloco<a class="anchor" href="#31-let-const-e-escopo-de-bloco" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// Antes do ES2015 só existia `var`, com escopo de função (confuso).</span>
+<span class="c1">// Hoje: use `const` por padrão, `let` só quando o valor precisa mudar.</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">nomeEvento</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;Semana da Computação&#39;</span><span class="w"> </span><span class="c1">// não pode ser reatribuída</span>
+<span class="kd">let</span><span class="w"> </span><span class="nx">vagasDisponiveis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">40</span><span class="w">                 </span><span class="c1">// pode ser reatribuída</span>
+
+<span class="nx">vagasDisponiveis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">vagasDisponiveis</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">vagasDisponiveis</span><span class="p">)</span><span class="w"> </span><span class="c1">// 39</span>
+
+<span class="c1">// `let` e `const` respeitam escopo de bloco { }</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">vagasDisponiveis</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">mensagem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;ainda há vagas&#39;</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">mensagem</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="c1">// console.log(mensagem) aqui daria ReferenceError: mensagem não existe fora do bloco</span>
+</code></pre></div></div>
+
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+Nunca use <code>var</code> em código novo. <code>var</code> "vaza" para fora de blocos <code>if</code>/<code>for</code>, o que gera bugs difíceis de rastrear. A disciplina inteira usa apenas <code>let</code> e <code>const</code>.</p>
+</blockquote>
+<h3 id="32-template-literals">3.2 Template literals<a class="anchor" href="#32-template-literals" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">evento</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Oficina de Vue.js&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">25</span><span class="w"> </span><span class="p">}</span>
+
+<span class="c1">// Antes: concatenação com +</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">antigo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;Evento: &#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39; (&#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">vagas</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39; vagas)&#39;</span>
+
+<span class="c1">// Agora: template literal, com crase e ${}</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">moderno</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`Evento: </span><span class="si">${</span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="si">}</span><span class="sb"> (</span><span class="si">${</span><span class="nx">evento</span><span class="p">.</span><span class="nx">vagas</span><span class="si">}</span><span class="sb"> vagas)`</span>
+
+<span class="c1">// Suporta múltiplas linhas sem precisar de \n</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">bloco</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`</span>
+<span class="sb">  Título: </span><span class="si">${</span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="si">}</span>
+<span class="sb">  Vagas: </span><span class="si">${</span><span class="nx">evento</span><span class="p">.</span><span class="nx">vagas</span><span class="si">}</span>
+<span class="sb">`</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">moderno</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="33-arrow-functions-e-this">3.3 Arrow functions e <code>this</code><a class="anchor" href="#33-arrow-functions-e-this" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// Função tradicional</span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">dobrar</span><span class="p">(</span><span class="nx">numero</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">numero</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">2</span>
+<span class="p">}</span>
+
+<span class="c1">// Arrow function equivalente</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">dobrarArrow</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">numero</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">numero</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">2</span>
+
+<span class="c1">// Com múltiplos parâmetros e corpo de bloco</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">somarVagas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">a</span><span class="p">,</span><span class="w"> </span><span class="nx">b</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">total</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">b</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">total</span>
+<span class="p">}</span>
+
+<span class="c1">// Sem parâmetros, precisa dos parênteses vazios</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">gerarId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1000</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>A diferença mais importante não é a sintaxe curta — é o comportamento do <code>this</code>.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">contador</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">10</span><span class="p">,</span>
+<span class="w">  </span><span class="c1">// `function` tradicional: `this` é o objeto que CHAMA o método (contador).</span>
+<span class="w">  </span><span class="nx">reduzirComFunction</span><span class="o">:</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">setTimeout</span><span class="p">(</span><span class="kd">function</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="c1">// aqui `this` NÃO é mais `contador` — em modo estrito, é `undefined`.</span>
+<span class="w">      </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="k">this</span><span class="o">?</span><span class="p">.</span><span class="nx">vagas</span><span class="p">)</span><span class="w"> </span><span class="c1">// undefined</span>
+<span class="w">    </span><span class="p">},</span><span class="w"> </span><span class="mf">100</span><span class="p">)</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="c1">// arrow function: `this` é herdado do escopo onde a arrow foi DEFINIDA.</span>
+<span class="w">  </span><span class="nx">reduzirComArrow</span><span class="o">:</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">setTimeout</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="c1">// aqui `this` continua sendo `contador`, porque a arrow &quot;pega emprestado&quot;</span>
+<span class="w">      </span><span class="c1">// o `this` do método externo.</span>
+<span class="w">      </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">vagas</span><span class="p">)</span><span class="w"> </span><span class="c1">// 10</span>
+<span class="w">    </span><span class="p">},</span><span class="w"> </span><span class="mf">100</span><span class="p">)</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">}</span>
+
+<span class="nx">contador</span><span class="p">.</span><span class="nx">reduzirComFunction</span><span class="p">()</span>
+<span class="nx">contador</span><span class="p">.</span><span class="nx">reduzirComArrow</span><span class="p">()</span>
+</code></pre></div></div>
+
+<blockquote class="capo">
+<p><strong>🔎 Por baixo do capô</strong>
+Arrow functions não têm seu próprio <code>this</code> — em vez de criar um novo, elas capturam o <code>this</code> do escopo léxico onde foram escritas. É exatamente por isso que, dentro de um <code>&lt;script setup&gt;</code> do Vue (Aula 02), quase sempre usamos arrow functions ou funções normais no nível do módulo: o comportamento de <code>this</code> deixa de ser um problema porque a Composition API não depende dele.</p>
+</blockquote>
+<h3 id="34-desestruturacao-de-objetos-e-arrays">3.4 Desestruturação de objetos e arrays<a class="anchor" href="#34-desestruturacao-de-objetos-e-arrays" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">evento</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">2</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Oficina de Vue.js&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;minicurso&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">25</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">local</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Bloco B, sala 12&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1">// Desestruturação de objeto: extrai propriedades para variáveis</span>
+<span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">titulo</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">evento</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">titulo</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="p">)</span><span class="w"> </span><span class="c1">// Oficina de Vue.js 25</span>
+
+<span class="c1">// Renomear ao desestruturar</span>
+<span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="nx">nomeDoEvento</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">evento</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">nomeDoEvento</span><span class="p">)</span><span class="w"> </span><span class="c1">// Oficina de Vue.js</span>
+
+<span class="c1">// Valor default se a propriedade não existir</span>
+<span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">imagemUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;/img/padrao.png&#39;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">evento</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">imagemUrl</span><span class="p">)</span><span class="w"> </span><span class="c1">// /img/padrao.png</span>
+
+<span class="c1">// Desestruturação de array: extrai por posição</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">coordenadas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mf">16.0736</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mf">57.6789</span><span class="p">]</span>
+<span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">latitude</span><span class="p">,</span><span class="w"> </span><span class="nx">longitude</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">coordenadas</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">latitude</span><span class="p">,</span><span class="w"> </span><span class="nx">longitude</span><span class="p">)</span><span class="w"> </span><span class="c1">// -16.0736 -57.6789</span>
+
+<span class="c1">// Desestruturação em parâmetros de função — muito comum no Vue com props</span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">exibirEvento</span><span class="p">({</span><span class="w"> </span><span class="nx">titulo</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="sb">`</span><span class="si">${</span><span class="nx">titulo</span><span class="si">}</span><span class="sb">: </span><span class="si">${</span><span class="nx">vagas</span><span class="si">}</span><span class="sb"> vagas`</span>
+<span class="p">}</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">exibirEvento</span><span class="p">(</span><span class="nx">evento</span><span class="p">))</span><span class="w"> </span><span class="c1">// Oficina de Vue.js: 25 vagas</span>
+</code></pre></div></div>
+
+<h3 id="35-spread-e-rest">3.5 Spread e rest<a class="anchor" href="#35-spread-e-rest" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// Spread (...) em array: &quot;espalha&quot; os elementos</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">categoriasBase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;palestra&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;minicurso&#39;</span><span class="p">]</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">todasCategorias</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[...</span><span class="nx">categoriasBase</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;workshop&#39;</span><span class="p">]</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">todasCategorias</span><span class="p">)</span><span class="w"> </span><span class="c1">// [&#39;palestra&#39;, &#39;minicurso&#39;, &#39;workshop&#39;]</span>
+
+<span class="c1">// Spread em objeto: cria uma CÓPIA com propriedades sobrescritas</span>
+<span class="c1">// (importante: nunca mutar o objeto original em Vue)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">eventoOriginal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Semana da Computação&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">40</span><span class="w"> </span><span class="p">}</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">eventoAtualizado</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="nx">eventoOriginal</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">39</span><span class="w"> </span><span class="p">}</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">eventoOriginal</span><span class="p">.</span><span class="nx">vagas</span><span class="p">)</span><span class="w">   </span><span class="c1">// 40 — original intocado</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">eventoAtualizado</span><span class="p">.</span><span class="nx">vagas</span><span class="p">)</span><span class="w"> </span><span class="c1">// 39 — cópia com a mudança</span>
+
+<span class="c1">// Rest (...) em parâmetros: agrupa &quot;o resto&quot; dos argumentos em array</span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">somarTodasAsVagas</span><span class="p">(...</span><span class="nx">quantidades</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">quantidades</span><span class="p">.</span><span class="nx">reduce</span><span class="p">((</span><span class="nx">total</span><span class="p">,</span><span class="w"> </span><span class="nx">atual</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">total</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">atual</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">somarTodasAsVagas</span><span class="p">(</span><span class="mf">10</span><span class="p">,</span><span class="w"> </span><span class="mf">20</span><span class="p">,</span><span class="w"> </span><span class="mf">30</span><span class="p">))</span><span class="w"> </span><span class="c1">// 60</span>
+
+<span class="c1">// Rest em desestruturação: agrupa &quot;o resto&quot; das propriedades</span>
+<span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="p">,</span><span class="w"> </span><span class="p">...</span><span class="nx">detalhesDoEvento</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">eventoOriginal</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span><span class="w">              </span><span class="c1">// 1</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">detalhesDoEvento</span><span class="p">)</span><span class="w"> </span><span class="c1">// { titulo: &#39;Semana da Computação&#39;, vagas: 40 }</span>
+</code></pre></div></div>
+
+<h3 id="36-parametros-default">3.6 Parâmetros default<a class="anchor" href="#36-parametros-default" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">criarEvento</span><span class="p">(</span><span class="nx">titulo</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;palestra&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">30</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">titulo</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">criarEvento</span><span class="p">(</span><span class="s1">&#39;Minicurso de Git&#39;</span><span class="p">))</span>
+<span class="c1">// { titulo: &#39;Minicurso de Git&#39;, categoria: &#39;palestra&#39;, vagas: 30 }</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">criarEvento</span><span class="p">(</span><span class="s1">&#39;Workshop de Testes&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;workshop&#39;</span><span class="p">,</span><span class="w"> </span><span class="mf">15</span><span class="p">))</span>
+<span class="c1">// { titulo: &#39;Workshop de Testes&#39;, categoria: &#39;workshop&#39;, vagas: 15 }</span>
+</code></pre></div></div>
+
+<h3 id="37-optional-chaining-e-nullish-coalescing">3.7 Optional chaining (<code>?.</code>) e nullish coalescing (<code>??</code>)<a class="anchor" href="#37-optional-chaining-e-nullish-coalescing" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">evento</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Semana da Computação&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">local</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">predio</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Bloco A&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="c1">// sala não foi informada</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">}</span>
+
+<span class="c1">// Sem optional chaining, acessar uma propriedade aninhada ausente quebra:</span>
+<span class="c1">// console.log(evento.organizador.nome) // TypeError: Cannot read properties of undefined</span>
+
+<span class="c1">// Com optional chaining: retorna `undefined` em vez de lançar erro</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">evento</span><span class="p">.</span><span class="nx">organizador</span><span class="o">?</span><span class="p">.</span><span class="nx">nome</span><span class="p">)</span><span class="w"> </span><span class="c1">// undefined</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">evento</span><span class="p">.</span><span class="nx">local</span><span class="o">?</span><span class="p">.</span><span class="nx">sala</span><span class="p">)</span><span class="w">       </span><span class="c1">// undefined</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">evento</span><span class="p">.</span><span class="nx">local</span><span class="o">?</span><span class="p">.</span><span class="nx">predio</span><span class="p">)</span><span class="w">     </span><span class="c1">// Bloco A</span>
+
+<span class="c1">// Funciona também para chamar métodos que podem não existir</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">relatorio</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">relatorio</span><span class="o">?</span><span class="p">.</span><span class="nx">gerar</span><span class="o">?</span><span class="p">.())</span><span class="w"> </span><span class="c1">// undefined, sem quebrar</span>
+
+<span class="c1">// Nullish coalescing (??): fornece um valor padrão SOMENTE quando o</span>
+<span class="c1">// valor à esquerda é null ou undefined (diferente do || , que também</span>
+<span class="c1">// cai no padrão para 0, &#39;&#39; ou false — o que costuma ser um bug).</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">vagasInformadas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">vagasInformadas</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="mf">10</span><span class="p">)</span><span class="w"> </span><span class="c1">// 10 — ERRADO: 0 é um valor válido de vagas!</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">vagasInformadas</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="mf">10</span><span class="p">)</span><span class="w"> </span><span class="c1">// 0  — CORRETO: só usa o padrão se for null/undefined</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">sala</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">local</span><span class="o">?</span><span class="p">.</span><span class="nx">sala</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="s1">&#39;a definir&#39;</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">sala</span><span class="p">)</span><span class="w"> </span><span class="c1">// a definir</span>
+</code></pre></div></div>
+
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+<code>||</code> e <code>??</code> parecem intercambiáveis, mas não são. Use <code>??</code> sempre que <code>0</code>, <code>''</code> ou <code>false</code> forem valores legítimos que você não quer substituir pelo padrão. É um erro comum em formulários (campo numérico zerado sendo tratado como "vazio").</p>
+</blockquote>
+<h3 id="38-metodos-de-array-map-filter-reduce-find-some-every-sort">3.8 Métodos de array: <code>map</code>, <code>filter</code>, <code>reduce</code>, <code>find</code>, <code>some</code>, <code>every</code>, <code>sort</code><a class="anchor" href="#38-metodos-de-array-map-filter-reduce-find-some-every-sort" title="Permanent link">¶</a></h3>
+<p>Vamos usar o mesmo array de eventos em todos os exemplos — é o dado que sustentará o UniEventos a partir da Aula 02.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">eventos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Semana da Computação&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;palestra&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">dataHora</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2026-09-10T19:00:00&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">40</span><span class="p">,</span><span class="w"> </span><span class="nx">inscritos</span><span class="o">:</span><span class="w"> </span><span class="mf">12</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">2</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Oficina de Vue.js&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;minicurso&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">dataHora</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2026-08-20T14:00:00&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">25</span><span class="p">,</span><span class="w"> </span><span class="nx">inscritos</span><span class="o">:</span><span class="w"> </span><span class="mf">25</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">3</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Hackathon FACET&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;workshop&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">dataHora</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2026-10-05T08:00:00&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">60</span><span class="p">,</span><span class="w"> </span><span class="nx">inscritos</span><span class="o">:</span><span class="w"> </span><span class="mf">18</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">4</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Introdução a IA&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;palestra&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">dataHora</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2026-08-18T19:30:00&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">80</span><span class="p">,</span><span class="w"> </span><span class="nx">inscritos</span><span class="o">:</span><span class="w"> </span><span class="mf">55</span><span class="w"> </span><span class="p">},</span>
+<span class="p">]</span>
+</code></pre></div></div>
+
+<p><strong><code>map</code> — transforma cada item em outra coisa, sem mudar o tamanho do array:</strong></p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">titulos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">map</span><span class="p">((</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="p">)</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">titulos</span><span class="p">)</span>
+<span class="c1">// [&#39;Semana da Computação&#39;, &#39;Oficina de Vue.js&#39;, &#39;Hackathon FACET&#39;, &#39;Introdução a IA&#39;]</span>
+
+<span class="c1">// map devolvendo objetos NOVOS (sem mutar os originais) — padrão que</span>
+<span class="c1">// vamos repetir sempre que precisarmos &quot;decorar&quot; dados para a tela</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">eventosComVagasRestantes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">map</span><span class="p">((</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">({</span>
+<span class="w">  </span><span class="p">...</span><span class="nx">evento</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">vagasRestantes</span><span class="o">:</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">vagas</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">inscritos</span><span class="p">,</span>
+<span class="p">}))</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">eventosComVagasRestantes</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">vagasRestantes</span><span class="p">)</span><span class="w"> </span><span class="c1">// 28</span>
+</code></pre></div></div>
+
+<p><strong><code>filter</code> — seleciona um subconjunto:</strong></p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">palestras</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">filter</span><span class="p">((</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">categoria</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;palestra&#39;</span><span class="p">)</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">palestras</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span><span class="w"> </span><span class="c1">// 2</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">comVagas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">filter</span><span class="p">((</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">inscritos</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">vagas</span><span class="p">)</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">comVagas</span><span class="p">.</span><span class="nx">map</span><span class="p">((</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">titulo</span><span class="p">))</span><span class="w"> </span><span class="c1">// exclui a &quot;Oficina de Vue.js&quot; (lotada)</span>
+</code></pre></div></div>
+
+<p><strong><code>reduce</code> — acumula os itens em um único valor:</strong></p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">totalDeVagas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">reduce</span><span class="p">((</span><span class="nx">acumulado</span><span class="p">,</span><span class="w"> </span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">acumulado</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">vagas</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">totalDeVagas</span><span class="p">)</span><span class="w"> </span><span class="c1">// 205</span>
+
+<span class="c1">// reduce também serve para agrupar por categoria</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">porCategoria</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">reduce</span><span class="p">((</span><span class="nx">grupos</span><span class="p">,</span><span class="w"> </span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">chave</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">categoria</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">grupos</span><span class="p">[</span><span class="nx">chave</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">grupos</span><span class="p">[</span><span class="nx">chave</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">grupos</span><span class="p">[</span><span class="nx">chave</span><span class="p">].</span><span class="nx">push</span><span class="p">(</span><span class="nx">evento</span><span class="p">)</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">grupos</span>
+<span class="p">},</span><span class="w"> </span><span class="p">{})</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">porCategoria</span><span class="p">))</span><span class="w"> </span><span class="c1">// [&#39;palestra&#39;, &#39;minicurso&#39;, &#39;workshop&#39;]</span>
+</code></pre></div></div>
+
+<p><strong><code>find</code> — retorna o primeiro item que bate na condição (ou <code>undefined</code>):</strong></p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">eventoBuscado</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">find</span><span class="p">((</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">3</span><span class="p">)</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">eventoBuscado</span><span class="p">.</span><span class="nx">titulo</span><span class="p">)</span><span class="w"> </span><span class="c1">// Hackathon FACET</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">inexistente</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">find</span><span class="p">((</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">999</span><span class="p">)</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">inexistente</span><span class="p">)</span><span class="w"> </span><span class="c1">// undefined</span>
+</code></pre></div></div>
+
+<p><strong><code>some</code> e <code>every</code> — testam a coleção e retornam <code>boolean</code>:</strong></p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">existeEventoLotado</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">some</span><span class="p">((</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">inscritos</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">vagas</span><span class="p">)</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">existeEventoLotado</span><span class="p">)</span><span class="w"> </span><span class="c1">// true (a Oficina de Vue.js está lotada)</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">todosTemVagas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">every</span><span class="p">((</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">inscritos</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">vagas</span><span class="p">)</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">todosTemVagas</span><span class="p">)</span><span class="w"> </span><span class="c1">// false</span>
+</code></pre></div></div>
+
+<p><strong><code>sort</code> — ordena o array (⚠️ muta o array original):</strong></p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// sort() muda o array ORIGINAL. Para não afetar `eventos`, copie antes com spread.</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">eventosPorData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[...</span><span class="nx">eventos</span><span class="p">].</span><span class="nx">sort</span><span class="p">(</span>
+<span class="w">  </span><span class="p">(</span><span class="nx">a</span><span class="p">,</span><span class="w"> </span><span class="nx">b</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">(</span><span class="nx">a</span><span class="p">.</span><span class="nx">dataHora</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">(</span><span class="nx">b</span><span class="p">.</span><span class="nx">dataHora</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">eventosPorData</span><span class="p">.</span><span class="nx">map</span><span class="p">((</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">titulo</span><span class="p">))</span>
+<span class="c1">// [&#39;Oficina de Vue.js&#39;, &#39;Introdução a IA&#39;, &#39;Semana da Computação&#39;, &#39;Hackathon FACET&#39;]</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">eventos</span><span class="p">.</span><span class="nx">map</span><span class="p">((</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">titulo</span><span class="p">))</span>
+<span class="c1">// ainda na ordem original — porque ordenamos a CÓPIA, não `eventos`</span>
+</code></pre></div></div>
+
+<p><strong>Encadeando métodos</strong> — o padrão mais comum no dia a dia:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">resumoDePalestrasComVaga</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">eventos</span>
+<span class="w">  </span><span class="p">.</span><span class="nx">filter</span><span class="p">((</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">categoria</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;palestra&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="nx">filter</span><span class="p">((</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">inscritos</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">vagas</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="nx">map</span><span class="p">((</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="sb">`</span><span class="si">${</span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="si">}</span><span class="sb"> (</span><span class="si">${</span><span class="nx">evento</span><span class="p">.</span><span class="nx">vagas</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">inscritos</span><span class="si">}</span><span class="sb"> vagas livres)`</span><span class="p">)</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">resumoDePalestrasComVaga</span><span class="p">)</span>
+<span class="c1">// [&#39;Semana da Computação (28 vagas livres)&#39;, &#39;Introdução a IA (25 vagas livres)&#39;]</span>
+</code></pre></div></div>
+
+<h3 id="39-objetos-e-shorthand">3.9 Objetos e shorthand<a class="anchor" href="#39-objetos-e-shorthand" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">titulo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;Semana da Computação&#39;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">vagas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">40</span>
+
+<span class="c1">// Antes: repetir a chave e o valor</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">eventoAntigo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="nx">titulo</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="nx">vagas</span><span class="w"> </span><span class="p">}</span>
+
+<span class="c1">// Shorthand: quando o nome da variável é igual ao nome da propriedade</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">eventoModerno</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">titulo</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="w"> </span><span class="p">}</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">eventoModerno</span><span class="p">)</span><span class="w"> </span><span class="c1">// { titulo: &#39;Semana da Computação&#39;, vagas: 40 }</span>
+
+<span class="c1">// Shorthand também funciona para métodos</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">gerenciadorDeEventos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">eventos</span><span class="o">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">  </span><span class="nx">adicionar</span><span class="p">(</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">          </span><span class="c1">// em vez de: adicionar: function (evento) { ... }</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">eventos</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">evento</span><span class="p">)</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">contar</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">eventos</span><span class="p">.</span><span class="nx">length</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">}</span>
+<span class="nx">gerenciadorDeEventos</span><span class="p">.</span><span class="nx">adicionar</span><span class="p">({</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Novo evento&#39;</span><span class="w"> </span><span class="p">})</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">gerenciadorDeEventos</span><span class="p">.</span><span class="nx">contar</span><span class="p">())</span><span class="w"> </span><span class="c1">// 1</span>
+
+<span class="c1">// Nomes de propriedade computados</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">chave</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;categoria&#39;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">filtro</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">[</span><span class="nx">chave</span><span class="p">]</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;palestra&#39;</span><span class="w"> </span><span class="p">}</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">filtro</span><span class="p">)</span><span class="w"> </span><span class="c1">// { categoria: &#39;palestra&#39; }</span>
+</code></pre></div></div>
+
+<h3 id="310-modulos-es-import-e-export">3.10 Módulos ES: <code>import</code> e <code>export</code><a class="anchor" href="#310-modulos-es-import-e-export" title="Permanent link">¶</a></h3>
+<p>Organizar código em módulos é essencial — é assim que um projeto Vue inteiro é estruturado, um arquivo por responsabilidade.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// arquivo: eventos.js</span>
+<span class="c1">// export nomeado: pode haver vários por arquivo</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">CATEGORIAS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;palestra&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;minicurso&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;workshop&#39;</span><span class="p">]</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">filtrarPorCategoria</span><span class="p">(</span><span class="nx">eventos</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">categoria</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nx">eventos</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">filter</span><span class="p">((</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">categoria</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">categoria</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">calcularVagasRestantes</span><span class="p">(</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">vagas</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">inscritos</span>
+<span class="p">}</span>
+
+<span class="c1">// export default: no máximo um por arquivo — geralmente a &quot;coisa principal&quot;</span>
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">GerenciadorDeEventos</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kr">constructor</span><span class="p">(</span><span class="nx">eventosIniciais</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">eventos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">eventosIniciais</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">adicionar</span><span class="p">(</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">eventos</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">evento</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// arquivo: main.js</span>
+<span class="c1">// import nomeado: usa chaves { } e o mesmo nome do export</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">CATEGORIAS</span><span class="p">,</span><span class="w"> </span><span class="nx">filtrarPorCategoria</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./eventos.js&#39;</span>
+
+<span class="c1">// import default: sem chaves, você escolhe o nome</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">GerenciadorDeEventos</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./eventos.js&#39;</span>
+
+<span class="c1">// import combinando os dois</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">GerenciadorDeEventos2</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">calcularVagasRestantes</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./eventos.js&#39;</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">CATEGORIAS</span><span class="p">)</span><span class="w"> </span><span class="c1">// [&#39;palestra&#39;, &#39;minicurso&#39;, &#39;workshop&#39;]</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">gerenciador</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">GerenciadorDeEventos</span><span class="p">()</span>
+<span class="nx">gerenciador</span><span class="p">.</span><span class="nx">adicionar</span><span class="p">({</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Minicurso de Git&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;minicurso&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">20</span><span class="p">,</span><span class="w"> </span><span class="nx">inscritos</span><span class="o">:</span><span class="w"> </span><span class="mf">5</span><span class="w"> </span><span class="p">})</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">calcularVagasRestantes</span><span class="p">(</span><span class="nx">gerenciador</span><span class="p">.</span><span class="nx">eventos</span><span class="p">[</span><span class="mf">0</span><span class="p">]))</span><span class="w"> </span><span class="c1">// 15</span>
+</code></pre></div></div>
+
+<p>Para rodar módulos ES direto no navegador (sem bundler ainda), o HTML precisa declarar <code>type="module"</code>:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;module&quot;</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;main.js&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<blockquote class="prova">
+<p><strong>📌 Na prova</strong>
+A partir da Aula 02, todo componente <code>.vue</code> é, por baixo, um módulo ES: ele importa outros componentes com <code>import</code> e é importado por quem o usa. Entender <code>import</code>/<code>export</code> agora evita confusão depois.</p>
+</blockquote>
+<h3 id="311-classes">3.11 Classes<a class="anchor" href="#311-classes" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nx">Evento</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// Campos de instância (sintaxe moderna, sem precisar declarar no constructor)</span>
+<span class="w">  </span><span class="nx">inscritos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span>
+
+<span class="w">  </span><span class="kr">constructor</span><span class="p">(</span><span class="nx">titulo</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">titulo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">titulo</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">categoria</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">categoria</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">vagas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">vagas</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Método de instância</span>
+<span class="w">  </span><span class="nx">inscrever</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">inscritos</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">vagas</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="s1">&#39;Evento lotado&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">inscritos</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mf">1</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Getter: parece uma propriedade, mas é calculado</span>
+<span class="w">  </span><span class="nx">get</span><span class="w"> </span><span class="nx">vagasRestantes</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">vagas</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">inscritos</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// Herança com extends</span>
+<span class="kd">class</span><span class="w"> </span><span class="nx">Minicurso</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="nx">Evento</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kr">constructor</span><span class="p">(</span><span class="nx">titulo</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="p">,</span><span class="w"> </span><span class="nx">cargaHoraria</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">super</span><span class="p">(</span><span class="nx">titulo</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;minicurso&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="p">)</span><span class="w"> </span><span class="c1">// chama o constructor da classe-mãe</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">cargaHoraria</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">cargaHoraria</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">oficina</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Minicurso</span><span class="p">(</span><span class="s1">&#39;Oficina de Vue.js&#39;</span><span class="p">,</span><span class="w"> </span><span class="mf">25</span><span class="p">,</span><span class="w"> </span><span class="mf">4</span><span class="p">)</span>
+<span class="nx">oficina</span><span class="p">.</span><span class="nx">inscrever</span><span class="p">()</span>
+<span class="nx">oficina</span><span class="p">.</span><span class="nx">inscrever</span><span class="p">()</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">oficina</span><span class="p">.</span><span class="nx">vagasRestantes</span><span class="p">)</span><span class="w"> </span><span class="c1">// 23</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">oficina</span><span class="p">.</span><span class="nx">cargaHoraria</span><span class="p">)</span><span class="w">   </span><span class="c1">// 4</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">oficina</span><span class="w"> </span><span class="ow">instanceof</span><span class="w"> </span><span class="nx">Evento</span><span class="p">)</span><span class="w"> </span><span class="c1">// true</span>
+</code></pre></div></div>
+
+<h3 id="312-json-parse-e-stringify">3.12 JSON: <code>parse</code> e <code>stringify</code><a class="anchor" href="#312-json-parse-e-stringify" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">evento</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Semana da Computação&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">40</span><span class="w"> </span><span class="p">}</span>
+
+<span class="c1">// Objeto JavaScript → texto JSON (para enviar em uma requisição, por exemplo)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">textoJson</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">evento</span><span class="p">)</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">textoJson</span><span class="p">)</span><span class="w"> </span><span class="c1">// &#39;{&quot;id&quot;:1,&quot;titulo&quot;:&quot;Semana da Computação&quot;,&quot;vagas&quot;:40}&#39;</span>
+
+<span class="c1">// Com indentação, útil para debug/log</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">evento</span><span class="p">,</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="mf">2</span><span class="p">))</span>
+
+<span class="c1">// Texto JSON → objeto JavaScript (o inverso — comum ao ler resposta de API)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">textoRecebido</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;{&quot;id&quot;:2,&quot;titulo&quot;:&quot;Oficina de Vue.js&quot;,&quot;vagas&quot;:25}&#39;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">objetoRecebido</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">textoRecebido</span><span class="p">)</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">objetoRecebido</span><span class="p">.</span><span class="nx">titulo</span><span class="p">)</span><span class="w"> </span><span class="c1">// Oficina de Vue.js</span>
+</code></pre></div></div>
+
+<h3 id="313-assincrono-de-callback-a-asyncawait">3.13 Assíncrono: de callback a <code>async/await</code><a class="anchor" href="#313-assincrono-de-callback-a-asyncawait" title="Permanent link">¶</a></h3>
+<p>O JavaScript é de thread única, então operações demoradas (rede, temporizadores) precisam de um jeito de "avisar quando terminar" sem travar tudo. A linguagem evoluiu em três estágios.</p>
+<p><strong>Estágio 1 — callback (o jeito antigo, difícil de encadear):</strong></p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">buscarEventoComCallback</span><span class="p">(</span><span class="nx">id</span><span class="p">,</span><span class="w"> </span><span class="nx">aoTerminar</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">setTimeout</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">aoTerminar</span><span class="p">({</span><span class="w"> </span><span class="nx">id</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Semana da Computação&#39;</span><span class="w"> </span><span class="p">})</span>
+<span class="w">  </span><span class="p">},</span><span class="w"> </span><span class="mf">500</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="nx">buscarEventoComCallback</span><span class="p">(</span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;recebido:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="p">)</span>
+<span class="w">  </span><span class="c1">// se precisasse buscar outra coisa depois, teria que aninhar</span>
+<span class="w">  </span><span class="c1">// outro callback aqui dentro — o famoso &quot;callback hell&quot;</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<p><strong>Estágio 2 — Promise (representa um valor que existirá no futuro):</strong></p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">buscarEventoComPromise</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">,</span><span class="w"> </span><span class="nx">reject</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">setTimeout</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">id</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">resolve</span><span class="p">({</span><span class="w"> </span><span class="nx">id</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Semana da Computação&#39;</span><span class="w"> </span><span class="p">})</span>
+<span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">reject</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="s1">&#39;id inválido&#39;</span><span class="p">))</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">},</span><span class="w"> </span><span class="mf">500</span><span class="p">)</span>
+<span class="w">  </span><span class="p">})</span>
+<span class="p">}</span>
+
+<span class="nx">buscarEventoComPromise</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="nx">then</span><span class="p">((</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;recebido:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="p">))</span>
+<span class="w">  </span><span class="p">.</span><span class="k">catch</span><span class="p">((</span><span class="nx">erro</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;deu erro:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">erro</span><span class="p">.</span><span class="nx">message</span><span class="p">))</span>
+</code></pre></div></div>
+
+<p><strong>Estágio 3 — <code>async/await</code> (mesma Promise por baixo, sintaxe que lê como código síncrono):</strong></p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">carregarEvento</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">evento</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">buscarEventoComPromise</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;recebido:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">erro</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;deu erro:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">erro</span><span class="p">.</span><span class="nx">message</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nx">carregarEvento</span><span class="p">()</span>
+</code></pre></div></div>
+
+<blockquote class="capo">
+<p><strong>🔎 Por baixo do capô</strong>
+<code>async/await</code> não é uma tecnologia nova e diferente de Promise — é <strong>açúcar sintático</strong> sobre Promise. <code>await</code> pausa a execução da função <code>async</code> até a Promise resolver ou rejeitar, sem bloquear o restante do programa. Todo <code>await</code> precisa estar dentro de uma função marcada <code>async</code>.</p>
+</blockquote>
+<p><strong><code>fetch</code> com <code>async/await</code> e <code>try/catch</code> — o padrão que vamos usar o semestre inteiro:</strong></p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">buscarEventosDaApi</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">resposta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span><span class="s1">&#39;https://jsonplaceholder.typicode.com/posts?_limit=5&#39;</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">resposta</span><span class="p">.</span><span class="nx">ok</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="sb">`Erro HTTP: </span><span class="si">${</span><span class="nx">resposta</span><span class="p">.</span><span class="nx">status</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">dados</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">resposta</span><span class="p">.</span><span class="nx">json</span><span class="p">()</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;eventos recebidos:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">dados</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">dados</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">erro</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;falha ao buscar eventos:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">erro</span><span class="p">.</span><span class="nx">message</span><span class="p">)</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nx">buscarEventosDaApi</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><strong><code>Promise.all</code> — disparar várias requisições em paralelo e esperar todas:</strong></p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">carregarDadosDaHome</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">respostaEventos</span><span class="p">,</span><span class="w"> </span><span class="nx">respostaCategorias</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nb">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">([</span>
+<span class="w">      </span><span class="nx">fetch</span><span class="p">(</span><span class="s1">&#39;https://jsonplaceholder.typicode.com/posts?_limit=5&#39;</span><span class="p">),</span>
+<span class="w">      </span><span class="nx">fetch</span><span class="p">(</span><span class="s1">&#39;https://jsonplaceholder.typicode.com/users?_limit=3&#39;</span><span class="p">),</span>
+<span class="w">    </span><span class="p">])</span>
+
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">eventos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">respostaEventos</span><span class="p">.</span><span class="nx">json</span><span class="p">()</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">categorias</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">respostaCategorias</span><span class="p">.</span><span class="nx">json</span><span class="p">()</span>
+
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;eventos:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">length</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;categorias:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">categorias</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">erro</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Promise.all rejeita assim que QUALQUER uma das promises falhar</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;alguma requisição falhou:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">erro</span><span class="p">.</span><span class="nx">message</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nx">carregarDadosDaHome</span><span class="p">()</span>
+</code></pre></div></div>
+
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+<code>Promise.all</code> falha rápido: se uma das promises rejeitar, todas as outras são "abandonadas" do ponto de vista do <code>.catch</code>/<code>try-catch</code>, mesmo que já estivessem resolvidas. Quando precisar do resultado de todas independentemente de falha, use <code>Promise.allSettled</code> (não obrigatório nesta disciplina, mas bom saber que existe).</p>
+</blockquote>
+<h2 id="padrao-de-projeto-em-uso">🧩 Padrão de projeto em uso<a class="anchor" href="#padrao-de-projeto-em-uso" title="Permanent link">¶</a></h2>
+<blockquote>
+<h3 id="padrao-de-projeto-em-uso-module-revealing-module">🧩 Padrão de projeto em uso — Module / Revealing Module<a class="anchor" href="#padrao-de-projeto-em-uso-module-revealing-module" title="Permanent link">¶</a></h3>
+<p>O padrão <strong>Module</strong> organiza código relacionado (estado + comportamento) dentro de um único bloco, escondendo detalhes internos e expondo apenas uma interface pública. Antes dos módulos ES nativos, isso era feito com uma IIFE (função invocada imediatamente) que retornava um objeto com as partes públicas — o <strong>Revealing Module Pattern</strong>:</p>
+<p>```js
+// Revealing Module Pattern — jeito pré-ES2015 de encapsular
+const GerenciadorDeEventos = (function () {
+  // "privado": só existe dentro deste escopo de função
+  let eventos = []</p>
+<p>function adicionar(evento) {
+    eventos.push(evento)
+  }</p>
+<p>function contarVagas() {
+    return eventos.reduce((total, e) =&gt; total + e.vagas, 0)
+  }</p>
+<p>// "revela" (expõe) só o que deve ser público
+  return {
+    adicionar,
+    contarVagas,
+  }
+})()</p>
+<p>GerenciadorDeEventos.adicionar({ titulo: 'Semana da Computação', vagas: 40 })
+console.log(GerenciadorDeEventos.contarVagas()) // 40
+// GerenciadorDeEventos.eventos não existe aqui fora — está encapsulado
+```</p>
+<p>Os <strong>módulos ES</strong> (<code>import</code>/<code>export</code>, Seção 3.10) resolvem o mesmo problema de forma nativa e sem a necessidade da IIFE: tudo que não é exportado com <code>export</code> é automaticamente privado ao arquivo. É o mesmo padrão de projeto, com sintaxe de linguagem em vez de truque de engenharia. Todo componente <code>.vue</code> que você vai escrever a partir da Aula 02 é, conceitualmente, um Module: estado interno + funções, expondo ao <code>&lt;template&gt;</code> só o que for necessário.</p>
+</blockquote>
+<h2 id="mao-na-massa-configurando-o-primeiro-arquivo-de-revisao">💻 Mão na massa — configurando o primeiro arquivo de revisão<a class="anchor" href="#mao-na-massa-configurando-o-primeiro-arquivo-de-revisao" title="Permanent link">¶</a></h2>
+<p>Vamos consolidar tudo em um único exercício guiado, rodado no navegador.</p>
+<p><strong>Passo 1 — crie a pasta e os arquivos.</strong></p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>~/fds-aula01<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>~/fds-aula01
+touch<span class="w"> </span>index.html<span class="w"> </span>eventos.js<span class="w"> </span>main.js
+</code></pre></div></div>
+
+<p><strong>Passo 2 — o HTML que carrega o módulo:</strong></p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="cm">&lt;!-- index.html --&gt;</span>
+<span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="p">&lt;</span><span class="nt">html</span> <span class="na">lang</span><span class="o">=</span><span class="s">&quot;pt-BR&quot;</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">&quot;UTF-8&quot;</span> <span class="p">/&gt;</span>
+  <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>Aula 01 — Revisão de JavaScript<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>Abra o Console do navegador (F12) para ver os resultados<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">ul</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;saida&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
+
+  <span class="p">&lt;</span><span class="nt">script</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;module&quot;</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;main.js&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<p><strong>Passo 3 — o módulo com os dados e as funções:</strong></p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// eventos.js</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">eventos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Semana da Computação&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;palestra&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">dataHora</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2026-09-10T19:00:00&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">40</span><span class="p">,</span><span class="w"> </span><span class="nx">inscritos</span><span class="o">:</span><span class="w"> </span><span class="mf">12</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">2</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Oficina de Vue.js&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;minicurso&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">dataHora</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2026-08-20T14:00:00&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">25</span><span class="p">,</span><span class="w"> </span><span class="nx">inscritos</span><span class="o">:</span><span class="w"> </span><span class="mf">25</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">3</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Hackathon FACET&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;workshop&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">dataHora</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2026-10-05T08:00:00&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">60</span><span class="p">,</span><span class="w"> </span><span class="nx">inscritos</span><span class="o">:</span><span class="w"> </span><span class="mf">18</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">4</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Introdução a IA&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;palestra&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">dataHora</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2026-08-18T19:30:00&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">80</span><span class="p">,</span><span class="w"> </span><span class="nx">inscritos</span><span class="o">:</span><span class="w"> </span><span class="mf">55</span><span class="w"> </span><span class="p">},</span>
+<span class="p">]</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">filtrarPorCategoria</span><span class="p">(</span><span class="nx">lista</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">categoria</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nx">lista</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">lista</span><span class="p">.</span><span class="nx">filter</span><span class="p">((</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">categoria</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">categoria</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">ordenarPorData</span><span class="p">(</span><span class="nx">lista</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">[...</span><span class="nx">lista</span><span class="p">].</span><span class="nx">sort</span><span class="p">((</span><span class="nx">a</span><span class="p">,</span><span class="w"> </span><span class="nx">b</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">(</span><span class="nx">a</span><span class="p">.</span><span class="nx">dataHora</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">(</span><span class="nx">b</span><span class="p">.</span><span class="nx">dataHora</span><span class="p">))</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">totalDeVagas</span><span class="p">(</span><span class="nx">lista</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">lista</span><span class="p">.</span><span class="nx">reduce</span><span class="p">((</span><span class="nx">total</span><span class="p">,</span><span class="w"> </span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">total</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">vagas</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">formatarData</span><span class="p">(</span><span class="nx">dataIso</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">(</span><span class="nx">dataIso</span><span class="p">)</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Intl</span><span class="p">.</span><span class="nx">DateTimeFormat</span><span class="p">(</span><span class="s1">&#39;pt-BR&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">day</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2-digit&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">month</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;long&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">hour</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2-digit&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">minute</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2-digit&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">}).</span><span class="nx">format</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>Passo 4 — consumir o módulo, renderizar no DOM e buscar dados de uma API:</strong></p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// main.js</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">eventos</span><span class="p">,</span><span class="w"> </span><span class="nx">filtrarPorCategoria</span><span class="p">,</span><span class="w"> </span><span class="nx">ordenarPorData</span><span class="p">,</span><span class="w"> </span><span class="nx">totalDeVagas</span><span class="p">,</span><span class="w"> </span><span class="nx">formatarData</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./eventos.js&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">listaEl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;saida&#39;</span><span class="p">)</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">renderizarLista</span><span class="p">(</span><span class="nx">lista</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">listaEl</span><span class="p">.</span><span class="nx">innerHTML</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&#39;</span>
+<span class="w">  </span><span class="nx">lista</span><span class="p">.</span><span class="nx">forEach</span><span class="p">((</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">item</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s1">&#39;li&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">item</span><span class="p">.</span><span class="nx">textContent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`</span><span class="si">${</span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="si">}</span><span class="sb"> — </span><span class="si">${</span><span class="nx">formatarData</span><span class="p">(</span><span class="nx">evento</span><span class="p">.</span><span class="nx">dataHora</span><span class="p">)</span><span class="si">}</span><span class="sb"> (</span><span class="si">${</span><span class="nx">evento</span><span class="p">.</span><span class="nx">vagas</span><span class="si">}</span><span class="sb"> vagas)`</span>
+<span class="w">    </span><span class="nx">listaEl</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">item</span><span class="p">)</span>
+<span class="w">  </span><span class="p">})</span>
+<span class="p">}</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">palestras</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">filtrarPorCategoria</span><span class="p">(</span><span class="nx">eventos</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;palestra&#39;</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">ordenados</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ordenarPorData</span><span class="p">(</span><span class="nx">eventos</span><span class="p">)</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;total de palestras:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">palestras</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;total de vagas em todos os eventos:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">totalDeVagas</span><span class="p">(</span><span class="nx">eventos</span><span class="p">))</span>
+<span class="nx">renderizarLista</span><span class="p">(</span><span class="nx">ordenados</span><span class="p">)</span>
+
+<span class="c1">// buscando dados externos de verdade</span>
+<span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">buscarPostsDeExemplo</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">resposta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span><span class="s1">&#39;https://jsonplaceholder.typicode.com/posts?_limit=3&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">resposta</span><span class="p">.</span><span class="nx">ok</span><span class="p">)</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="sb">`HTTP </span><span class="si">${</span><span class="nx">resposta</span><span class="p">.</span><span class="nx">status</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">posts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">resposta</span><span class="p">.</span><span class="nx">json</span><span class="p">()</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;posts de exemplo recebidos da API:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">posts</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">erro</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;não foi possível buscar os posts:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">erro</span><span class="p">.</span><span class="nx">message</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nx">buscarPostsDeExemplo</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><strong>Passo 5 — abra <code>index.html</code></strong> com a extensão <strong>Live Server</strong> do VS Code (ou qualquer servidor local — módulos ES não funcionam abrindo o arquivo direto com <code>file://</code> por causa de CORS). Abra o DevTools (<code>F12</code>) e confira o Console.</p>
+<h2 id="laboratorio">🧪 Laboratório<a class="anchor" href="#laboratorio" title="Permanent link">¶</a></h2>
+<p>Use o array <code>eventos</code> do Passo 3 acima para os exercícios. Crie um arquivo <code>lab.js</code>, importe o que precisar de <code>eventos.js</code> e teste cada exercício no console.</p>
+<p><strong>1. Filtrar por categoria</strong> — escreva uma função <code>apenasWorkshops(lista)</code> que retorne só os eventos de categoria <code>'workshop'</code>, usando <code>filter</code>.</p>
+<p>Resultado esperado: array com 1 item (<code>Hackathon FACET</code>).</p>
+<details>
+<summary>Dica</summary>
+<p><code>lista.filter((evento) =&gt; evento.categoria === 'workshop')</code></p>
+</details>
+<p><strong>2. Ordenar por vagas restantes</strong> — escreva <code>ordenarPorVagasRestantes(lista)</code> que devolva uma cópia do array ordenada da maior para a menor quantidade de vagas restantes (<code>vagas - inscritos</code>), sem mutar o array original.</p>
+<p>Resultado esperado: o array original (<code>eventos</code>) mantém a mesma ordem depois de chamar a função.</p>
+<details>
+<summary>Dica</summary>
+<p>Copie primeiro com <code>[...lista]</code>, depois use <code>.sort((a, b) =&gt; (b.vagas - b.inscritos) - (a.vagas - a.inscritos))</code>.</p>
+</details>
+<p><strong>3. Calcular vagas totais com <code>reduce</code></strong> — escreva <code>vagasRestantesTotais(lista)</code> que retorne a soma de <code>vagas - inscritos</code> de todos os eventos.</p>
+<p>Resultado esperado: <code>55</code> (para o array de exemplo: 28 + 0 + 42 + 25).</p>
+<details>
+<summary>Dica</summary>
+<p><code>lista.reduce((total, evento) =&gt; total + (evento.vagas - evento.inscritos), 0)</code></p>
+</details>
+<p><strong>4. Formatar datas em pt-BR</strong> — usando <code>Intl.DateTimeFormat('pt-BR', { dateStyle: 'long' })</code>, formate a <code>dataHora</code> de cada evento e monte um array de strings como <code>"10 de setembro de 2026"</code>.</p>
+<p>Resultado esperado: 4 strings de data em português.</p>
+<details>
+<summary>Dica</summary>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">formatador</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Intl</span><span class="p">.</span><span class="nx">DateTimeFormat</span><span class="p">(</span><span class="s1">&#39;pt-BR&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">dateStyle</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;long&#39;</span><span class="w"> </span><span class="p">})</span>
+<span class="nx">eventos</span><span class="p">.</span><span class="nx">map</span><span class="p">((</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">formatador</span><span class="p">.</span><span class="nx">format</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">(</span><span class="nx">evento</span><span class="p">.</span><span class="nx">dataHora</span><span class="p">)))</span>
+</code></pre></div></div>
+
+</details>
+<p><strong>5. Buscar dados de uma API pública e renderizar</strong> — usando <code>fetch</code> e <code>async/await</code>, busque <code>https://jsonplaceholder.typicode.com/users</code> (sem parâmetro de limite), pegue apenas os 3 primeiros com <code>.slice(0, 3)</code>, e renderize o <code>name</code> de cada um em uma lista <code>&lt;ul&gt;</code> no HTML.</p>
+<p>Resultado esperado: 3 nomes de usuários aparecendo na página.</p>
+<details>
+<summary>Dica</summary>
+<p><code>const usuarios = await (await fetch(url)).json()</code>, depois <code>usuarios.slice(0, 3).forEach(...)</code> criando <code>&lt;li&gt;</code> como no Passo 4.</p>
+</details>
+<h2 id="erros-comuns-e-como-resolver">🐛 Erros comuns e como resolver<a class="anchor" href="#erros-comuns-e-como-resolver" title="Permanent link">¶</a></h2>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Sintoma</th>
+<th>Causa</th>
+<th>Solução</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>this</code> é <code>undefined</code> dentro de um callback</td>
+<td>Usou <code>function</code> tradicional dentro de um método, perdendo o <code>this</code> do objeto</td>
+<td>Troque por arrow function, que herda o <code>this</code> do escopo externo</td>
+</tr>
+<tr>
+<td>Array original mudou de ordem sem eu querer</td>
+<td><code>.sort()</code> muta o array original</td>
+<td>Copie antes: <code>[...array].sort(...)</code></td>
+</tr>
+<tr>
+<td><code>if (vagas == '40')</code> deu <code>true</code> mas os tipos são diferentes</td>
+<td>Uso de <code>==</code> faz coerção de tipo</td>
+<td>Use sempre <code>===</code> e <code>!==</code></td>
+</tr>
+<tr>
+<td><code>TypeError: Cannot read properties of undefined</code></td>
+<td>Esqueceu de colocar <code>await</code> antes de uma Promise</td>
+<td>Confira se toda chamada assíncrona tem <code>await</code> dentro de uma função <code>async</code></td>
+</tr>
+<tr>
+<td><code>fetch</code> falha com erro de CORS no console</td>
+<td>A API não libera requisições vindas do seu domínio local</td>
+<td>Use uma API que libere CORS publicamente (como JSONPlaceholder) ou rode via proxy/back-end nas aulas futuras</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="atividade-assincrona-1-h">🏠 Atividade assíncrona (1 h)<a class="anchor" href="#atividade-assincrona-1-h" title="Permanent link">¶</a></h2>
+<ol>
+<li>Escolha o <strong>tema do seu projeto autoral</strong> seguindo as regras da Seção 1.6.</li>
+<li>Crie um repositório público no GitHub chamado <code>&lt;seu-tema&gt;-web</code> (ex.: <code>pantanal-plantas-web</code>).</li>
+<li>Escreva um <code>README.md</code> na raiz do repositório contendo:
+   - Uma descrição de 3 a 5 linhas do problema que o projeto resolve.
+   - As <strong>entidades</strong> do domínio (no mínimo duas relacionadas) com seus <strong>campos</strong>, no mesmo estilo da Seção 3 do plano de curso (compare com <code>Evento</code>/<code>Inscricao</code>/<code>Usuario</code> do UniEventos).
+   - As <strong>telas previstas</strong>: pelo menos listagem com filtro, detalhe, e uma área autenticada.</li>
+<li>Envie o link do repositório pelo canal indicado no SIGAA.</li>
+</ol>
+<p><strong>Critério de pronto:</strong> repositório público criado, <code>README.md</code> com descrição, modelo de dados (entidades + campos) e lista de telas.</p>
+<h2 id="checkpoint-do-projeto-autoral">✅ Checkpoint do projeto autoral<a class="anchor" href="#checkpoint-do-projeto-autoral" title="Permanent link">¶</a></h2>
+<p>Ao final desta aula, seu repositório deve ter:</p>
+<ul>
+<li>[ ] Repositório criado no GitHub, nomeado <code>&lt;tema&gt;-web</code>, com visibilidade pública.</li>
+<li>[ ] <code>README.md</code> com descrição do projeto, entidades e campos, e telas previstas.</li>
+<li>[ ] Ambiente instalado e verificado: <code>node -v</code> mostrando Node 22 LTS, VS Code com as extensões Vue - Official, ESLint e Prettier.</li>
+<li>[ ] Git configurado localmente (<code>git config --global user.name/user.email</code>).</li>
+</ul>
+<h2 id="para-aprofundar">📚 Para aprofundar<a class="anchor" href="#para-aprofundar" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="https://developer.mozilla.org/pt-BR/docs/Web/JavaScript">MDN Web Docs — JavaScript</a> — referência oficial e gratuita, em português.</li>
+<li><a href="https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Guide">MDN — Guia de gramática e tipos</a></li>
+<li><a href="https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Global_Objects/Array">MDN — <code>Array.prototype</code></a> — todos os métodos de array com exemplos.</li>
+<li><a href="https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat">MDN — <code>Intl.DateTimeFormat</code></a></li>
+<li><a href="https://javascript.info/">javascript.info</a> — curso completo e gratuito de JS moderno.</li>
+<li><a href="https://nodejs.org">Node.js — site oficial</a></li>
+</ul>
+<hr />
+<p><strong>Próxima aula (02, 17/08/2026):</strong> começamos o Vue de verdade — <code>createApp</code>, instância, <code>data</code>/<code>methods</code> (Options API) e Composition API com <code>&lt;script setup&gt;</code>, além das diretivas básicas (<code>v-bind</code>, <code>v-on</code>, <code>v-model</code>, <code>v-if</code>, <code>v-for</code>). Traga o ambiente instalado e o repositório do projeto autoral criado.</p><nav class="navpe"><a class="dir" data-nav="proxima" href="aula-02.html"><span class="rot">Aula 02 →</span><span class="tit">Introdução ao Vue: instância, ciclo de vida e diretivas</span></a></nav>
+    <div class="rodape">
+      UNEMAT — Universidade do Estado de Mato Grosso · Campus Cáceres · FACET<br>
+      FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas · 2026.2<br>
+      Prof. Ivan Luiz Pedroso Pires
+    </div>
+  </main>
+  <aside class="toc"><h4>Nesta aula</h4><a class="" href="#objetivos-de-aprendizagem">🎯 Objetivos de aprendizagem</a><a class="" href="#pre-requisitos-desta-aula">📋 Pré-requisitos desta aula</a><a class="" href="#roteiro">🗺️ Roteiro</a><a class="" href="#1-apresentacao-da-disciplina">1. Apresentação da disciplina</a><a class="n3" href="#11-quem-sou-eu-e-como-essa-disciplina-funciona">1.1 Quem sou eu e como essa disciplina funciona</a><a class="n3" href="#12-as-tres-unidades">1.2 As três unidades</a><a class="n3" href="#13-cronograma-completo">1.3 Cronograma completo</a><a class="n3" href="#14-avaliacoes">1.4 Avaliações</a><a class="n3" href="#15-frequencia-e-comunicacao">1.5 Frequência e comunicação</a><a class="n3" href="#16-o-projeto-autoral">1.6 O projeto autoral</a><a class="n3" href="#17-ambiente-de-desenvolvimento">1.7 Ambiente de desenvolvimento</a><a class="" href="#2-por-que-frameworks-existem">2. Por que frameworks existem</a><a class="n3" href="#21-um-problema-concreto-lista-de-eventos-com-filtro">2.1 Um problema concreto: lista de eventos com filtro</a><a class="n3" href="#22-a-mesma-ideia-em-paradigma-declarativo">2.2 A mesma ideia, em paradigma declarativo</a><a class="n3" href="#23-conceitos-que-voce-vai-ouvir-o-semestre-inteiro">2.3 Conceitos que você vai ouvir o semestre inteiro</a><a class="" href="#3-revisao-de-javascript-moderno-es2015">3. Revisão de JavaScript moderno (ES2015+)</a><a class="n3" href="#31-let-const-e-escopo-de-bloco">3.1 let, const e escopo de bloco</a><a class="n3" href="#32-template-literals">3.2 Template literals</a><a class="n3" href="#33-arrow-functions-e-this">3.3 Arrow functions e this</a><a class="n3" href="#34-desestruturacao-de-objetos-e-arrays">3.4 Desestruturação de objetos e arrays</a><a class="n3" href="#35-spread-e-rest">3.5 Spread e rest</a><a class="n3" href="#36-parametros-default">3.6 Parâmetros default</a><a class="n3" href="#37-optional-chaining-e-nullish-coalescing">3.7 Optional chaining (?.) e nullish coalescing (??)</a><a class="n3" href="#38-metodos-de-array-map-filter-reduce-find-some-every-sort">3.8 Métodos de array: map, filter, reduce, find, some, every, sort</a><a class="n3" href="#39-objetos-e-shorthand">3.9 Objetos e shorthand</a><a class="n3" href="#310-modulos-es-import-e-export">3.10 Módulos ES: import e export</a><a class="n3" href="#311-classes">3.11 Classes</a><a class="n3" href="#312-json-parse-e-stringify">3.12 JSON: parse e stringify</a><a class="n3" href="#313-assincrono-de-callback-a-asyncawait">3.13 Assíncrono: de callback a async/await</a><a class="" href="#padrao-de-projeto-em-uso">🧩 Padrão de projeto em uso</a><a class="n3" href="#padrao-de-projeto-em-uso-module-revealing-module">🧩 Padrão de projeto em uso — Module / Revealing Module</a><a class="" href="#mao-na-massa-configurando-o-primeiro-arquivo-de-revisao">💻 Mão na massa — configurando o primeiro arquivo de revisão</a><a class="" href="#laboratorio">🧪 Laboratório</a><a class="" href="#erros-comuns-e-como-resolver">🐛 Erros comuns e como resolver</a><a class="" href="#atividade-assincrona-1-h">🏠 Atividade assíncrona (1 h)</a><a class="" href="#checkpoint-do-projeto-autoral">✅ Checkpoint do projeto autoral</a><a class="" href="#para-aprofundar">📚 Para aprofundar</a></aside>
+</div>
+<script>
+(function(){
+  var raiz=document.documentElement;
+  var salvo=null;
+  try{salvo=window.localStorage&&localStorage.getItem('fds-tema')}catch(e){}
+  if(salvo){raiz.setAttribute('data-tema',salvo)}
+  var bt=document.getElementById('tema');
+  if(bt){bt.addEventListener('click',function(){
+    var novo=raiz.getAttribute('data-tema')==='claro'?'escuro':'claro';
+    raiz.setAttribute('data-tema',novo);
+    try{localStorage.setItem('fds-tema',novo)}catch(e){}
+    bt.textContent=novo==='claro'?'● Escuro':'○ Claro';
+  });
+  bt.textContent=raiz.getAttribute('data-tema')==='claro'?'● Escuro':'○ Claro';}
+
+  // copiar código
+  document.querySelectorAll('.copiar').forEach(function(b){
+    b.addEventListener('click',function(){
+      var pre=b.closest('.bloco').querySelector('pre');
+      var txt=pre.innerText;
+      var ok=function(){b.textContent='Copiado';b.classList.add('ok');
+        setTimeout(function(){b.textContent='Copiar';b.classList.remove('ok')},1600)};
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(ok)}
+      else{var t=document.createElement('textarea');t.value=txt;document.body.appendChild(t);
+           t.select();document.execCommand('copy');t.remove();ok()}
+    });
+  });
+
+  // barra de progresso
+  var pr=document.getElementById('progresso');
+  if(pr){window.addEventListener('scroll',function(){
+    var h=document.documentElement.scrollHeight-window.innerHeight;
+    pr.style.width=(h>0?(window.scrollY/h)*100:0)+'%';
+  },{passive:true})}
+
+  // sumário ativo
+  var alvos=[].slice.call(document.querySelectorAll('main h2[id],main h3[id]'));
+  var links={};
+  document.querySelectorAll('.toc a').forEach(function(a){links[a.getAttribute('href').slice(1)]=a});
+  if(alvos.length&&'IntersectionObserver' in window){
+    var obs=new IntersectionObserver(function(ents){
+      ents.forEach(function(e){
+        var a=links[e.target.id];
+        if(!a)return;
+        if(e.isIntersecting){
+          Object.keys(links).forEach(function(k){links[k].classList.remove('ativo')});
+          a.classList.add('ativo');
+        }
+      });
+    },{rootMargin:'-76px 0px -75% 0px'});
+    alvos.forEach(function(t){obs.observe(t)});
+  }
+
+  // busca no índice
+  var busca=document.getElementById('busca');
+  if(busca){
+    busca.addEventListener('input',function(){
+      var q=busca.value.toLowerCase().trim();
+      document.querySelectorAll('[data-busca]').forEach(function(el){
+        el.classList.toggle('oculto', q!=='' && el.getAttribute('data-busca').indexOf(q)===-1);
+      });
+    });
+  }
+
+  // atalhos de teclado
+  document.addEventListener('keydown',function(e){
+    if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+    var ant=document.querySelector('[data-nav="anterior"]');
+    var pro=document.querySelector('[data-nav="proxima"]');
+    if(e.key==='j'&&pro)pro.click();
+    if(e.key==='k'&&ant)ant.click();
+    if(e.key==='/'&&busca){e.preventDefault();busca.focus()}
+  });
+})();
+</script>
+</body>
+</html>

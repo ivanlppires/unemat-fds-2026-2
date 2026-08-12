@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-tema="escuro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aula 07 — Introdução ao Firebase, Node.js e Express · FACET-SNP-310</title>
+<meta name="description" content="Unidade 3 · 28/09/2026 · Introdução ao Firebase, Node.js e Express">
+<style>
+:root{
+  --bg:#0f1117; --bg-soft:#161922; --bg-code:#11131a; --line:#272b38;
+  --fg:#e6e8ee; --fg-dim:#a6adbb; --fg-faint:#6f7686;
+  --accent:#5eead4; --accent-2:#818cf8; --warn:#fbbf24; --danger:#fb7185;
+  --u1:#5eead4; --u2:#818cf8; --u3:#f0abfc;
+  --radius:12px; --max:860px;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+}
+html[data-tema="claro"]{
+  --bg:#ffffff; --bg-soft:#f6f7f9; --bg-code:#f2f3f6; --line:#e2e5ea;
+  --fg:#1a1d24; --fg-dim:#4b5262; --fg-faint:#8a92a3;
+  --accent:#0d9488; --accent-2:#4f46e5; --warn:#b45309; --danger:#be123c;
+  --u1:#0d9488; --u2:#4f46e5; --u3:#a21caf;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:76px}
+body{
+  margin:0; background:var(--bg); color:var(--fg); font-family:var(--font);
+  font-size:16.5px; line-height:1.72; -webkit-font-smoothing:antialiased;
+}
+a{color:var(--accent); text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ---------- barra superior ---------- */
+.topo{
+  position:sticky; top:0; z-index:50; background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:blur(12px); border-bottom:1px solid var(--line);
+}
+.topo-in{max-width:1400px;margin:0 auto;display:flex;align-items:center;gap:14px;padding:10px 18px}
+.marca{font-weight:700;font-size:.82rem;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-dim);white-space:nowrap}
+.marca b{color:var(--accent)}
+.topo .espaco{flex:1}
+.btn{
+  background:var(--bg-soft); color:var(--fg-dim); border:1px solid var(--line);
+  border-radius:8px; padding:6px 12px; font-size:.82rem; cursor:pointer; font-family:inherit;
+  transition:.15s;
+}
+.btn:hover{color:var(--fg); border-color:var(--accent)}
+#busca{
+  background:var(--bg-soft); border:1px solid var(--line); border-radius:8px; color:var(--fg);
+  padding:6px 12px; font-size:.85rem; font-family:inherit; width:200px;
+}
+#busca:focus{outline:none;border-color:var(--accent)}
+
+/* ---------- layout ---------- */
+.wrap{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:260px minmax(0,1fr) 240px;gap:34px;padding:0 18px}
+@media(max-width:1150px){.wrap{grid-template-columns:240px minmax(0,1fr)} .toc{display:none}}
+@media(max-width:860px){.wrap{grid-template-columns:minmax(0,1fr)} .lateral{display:none}}
+
+.lateral,.toc{position:sticky;top:76px;align-self:start;max-height:calc(100vh - 90px);overflow-y:auto;padding:22px 0 60px;font-size:.85rem}
+.lateral::-webkit-scrollbar,.toc::-webkit-scrollbar{width:6px}
+.lateral::-webkit-scrollbar-thumb,.toc::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+.lateral h4,.toc h4{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-faint);margin:0 0 12px}
+.lateral ol{list-style:none;margin:0;padding:0}
+.lateral li a{
+  display:flex;gap:9px;align-items:baseline;padding:6px 10px;border-radius:7px;
+  color:var(--fg-dim);border-left:2px solid transparent;line-height:1.35;
+}
+.lateral li a:hover{background:var(--bg-soft);color:var(--fg);text-decoration:none}
+.lateral li a.ativo{background:var(--bg-soft);color:var(--fg);border-left-color:var(--accent);font-weight:600}
+.lateral .num{font-variant-numeric:tabular-nums;color:var(--fg-faint);font-size:.78rem;min-width:16px}
+.lateral .grupo{margin:18px 0 6px;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-faint);padding-left:10px}
+.toc a{display:block;padding:4px 0 4px 12px;color:var(--fg-dim);border-left:2px solid var(--line);line-height:1.35;font-size:.8rem}
+.toc a:hover{color:var(--fg);text-decoration:none}
+.toc a.ativo{color:var(--accent);border-left-color:var(--accent)}
+.toc a.n3{padding-left:24px;font-size:.76rem;opacity:.8}
+
+/* ---------- conteúdo ---------- */
+main{padding:34px 0 100px;min-width:0}
+.cabecalho{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:34px}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.tag{font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;font-weight:700;padding:4px 10px;border-radius:999px;border:1px solid var(--line);color:var(--fg-dim)}
+.tag.u1{color:var(--u1);border-color:color-mix(in srgb,var(--u1) 40%,transparent)}
+.tag.u2{color:var(--u2);border-color:color-mix(in srgb,var(--u2) 40%,transparent)}
+.tag.u3{color:var(--u3);border-color:color-mix(in srgb,var(--u3) 40%,transparent)}
+.tag.av{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 45%,transparent)}
+.cabecalho h1{margin:0;font-size:2.05rem;line-height:1.2;letter-spacing:-.02em}
+.cabecalho .sub{color:var(--fg-faint);font-size:.9rem;margin-top:10px}
+
+main h1{font-size:1.9rem;line-height:1.22;letter-spacing:-.02em;margin:0 0 .6em}
+main h2{font-size:1.4rem;margin:2.4em 0 .7em;padding-top:.5em;border-top:1px solid var(--line);letter-spacing:-.01em}
+main h3{font-size:1.12rem;margin:1.9em 0 .5em;color:var(--fg)}
+main h4{font-size:.98rem;margin:1.5em 0 .4em;color:var(--fg-dim)}
+main h2:first-of-type{border-top:none;padding-top:0}
+main p{margin:0 0 1.05em}
+main ul,main ol{margin:0 0 1.15em;padding-left:1.4em}
+main li{margin:.32em 0}
+main li>ul,main li>ol{margin:.35em 0}
+hr{border:none;border-top:1px solid var(--line);margin:2.6em 0}
+strong{color:var(--fg);font-weight:650}
+
+/* âncoras */
+.anchor{opacity:0;margin-left:.4em;font-weight:400;color:var(--fg-faint);text-decoration:none;font-size:.8em}
+h2:hover .anchor,h3:hover .anchor{opacity:1}
+
+/* citações / callouts */
+blockquote{
+  margin:1.4em 0;padding:14px 18px;background:var(--bg-soft);border-left:3px solid var(--accent-2);
+  border-radius:0 var(--radius) var(--radius) 0;color:var(--fg-dim);
+}
+blockquote p:last-child{margin-bottom:0}
+blockquote.dica{border-left-color:var(--accent)}
+blockquote.atencao{border-left-color:var(--warn)}
+blockquote.capo{border-left-color:var(--accent-2)}
+blockquote.prova{border-left-color:var(--danger)}
+
+/* tabelas */
+.tabela-wrap{overflow-x:auto;margin:1.4em 0;border:1px solid var(--line);border-radius:var(--radius)}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{padding:9px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--bg-soft);font-weight:650;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-dim);white-space:nowrap}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:color-mix(in srgb,var(--bg-soft) 60%,transparent)}
+
+/* código */
+code{font-family:var(--mono);font-size:.87em;background:var(--bg-soft);padding:.14em .42em;border-radius:5px;border:1px solid var(--line)}
+.bloco{position:relative;margin:1.3em 0}
+.bloco-topo{
+  display:flex;align-items:center;gap:10px;background:var(--bg-soft);border:1px solid var(--line);
+  border-bottom:none;border-radius:var(--radius) var(--radius) 0 0;padding:6px 12px;
+  font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;color:var(--fg-faint);font-family:var(--mono);
+}
+.bloco-topo .espaco{flex:1}
+.copiar{
+  background:transparent;border:1px solid var(--line);color:var(--fg-faint);border-radius:6px;
+  padding:2px 9px;font-size:.68rem;cursor:pointer;font-family:inherit;letter-spacing:.06em;text-transform:uppercase;transition:.15s;
+}
+.copiar:hover{color:var(--accent);border-color:var(--accent)}
+.copiar.ok{color:var(--accent);border-color:var(--accent)}
+.highlight{
+  margin:0;background:var(--bg-code)!important;border:1px solid var(--line);
+  border-radius:0 0 var(--radius) var(--radius);overflow-x:auto;
+}
+.bloco:not(:has(.bloco-topo)) .highlight{border-radius:var(--radius)}
+.highlight pre{margin:0;padding:15px 17px;font-family:var(--mono);font-size:.845rem;line-height:1.62;background:transparent!important}
+.highlight code{background:transparent;border:none;padding:0;font-size:inherit}
+html[data-tema="claro"] .highlight pre{color:#1a1d24}
+
+/* detalhes */
+details{background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px;margin:1.2em 0}
+details[open]{padding-bottom:6px}
+summary{cursor:pointer;font-weight:600;color:var(--fg-dim);font-size:.9rem;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▸ ";color:var(--accent)}
+details[open] summary::before{content:"▾ "}
+details[open] summary{margin-bottom:10px}
+
+img{max-width:100%;border-radius:var(--radius)}
+
+/* rodapé / navegação */
+.navpe{display:flex;gap:14px;margin-top:60px;padding-top:26px;border-top:1px solid var(--line)}
+.navpe a{
+  flex:1;padding:14px 18px;background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);
+  color:var(--fg-dim);transition:.15s;
+}
+.navpe a:hover{border-color:var(--accent);color:var(--fg);text-decoration:none}
+.navpe .rot{display:block;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-faint);margin-bottom:4px}
+.navpe .tit{font-weight:600;font-size:.9rem}
+.navpe .dir{text-align:right}
+.rodape{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:var(--fg-faint);font-size:.8rem}
+
+/* progresso */
+#progresso{position:fixed;top:0;left:0;height:2px;background:var(--accent);z-index:60;width:0}
+
+/* índice (home) */
+.hero{padding:56px 0 34px;border-bottom:1px solid var(--line);margin-bottom:38px}
+.hero h1{font-size:2.6rem;margin:0 0 12px;letter-spacing:-.03em;line-height:1.1}
+.hero p{color:var(--fg-dim);max-width:640px;font-size:1.02rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin:34px 0}
+.stat{background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px}
+.stat .n{font-size:1.7rem;font-weight:700;letter-spacing:-.02em;color:var(--accent)}
+.stat .l{font-size:.75rem;letter-spacing:.07em;text-transform:uppercase;color:var(--fg-faint);margin-top:2px}
+.grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;margin:20px 0 44px}
+.cartao{
+  display:block;background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);
+  padding:17px 19px;color:var(--fg);transition:.16s;position:relative;overflow:hidden;
+}
+.cartao::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--line);transition:.16s}
+.cartao.u1::before{background:var(--u1)} .cartao.u2::before{background:var(--u2)} .cartao.u3::before{background:var(--u3)}
+.cartao:hover{transform:translateY(-2px);border-color:var(--fg-faint);text-decoration:none}
+.cartao .meta{display:flex;justify-content:space-between;align-items:center;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-faint);margin-bottom:8px}
+.cartao .t{font-weight:650;line-height:1.35;font-size:.97rem}
+.cartao .av{display:inline-block;margin-top:9px;font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;color:var(--warn);border:1px solid color-mix(in srgb,var(--warn) 40%,transparent);border-radius:999px;padding:2px 9px}
+.oculto{display:none!important}
+@media print{
+  .topo,.lateral,.toc,.navpe,#progresso{display:none!important}
+  .wrap{display:block;max-width:none;padding:0}
+  body{background:#fff;color:#000;font-size:11pt}
+  .highlight{border:1px solid #ccc;background:#fafafa!important}
+  a{color:#000}
+}
+
+pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #49483e }
+.highlight { background: #232629; color: #CCC }
+.highlight .c { color: #777; font-style: italic } /* Comment */
+.highlight .err { color: #A61717; background-color: #E3D2D2 } /* Error */
+.highlight .esc { color: #CCC } /* Escape */
+.highlight .g { color: #CCC } /* Generic */
+.highlight .k { color: #7686BB; font-weight: bold } /* Keyword */
+.highlight .l { color: #CCC } /* Literal */
+.highlight .n { color: #CCC } /* Name */
+.highlight .o { color: #CCC } /* Operator */
+.highlight .x { color: #CCC } /* Other */
+.highlight .p { color: #CCC } /* Punctuation */
+.highlight .ch { color: #777; font-style: italic } /* Comment.Hashbang */
+.highlight .cm { color: #777; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #777; font-style: italic } /* Comment.Preproc */
+.highlight .cpf { color: #777; font-style: italic } /* Comment.PreprocFile */
+.highlight .c1 { color: #777; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #777; font-style: italic } /* Comment.Special */
+.highlight .gd { color: #CCC } /* Generic.Deleted */
+.highlight .ge { color: #CCC } /* Generic.Emph */
+.highlight .ges { color: #CCC } /* Generic.EmphStrong */
+.highlight .gr { color: #CCC } /* Generic.Error */
+.highlight .gh { color: #CCC } /* Generic.Heading */
+.highlight .gi { color: #CCC } /* Generic.Inserted */
+.highlight .go { color: #CCC } /* Generic.Output */
+.highlight .gp { color: #FFF } /* Generic.Prompt */
+.highlight .gs { color: #CCC } /* Generic.Strong */
+.highlight .gu { color: #CCC } /* Generic.Subheading */
+.highlight .gt { color: #CCC } /* Generic.Traceback */
+.highlight .kc { color: #7686BB; font-weight: bold } /* Keyword.Constant */
+.highlight .kd { color: #7686BB; font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { color: #7686BB; font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { color: #7686BB; font-weight: bold } /* Keyword.Pseudo */
+.highlight .kr { color: #7686BB; font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #7686BB; font-weight: bold } /* Keyword.Type */
+.highlight .ld { color: #CCC } /* Literal.Date */
+.highlight .m { color: #4FB8CC } /* Literal.Number */
+.highlight .s { color: #51CC99 } /* Literal.String */
+.highlight .na { color: #CCC } /* Name.Attribute */
+.highlight .nb { color: #CCC } /* Name.Builtin */
+.highlight .nc { color: #CCC } /* Name.Class */
+.highlight .no { color: #CCC } /* Name.Constant */
+.highlight .nd { color: #CCC } /* Name.Decorator */
+.highlight .ni { color: #CCC } /* Name.Entity */
+.highlight .ne { color: #CCC } /* Name.Exception */
+.highlight .nf { color: #6A6AFF } /* Name.Function */
+.highlight .nl { color: #CCC } /* Name.Label */
+.highlight .nn { color: #CCC } /* Name.Namespace */
+.highlight .nx { color: #E2828E } /* Name.Other */
+.highlight .py { color: #CCC } /* Name.Property */
+.highlight .nt { color: #CCC } /* Name.Tag */
+.highlight .nv { color: #7AB4DB; font-weight: bold } /* Name.Variable */
+.highlight .ow { color: #CCC } /* Operator.Word */
+.highlight .pm { color: #CCC } /* Punctuation.Marker */
+.highlight .w { color: #BBB } /* Text.Whitespace */
+.highlight .mb { color: #4FB8CC } /* Literal.Number.Bin */
+.highlight .mf { color: #4FB8CC } /* Literal.Number.Float */
+.highlight .mh { color: #4FB8CC } /* Literal.Number.Hex */
+.highlight .mi { color: #4FB8CC } /* Literal.Number.Integer */
+.highlight .mo { color: #4FB8CC } /* Literal.Number.Oct */
+.highlight .sa { color: #51CC99 } /* Literal.String.Affix */
+.highlight .sb { color: #51CC99 } /* Literal.String.Backtick */
+.highlight .sc { color: #51CC99 } /* Literal.String.Char */
+.highlight .dl { color: #51CC99 } /* Literal.String.Delimiter */
+.highlight .sd { color: #51CC99 } /* Literal.String.Doc */
+.highlight .s2 { color: #51CC99 } /* Literal.String.Double */
+.highlight .se { color: #51CC99 } /* Literal.String.Escape */
+.highlight .sh { color: #51CC99 } /* Literal.String.Heredoc */
+.highlight .si { color: #51CC99 } /* Literal.String.Interpol */
+.highlight .sx { color: #51CC99 } /* Literal.String.Other */
+.highlight .sr { color: #51CC99 } /* Literal.String.Regex */
+.highlight .s1 { color: #51CC99 } /* Literal.String.Single */
+.highlight .ss { color: #51CC99 } /* Literal.String.Symbol */
+.highlight .bp { color: #CCC } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #6A6AFF } /* Name.Function.Magic */
+.highlight .vc { color: #7AB4DB; font-weight: bold } /* Name.Variable.Class */
+.highlight .vg { color: #BE646C; font-weight: bold } /* Name.Variable.Global */
+.highlight .vi { color: #7AB4DB; font-weight: bold } /* Name.Variable.Instance */
+.highlight .vm { color: #7AB4DB; font-weight: bold } /* Name.Variable.Magic */
+.highlight .il { color: #4FB8CC } /* Literal.Number.Integer.Long */
+</style>
+</head>
+<body>
+<div id="progresso"></div>
+<header class="topo"><div class="topo-in">
+  <span class="marca"><b>FACET-SNP-310</b> &nbsp;Frameworks Modernos</span>
+  <span class="espaco"></span>
+  
+  <a class="btn" href="indice.html">Índice</a>
+  <button class="btn" id="tema" type="button">Tema</button>
+</div></header>
+<div class="wrap">
+  <nav class="lateral"><h4>Aulas</h4><ol><li class="grupo">Unidade 1</li><li><a class="" href="aula-01.html"><span class="num">01</span><span>Apresentação da Disciplina e Revisão JavaScript</span></a></li><li><a class="" href="aula-02.html"><span class="num">02</span><span>Introdução ao Vue: instância, ciclo de vida e diretivas</span></a></li><li><a class="" href="aula-03.html"><span class="num">03</span><span>Vue: listas, computed e ciclo de vida</span></a></li><li><a class="" href="aula-04.html"><span class="num">04</span><span>Introdução a Vuetify e Vue Router</span></a></li><li class="grupo">Unidade 2</li><li><a class="" href="aula-05.html"><span class="num">05</span><span>Componentes, Vue Router e Vuetify avançado</span></a></li><li><a class="" href="aula-06.html"><span class="num">06</span><span>Axios e Pinia</span></a></li><li class="grupo">Unidade 3</li><li><a class="ativo" href="aula-07.html"><span class="num">07</span><span>Introdução ao Firebase, Node.js e Express</span></a></li><li><a class="" href="aula-08.html"><span class="num">08</span><span>Definindo endpoints e middlewares</span></a></li><li><a class="" href="aula-09.html"><span class="num">09</span><span>Integrando com SGBD MySQL</span></a></li><li><a class="" href="aula-10.html"><span class="num">10</span><span>Requisições autenticadas com Firebase</span></a></li><li><a class="" href="aula-11.html"><span class="num">11</span><span>Integrando front-end com back-end: CRUD</span></a></li><li><a class="" href="aula-12.html"><span class="num">12</span><span>CRUD com banco em nuvem (Supabase)</span></a></li><li><a class="" href="aula-13.html"><span class="num">13</span><span>Desenvolvimento do Back-end</span></a></li><li><a class="" href="aula-14.html"><span class="num">14</span><span>Documentação com Swagger</span></a></li><li><a class="" href="aula-15.html"><span class="num">15</span><span>Deploy, apresentação e finalização</span></a></li></ol></nav>
+  <main class=""><div class="cabecalho"><div class="tags"><span class="tag u3">Unidade 3</span><span class="tag">28/09/2026</span><span class="tag">3 aulas de 50 min + 1 h EAD</span></div><h1>Aula 07 — Introdução ao Firebase, Node.js e Express</h1><div class="sub">FACET-SNP-310 · Frameworks Modernos para Desenvolvimento de Sistemas · UNEMAT/Cáceres · Prof. Ivan Luiz Pedroso Pires</div></div>
+<blockquote>
+<p><strong>FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas</strong> · Unidade 3
+UNEMAT/Cáceres — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
+<strong>Data:</strong> 28/09/2026 · <strong>Carga:</strong> 3 aulas de 50 min (síncrona) + 1 h (assíncrona)</p>
+</blockquote>
+<p>Na Aula 06 você conectou o UniEventos a uma API falsa com <code>json-server</code>, encapsulou as chamadas numa instância dedicada do Axios e organizou o estado global com Pinia. O front-end ficou pronto para conversar com um back-end de verdade. A partir de hoje ele existe — e você é quem vai escrevê-lo.</p>
+<h2 id="objetivos-de-aprendizagem">🎯 Objetivos de aprendizagem<a class="anchor" href="#objetivos-de-aprendizagem" title="Permanent link">¶</a></h2>
+<p>Ao final desta aula você será capaz de:</p>
+<ul>
+<li>explicar por que uma aplicação séria não pode viver só no navegador, e o que precisa acontecer do lado do servidor;</li>
+<li>descrever o que é o Node.js, como funciona seu event loop e por que ele é adequado para servidores web;</li>
+<li>diferenciar módulos CommonJS de ES Modules e configurar um projeto Node com <code>"type": "module"</code>;</li>
+<li>criar um projeto no Firebase, obter as credenciais do app web e ler/escrever documentos no Firestore com o SDK modular;</li>
+<li>explicar o que é um BaaS (<em>Backend as a Service</em>) e quando ele resolve — e quando não resolve — o problema de back-end;</li>
+<li>subir um servidor Express 5 mínimo, com CORS e rotas JSON, evitando as armadilhas de sintaxe do Express 4;</li>
+<li>apontar o front-end UniEventos para uma API Express real, no lugar do <code>json-server</code>.</li>
+</ul>
+<h2 id="pre-requisitos-desta-aula">📋 Pré-requisitos desta aula<a class="anchor" href="#pre-requisitos-desta-aula" title="Permanent link">¶</a></h2>
+<ul>
+<li>[ ] Front-end <code>unieventos-web</code> da Aula 06 rodando localmente com <code>npm run dev</code>, consumindo <code>json-server</code> via instância Axios dedicada.</li>
+<li>[ ] Store Pinia de eventos funcionando (estado, <code>carregando</code>, <code>erro</code>).</li>
+<li>[ ] Node.js 22.x instalado (<code>node -v</code>). Se você tem outra versão, use <code>nvm install 22 &amp;&amp; nvm use 22</code>.</li>
+<li>[ ] Conta Google para criar o projeto no console do Firebase.</li>
+<li>[ ] VS Code com a extensão <strong>REST Client</strong> ou <strong>Thunder Client</strong> instalada (vamos usar hoje).</li>
+<li>[ ] Terminal com <code>curl</code> disponível (já vem no Linux/macOS; no Windows use o <code>curl</code> do PowerShell ou WSL).</li>
+<li>[ ] Editor com abas suficientes para acompanhar dois projetos abertos ao mesmo tempo (<code>unieventos-web</code> e, a partir de hoje, <code>unieventos-api</code>).</li>
+<li>[ ] Duas janelas de terminal livres — uma para cada projeto rodando simultaneamente.</li>
+</ul>
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+Muito tutorial de Express na internet — inclusive vídeos recentes — ainda usa a sintaxe do Express 4. A partir de hoje você trabalha com o Express <strong>5.2.1</strong>, que já é o padrão de instalação (<code>npm install express</code> traz a v5). Este material tem uma seção inteira (§5) só sobre isso. Leia com atenção antes de copiar código de fora.</p>
+</blockquote>
+<p>Retomando rapidamente onde a Aula 06 parou: você tem hoje um front-end Vue com Vuetify, Router e Pinia, consumindo dados de um <code>json-server</code> através de uma instância Axios dedicada, com interceptors e uma camada <code>src/services/</code>. Essa arquitetura de consumo não muda — o que muda, a partir de agora, é o que está do outro lado da rede.</p>
+<p>Duas frentes novas se abrem hoje, e vamos alternar entre elas: primeiro o Node.js e o Firebase (uma introdução rápida a um back-end pronto), depois o Express (o back-end que você mesmo escreve, e que vai crescer pelo resto do semestre).</p>
+<h2 id="roteiro">🗺️ Roteiro<a class="anchor" href="#roteiro" title="Permanent link">¶</a></h2>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Bloco</th>
+<th>Tempo</th>
+<th>Atividade</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>50 min</td>
+<td>Por que back-end existe; arquitetura cliente-servidor; Node.js e seu modelo de execução</td>
+</tr>
+<tr>
+<td>2</td>
+<td>50 min</td>
+<td>BaaS vs API própria; criação do projeto Firebase; primeira leitura/escrita no Firestore</td>
+</tr>
+<tr>
+<td>3</td>
+<td>50 min</td>
+<td>Express 5 na prática: servidor mínimo, rotas, CORS, armadilhas de sintaxe; conectar o front real</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="1-por-que-o-front-sozinho-nao-basta">1. Por que o front sozinho não basta<a class="anchor" href="#1-por-que-o-front-sozinho-nao-basta" title="Permanent link">¶</a></h2>
+<p>Até a Aula 06, o UniEventos rodava inteiro no navegador de quem acessa. O <code>json-server</code> simulava uma API, mas ele não impõe nenhuma regra: qualquer pessoa com o DevTools aberto pode alterar o corpo de uma requisição e gravar o que quiser. Isso é aceitável para prototipar, mas não para um sistema real. Três problemas aparecem assim que você tenta ir além do protótipo.</p>
+<p><strong>Segredos não podem ficar no navegador.</strong> Toda variável, toda constante, todo arquivo <code>.js</code> que você entrega ao navegador é público — qualquer pessoa pode abrir o DevTools, ver o código-fonte baixado e ler o que está ali. Uma chave de API paga, uma credencial de banco de dados ou uma regra de negócio sigilosa não podem estar no front-end. Elas precisam morar em um ambiente que o usuário não acessa diretamente: o servidor.</p>
+<p><strong>Regras de negócio precisam de um lugar confiável para rodar.</strong> Pense no UniEventos: um evento tem um número de vagas. Se a lógica "não deixar inscrever além do limite de vagas" estiver só no front-end (por exemplo, desabilitando um botão quando <code>vagas === 0</code>), basta alguém chamar a API diretamente — pelo <code>curl</code>, pelo Postman, por um script — ignorando a interface, para furar a regra. A regra de negócio real precisa ser verificada no servidor, porque é o único lugar que o usuário não controla.</p>
+<p><strong>Integridade e autorização dependem de um árbitro imparcial.</strong> "Este usuário pode editar este evento?" "Este evento realmente existe e tem vaga disponível neste exato momento?" Essas perguntas não podem ser respondidas com confiança por código que roda na máquina do próprio usuário — ele poderia simplesmente alterar a resposta. É preciso um terceiro, fora do alcance do cliente, que centralize a decisão. Esse terceiro é o back-end.</p>
+<p>Um jeito direto de sentir isso na prática: abra o DevTools do navegador (F12) numa aplicação Vue rodando com <code>npm run dev</code>, vá na aba <strong>Sources</strong> e procure pelos arquivos <code>.js</code> da sua própria aplicação. Estão todos ali, legíveis, com nomes de variáveis e comentários incluídos (a não ser que você tenha ativado minificação/ofuscação — que dificulta a leitura, mas não impede). Qualquer verificação de senha, qualquer "if usuário é admin" escrito só em JavaScript de front-end, está exposto a quem quiser ler.</p>
+<blockquote class="capo">
+<p><strong>🔎 Por baixo do capô</strong>
+"Confiável" aqui não é sobre honestidade — é sobre controle de execução. O servidor é confiável não porque é "mais correto", mas porque só você (o dono da infraestrutura) pode alterar o código que roda nele. O código do navegador, qualquer usuário pode alterar antes de ele rodar (interceptando a requisição, editando o JS carregado, etc.).</p>
+</blockquote>
+<h3 id="arquitetura-cliente-servidor-o-que-trafega-onde-cada-coisa-roda">Arquitetura cliente-servidor: o que trafega, onde cada coisa roda<a class="anchor" href="#arquitetura-cliente-servidor-o-que-trafega-onde-cada-coisa-roda" title="Permanent link">¶</a></h3>
+<p>O modelo cliente-servidor divide responsabilidades em duas metades que se comunicam por rede:</p>
+<ul>
+<li><strong>Cliente</strong> — o front-end UniEventos rodando no navegador do usuário. Responsável por interface, navegação (Vue Router), estado local de tela (Pinia) e por <em>pedir</em> dados e ações ao servidor via HTTP (Axios).</li>
+<li><strong>Servidor</strong> — um processo rodando em uma máquina que você controla (seu notebook agora, um provedor de nuvem depois). Responsável por validar entradas, aplicar regras de negócio, autenticar e autorizar, e ler/gravar dados persistentes.</li>
+</ul>
+<p>O que trafega entre os dois é <strong>HTTP</strong>: requisições com método, URL, cabeçalhos e corpo (geralmente JSON), e respostas com status code, cabeçalhos e corpo. Você já usa isso desde a Aula 06 com o Axios — a diferença é que, a partir de hoje, do outro lado da requisição não tem mais o <code>json-server</code> genérico, tem um programa que você escreve, controla e pode fazer aplicar qualquer regra que quiser.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>┌─────────────────────┐        HTTP (JSON)        ┌──────────────────────┐
+│  unieventos-web      │  ────────────────────▶    │  unieventos-api       │
+│  (Vue + Vuetify)      │                            │  (Node + Express)     │
+│  roda no navegador    │  ◀────────────────────    │  roda no servidor     │
+│  do usuário            │                            │  que você controla    │
+└─────────────────────┘                             └──────────────────────┘
+                                                                │
+                                                                ▼
+                                                      banco de dados / Firestore
+</code></pre></div></div>
+
+<blockquote class="prova">
+<p><strong>📌 Na prova</strong>
+Se a pergunta for "por que não validar tudo no front-end?", a resposta certa cita que o código do cliente é executado em uma máquina que o usuário controla, portanto não é confiável para decisões de segurança ou integridade — só o servidor pode ser esse árbitro.</p>
+</blockquote>
+<h3 id="relembrando-http-porque-hoje-voce-escreve-os-dois-lados">Relembrando HTTP, porque hoje você escreve os dois lados<a class="anchor" href="#relembrando-http-porque-hoje-voce-escreve-os-dois-lados" title="Permanent link">¶</a></h3>
+<p>Desde a Aula 06 você usa o Axios para fazer requisições. Hoje você passa a escrever o código que <strong>recebe</strong> essas requisições, então vale relembrar o vocabulário do protocolo — ele é o mesmo dos dois lados.</p>
+<p>Toda requisição HTTP tem um <strong>método</strong>, que expressa a intenção da ação:</p>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Método</th>
+<th>Intenção</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td>ler um recurso, sem alterar nada</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td>criar um recurso novo</td>
+</tr>
+<tr>
+<td><code>PUT</code>/<code>PATCH</code></td>
+<td>atualizar um recurso existente (inteiro ou parcial)</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td>remover um recurso</td>
+</tr>
+</tbody>
+</table></div>
+<p>E toda resposta HTTP tem um <strong>status code</strong>, um número de três dígitos que resume o resultado sem precisar ler o corpo:</p>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Faixa</th>
+<th>Significado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>2xx</code></td>
+<td>sucesso (<code>200 OK</code>, <code>201 Created</code>, <code>204 No Content</code>)</td>
+</tr>
+<tr>
+<td><code>4xx</code></td>
+<td>erro do cliente — pedido malformado, recurso inexistente (<code>400</code>, <code>404</code>, <code>422</code>)</td>
+</tr>
+<tr>
+<td><code>5xx</code></td>
+<td>erro do servidor — algo quebrou ao processar (<code>500</code>)</td>
+</tr>
+</tbody>
+</table></div>
+<p>Você já viu o Axios lançar exceção quando o status vem <code>4xx</code> ou <code>5xx</code> (Aula 06, nos interceptors). Hoje o ponto de vista muda: você é quem decide qual status devolver em cada rota. Vamos aprofundar status codes por operação na Aula 08 — por ora, guarde que <code>res.status(código)</code> é como o Express define esse número antes do corpo da resposta.</p>
+<p>Por trás do que o Axios monta e o Express interpreta, uma requisição HTTP crua se parece com isto (é texto puro, trafegando pela rede):</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="nf">GET</span> <span class="nn">/api/eventos/1</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">localhost:3000</span>
+<span class="na">Accept</span><span class="o">:</span> <span class="l">application/json</span>
+</code></pre></div></div>
+
+<p>E a resposta, também texto puro, com cabeçalhos seguidos de uma linha em branco e depois o corpo:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=utf-8</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">132</span>
+
+<span class="p">{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nt">&quot;titulo&quot;</span><span class="p">:</span><span class="s2">&quot;Semana Acadêmica de Computação&quot;</span><span class="p">,</span><span class="nt">&quot;categoria&quot;</span><span class="p">:</span><span class="s2">&quot;palestra&quot;</span><span class="p">,</span><span class="nt">&quot;vagas&quot;</span><span class="p">:</span><span class="mi">80</span><span class="p">}</span>
+</code></pre></div></div>
+
+<p>O Axios, no front, monta essa requisição a partir do que você escreve em <code>api.get(...)</code>. O Express, no servidor, faz o caminho inverso: recebe esse texto cru, faz o parse do método, da URL, dos cabeçalhos e do corpo, e entrega tudo isso organizado em <code>req.method</code>, <code>req.path</code>, <code>req.headers</code> e <code>req.body</code> para o seu código usar. É exatamente esse trabalho de parsing que <code>express.json()</code> completa para o corpo, quando o <code>Content-Type</code> é <code>application/json</code>.</p>
+<h2 id="2-nodejs-o-runtime-por-tras-do-servidor">2. Node.js: o runtime por trás do servidor<a class="anchor" href="#2-nodejs-o-runtime-por-tras-do-servidor" title="Permanent link">¶</a></h2>
+<p>JavaScript nasceu para rodar dentro de navegadores. O Node.js é um <strong>runtime</strong> — um ambiente de execução — que tira o motor V8 (o mesmo que roda JS no Chrome) de dentro do navegador e o coloca para rodar direto no sistema operacional, com acesso a coisas que o navegador não dá: sistema de arquivos, rede em nível baixo, processos. É isso que permite escrever um servidor HTTP em JavaScript.</p>
+<h3 id="event-loop-e-io-nao-bloqueante-sem-misterio">Event loop e I/O não bloqueante, sem mistério<a class="anchor" href="#event-loop-e-io-nao-bloqueante-sem-misterio" title="Permanent link">¶</a></h3>
+<p>A pergunta que costuma travar quem vem de outras linguagens: como um programa de <strong>uma única thread</strong> atende centenas de requisições ao mesmo tempo sem travar?</p>
+<p>A resposta é que o Node.js é bom em uma coisa específica: esperar. A maior parte do trabalho de um servidor web não é "calcular muito" — é "esperar coisas lentas": esperar o banco de dados responder, esperar um arquivo ser lido do disco, esperar outra API responder. Essas operações são de <strong>I/O</strong> (entrada/saída) e, no Node, elas não bloqueiam a thread principal.</p>
+<p>Pense assim: quando seu código pede "leia este arquivo" ou "consulte este banco de dados", o Node não fica parado esperando. Ele delega essa espera para o sistema operacional (ou para uma thread interna de apoio) e imediatamente volta a executar a próxima linha de código disponível — atendendo outra requisição, por exemplo. Quando a operação de I/O termina, o resultado entra em uma fila. O <strong>event loop</strong> é o mecanismo que fica continuamente perguntando "tem algo pronto na fila para eu processar agora?" e, quando tem, executa o callback (ou resolve a <code>Promise</code>, ou retoma o <code>await</code>) correspondente.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code> chegou requisição A (buscar eventos no Firestore)
+     │
+     ▼
+ Node dispara a consulta e NÃO espera parado
+     │
+     ▼
+ thread livre → atende requisição B (buscar 1 evento por id)
+     │
+     ▼
+ Node dispara a consulta B e NÃO espera parado
+     │
+     ▼
+ resultado de A fica pronto → event loop retoma o código de A
+     │
+     ▼
+ resultado de B fica pronto → event loop retoma o código de B
+</code></pre></div></div>
+
+<p>Isso é diferente de um modelo <strong>bloqueante</strong>, onde a thread ficaria parada, sem fazer nada, do início ao fim de cada consulta — atendendo uma requisição de cada vez, em fila, mesmo que 99% do tempo seja espera. Um servidor Node consegue lidar com milhares de conexões simultâneas com uma única thread principal porque quase todo esse tempo é espera de I/O, não cálculo.</p>
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+Isso não significa que o Node é mágico para tudo. Se seu código fizer um cálculo pesado e síncrono (por exemplo, um laço <code>for</code> gigantesco processando dados em memória), ele <strong>bloqueia</strong> a thread principal e trava todas as requisições até terminar. O modelo não bloqueante vale para I/O — rede, disco, banco de dados —, não para processamento pesado de CPU. Para isso existem <em>worker threads</em>, fora do escopo desta disciplina.</p>
+</blockquote>
+<p>Na prática, isso aparece no seu código como <code>async</code>/<code>await</code> e <code>Promise</code>, que você já usa desde a Aula 01. <code>await pool.query(...)</code> (aula 09) ou <code>await getDocs(...)</code> (Firestore, ainda hoje) são exatamente isso: "dispare esta operação de I/O e me devolva o controle quando o resultado chegar, sem travar o resto do programa".</p>
+<blockquote class="capo">
+<p><strong>🔎 Por baixo do capô</strong>
+Internamente, o Node usa uma biblioteca em C chamada <strong>libuv</strong> para implementar o event loop e delegar operações de I/O ao sistema operacional (ou a uma pequena pool de threads auxiliares, para coisas como leitura de arquivo que o SO não oferece de forma assíncrona nativa). Sua thread JavaScript principal continua única — é a libuv que faz o trabalho de bastidores para nunca bloqueá-la. Você não precisa mexer nisso diretamente; só precisa saber que existe, para entender por que <code>async</code>/<code>await</code> "simplesmente funciona" sem travar o servidor.</p>
+<p><strong>💡 Dica</strong>
+Uma analogia útil: pense num garçom (a thread do Node) atendendo várias mesas (requisições) num restaurante. Um garçom <strong>bloqueante</strong> ficaria parado do lado de uma mesa esperando a cozinha terminar um prato antes de atender a próxima mesa. Um garçom <strong>não bloqueante</strong> anota o pedido, leva para a cozinha, e imediatamente vai atender a próxima mesa — voltando a cada mesa só quando o prato dela está pronto. É o mesmo garçom (uma thread), mas ele nunca fica parado esperando.</p>
+</blockquote>
+<h3 id="modulos-commonjs-vs-es-modules">Módulos: CommonJS vs ES Modules<a class="anchor" href="#modulos-commonjs-vs-es-modules" title="Permanent link">¶</a></h3>
+<p>Node.js existe desde 2009, muito antes de o JavaScript ter um sistema de módulos padronizado na própria linguagem. Por isso o Node criou o seu: <strong>CommonJS</strong>, baseado em <code>require()</code> e <code>module.exports</code>.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// estilo CommonJS (antigo, ainda muito comum em tutoriais e pacotes legados)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">express</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;express&#39;</span><span class="p">)</span>
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">minhaFuncao</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div></div>
+
+<p>Anos depois, o JavaScript ganhou um sistema de módulos oficial da linguagem: <strong>ES Modules</strong> (ESM), baseado em <code>import</code>/<code>export</code> — o mesmo que você já usa em todo componente Vue desde a Aula 01.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// estilo ES Modules (o que esta disciplina usa no back-end)</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">express</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;express&#39;</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">minhaFuncao</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>Nesta disciplina, o back-end usa ESM.</strong> É consistente com o que você já escreve no front-end, é o padrão recomendado para projetos novos e evita misturar dois estilos de <code>import</code>/<code>require</code> no mesmo projeto. Para o Node tratar seus arquivos <code>.js</code> como ESM (e não CommonJS, que é o padrão histórico), é preciso declarar isso no <code>package.json</code>:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;unieventos-api&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;module&quot;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Com <code>"type": "module"</code> presente, todo arquivo <code>.js</code> do projeto passa a ser interpretado como ESM. <code>require</code> deixa de funcionar; use sempre <code>import</code>.</p>
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+Se você copiar um trecho de tutorial que usa <code>require('express')</code> e colar em um projeto com <code>"type": "module"</code> no <code>package.json</code>, o Node lança <code>ReferenceError: require is not defined in ES module scope</code>. A correção é reescrever para <code>import express from 'express'</code>. Isso vai acontecer — memorize a mensagem de erro.</p>
+</blockquote>
+<h3 id="preparando-o-ambiente-npm-init-scripts-node-watch">Preparando o ambiente: <code>npm init</code>, scripts, <code>node --watch</code><a class="anchor" href="#preparando-o-ambiente-npm-init-scripts-node-watch" title="Permanent link">¶</a></h3>
+<p>Todo projeto Node começa com um <code>package.json</code>, que descreve o projeto, suas dependências e seus scripts.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>unieventos-api<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>unieventos-api
+npm<span class="w"> </span>init<span class="w"> </span>-y
+</code></pre></div></div>
+
+<p>O <code>npm init -y</code> gera um <code>package.json</code> com valores padrão. Ajuste-o para o que a disciplina usa:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;unieventos-api&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;API do projeto UniEventos — FACET-SNP-310&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;module&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;main&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;src/servidor.js&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;scripts&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;dev&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;node --watch --env-file=.env src/servidor.js&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;start&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;node --env-file=.env src/servidor.js&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Dois pontos merecem atenção:</p>
+<p><strong><code>node --watch</code> no lugar do <code>nodemon</code>.</strong> Historicamente, quem desenvolvia com Node instalava o pacote <code>nodemon</code> para reiniciar o servidor automaticamente a cada alteração de arquivo. Desde a versão 18.11, o próprio Node tem essa funcionalidade embutida: a flag <code>--watch</code>. Não é preciso instalar mais nada.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>node<span class="w"> </span>--watch<span class="w"> </span>src/servidor.js
+</code></pre></div></div>
+
+<p><strong>Variáveis de ambiente com <code>process.env</code> e <code>--env-file</code>.</strong> Toda configuração que muda entre ambientes (porta do servidor, credenciais de banco, chaves de API) deve vir de variáveis de ambiente, nunca de valores fixos no código. O Node expõe essas variáveis no objeto global <code>process.env</code>. Desde a versão 20.6 (estável desde a 22), o Node lê arquivos <code>.env</code> nativamente, sem precisar do pacote <code>dotenv</code>:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>node<span class="w"> </span>--env-file<span class="o">=</span>.env<span class="w"> </span>src/servidor.js
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1"># .env (nunca commitar este arquivo)</span>
+<span class="nv">PORTA</span><span class="o">=</span><span class="m">3000</span>
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// uso de process.env em qualquer arquivo do projeto</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">porta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">PORTA</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="mf">3000</span>
+</code></pre></div></div>
+
+<blockquote class="dica">
+<p><strong>💡 Dica</strong>
+Crie sempre um <code>.env.example</code> versionado, com as chaves (sem os valores sigilosos), para quem clonar o repositório saber o que configurar. E adicione <code>.env</code> ao <code>.gitignore</code> imediatamente — antes do primeiro commit, não depois.</p>
+</blockquote>
+<h3 id="dependencies-vs-devdependencies-e-o-que-e-o-package-lockjson"><code>dependencies</code> vs <code>devDependencies</code>, e o que é o <code>package-lock.json</code><a class="anchor" href="#dependencies-vs-devdependencies-e-o-que-e-o-package-lockjson" title="Permanent link">¶</a></h3>
+<p>Quando você roda <code>npm install express cors</code>, dois efeitos acontecem: os pacotes são baixados para <code>node_modules/</code>, e o <code>package.json</code> ganha uma entrada em <code>"dependencies"</code>. Pacotes que só existem para ajudar durante o desenvolvimento — nunca rodam em produção — vão em <code>"devDependencies"</code>, instalados com a flag <code>-D</code>:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>npm<span class="w"> </span>install<span class="w"> </span>express<span class="w"> </span>cors<span class="w">          </span><span class="c1"># vai para &quot;dependencies&quot; — necessário em produção</span>
+npm<span class="w"> </span>install<span class="w"> </span>-D<span class="w"> </span>algum-pacote-de-teste<span class="w">   </span><span class="c1"># vai para &quot;devDependencies&quot; — só em desenvolvimento</span>
+</code></pre></div></div>
+
+<p>O <code>package-lock.json</code>, gerado automaticamente, trava a versão exata (inclusive das dependências transitivas — as dependências das suas dependências) que foi instalada. Ele <strong>deve</strong> ser commitado: garante que qualquer pessoa que clone o repositório e rode <code>npm install</code> receba exatamente as mesmas versões que você testou, evitando o clássico "na minha máquina funciona".</p>
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+<code>node_modules/</code> nunca é commitado — é sempre reconstruído com <code>npm install</code> a partir do <code>package.json</code> e do <code>package-lock.json</code>. Ele já está no <code>.gitignore</code> do projeto.</p>
+</blockquote>
+<h2 id="padrao-de-projeto-em-uso">🧩 Padrão de projeto em uso<a class="anchor" href="#padrao-de-projeto-em-uso" title="Permanent link">¶</a></h2>
+<blockquote>
+<h3 id="padrao-de-projeto-em-uso-chain-of-responsibility">🧩 Padrão de projeto em uso — Chain of Responsibility<a class="anchor" href="#padrao-de-projeto-em-uso-chain-of-responsibility" title="Permanent link">¶</a></h3>
+<p>Um servidor Express processa toda requisição através de uma sequência de funções chamadas <strong>middlewares</strong>: <code>express.json()</code>, <code>cors()</code>, sua rota, e (aula 08) validadores e tratadores de erro. Cada função na cadeia decide se trata a requisição, a repassa adiante com <code>next()</code>, ou interrompe o fluxo respondendo diretamente. Isso é o padrão comportamental <strong>Chain of Responsibility</strong>: uma corrente de handlers, cada um com a chance de agir e passar adiante. Você já viu a ideia em ação nos interceptors do Axios (Aula 06) — lá era uma cadeia de duas etapas (requisição/resposta); aqui é uma cadeia configurável de N etapas. Vamos aprofundar isso na Aula 08, quando você escrever seus próprios middlewares.</p>
+</blockquote>
+<h2 id="3-baas-vs-api-propria-o-que-e-o-firebase">3. BaaS vs API própria: o que é o Firebase<a class="anchor" href="#3-baas-vs-api-propria-o-que-e-o-firebase" title="Permanent link">¶</a></h2>
+<p>Nem todo back-end precisa ser escrito do zero. Um <strong>BaaS</strong> (<em>Backend as a Service</em>) é um serviço de terceiros que já entrega pedaços prontos de back-end — banco de dados, autenticação, upload de arquivos, hospedagem — através de um SDK que você chama direto do seu front-end, sem escrever seu próprio servidor para essas partes.</p>
+<p>O <strong>Firebase</strong>, do Google, é o BaaS mais usado no mercado. Os serviços relevantes para esta disciplina:</p>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Serviço</th>
+<th>Para que serve</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Authentication</strong></td>
+<td>login/cadastro (e-mail+senha, Google, etc.) — usado na Aula 10</td>
+</tr>
+<tr>
+<td><strong>Firestore</strong></td>
+<td>banco de dados NoSQL orientado a documentos, em tempo real</td>
+</tr>
+<tr>
+<td><strong>Storage</strong></td>
+<td>upload e hospedagem de arquivos (ex.: imagem do evento)</td>
+</tr>
+<tr>
+<td><strong>Hosting</strong></td>
+<td>hospedagem estática do front-end compilado</td>
+</tr>
+<tr>
+<td><strong>Cloud Functions</strong></td>
+<td>código de back-end sob demanda, sem gerenciar servidor</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Quando um BaaS resolve:</strong> protótipos, MVPs, projetos pequenos ou médios onde autenticação e um banco de dados de propósito geral já cobrem a necessidade. Você escreve praticamente zero código de servidor — o SDK do Firebase fala direto com a nuvem do Google a partir do seu Vue.</p>
+<p><strong>Quando um BaaS não resolve:</strong> quando a regra de negócio é complexa demais para expressar só em regras de segurança do Firestore; quando você precisa de consultas relacionais complexas (JOINs, agregações — ponto forte de um SGBD relacional, Aula 09); quando você precisa de controle total sobre a lógica do servidor; ou, como nesta disciplina, quando o objetivo é justamente <strong>aprender a construir um back-end</strong>. Por isso o UniEventos vai usar o Firestore hoje para uma leitura/escrita simples, mas a partir da Aula 08 a lógica de negócio migra para uma API Express própria, e na Aula 09 os dados migram para MySQL.</p>
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+Nunca use a API antiga do Firebase, com namespace (<code>firebase.initializeApp(...)</code>, <code>firebase.firestore()</code>). Ela ainda aparece em vídeos e artigos antigos. Esta disciplina usa <strong>exclusivamente a API modular</strong>, versão 12, com <code>import</code> nomeado de funções: <code>import { initializeApp } from 'firebase/app'</code>.</p>
+</blockquote>
+<h3 id="criando-o-projeto-no-console-do-firebase">Criando o projeto no console do Firebase<a class="anchor" href="#criando-o-projeto-no-console-do-firebase" title="Permanent link">¶</a></h3>
+<ol>
+<li>Acesse <a href="https://console.firebase.google.com">console.firebase.google.com</a> com sua conta Google.</li>
+<li>Clique em <strong>Adicionar projeto</strong>, dê o nome <code>unieventos</code> (ou <code>unieventos-seu-nome</code>, já que o nome do projeto precisa ser único globalmente) e siga o assistente (pode desativar o Google Analytics, não é necessário para a disciplina).</li>
+<li>Dentro do projeto, clique no ícone <strong><code>&lt;/&gt;</code></strong> (Web) para registrar um app web. Dê o apelido <code>unieventos-web</code>.</li>
+<li>O console mostra um objeto <code>firebaseConfig</code> — <strong>copie-o</strong>, ele contém as chaves de configuração do seu projeto (não são segredos no sentido de senha, mas identificam seu projeto):</li>
+</ol>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// exemplo de firebaseConfig — o seu terá valores diferentes</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">firebaseConfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">apiKey</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;AIzaSyExemploDeChaveNaoUseEsta&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">authDomain</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;unieventos-xxxxx.firebaseapp.com&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">projectId</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;unieventos-xxxxx&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">storageBucket</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;unieventos-xxxxx.firebasestorage.app&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">messagingSenderId</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;123456789012&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">appId</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;1:123456789012:web:abcdef1234567890&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<ol start="5">
+<li>No menu lateral, vá em <strong>Build → Firestore Database</strong> e clique em <strong>Criar banco de dados</strong>. Escolha a localização (qualquer região das Américas serve) e, quando perguntado sobre regras de segurança, escolha <strong>modo de teste</strong>.</li>
+</ol>
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+O modo de teste libera leitura e escrita para qualquer um por <strong>30 dias</strong>, sem autenticação nenhuma. Isso é intencional para você aprender sem se preocupar com regras agora — mas <strong>nunca</strong> vá para produção assim. Na Aula 10, quando integrarmos o Firebase Auth, vamos escrever regras de segurança de verdade, amarradas ao usuário autenticado.</p>
+</blockquote>
+<h3 id="instalando-o-sdk-e-inicializando-o-app">Instalando o SDK e inicializando o app<a class="anchor" href="#instalando-o-sdk-e-inicializando-o-app" title="Permanent link">¶</a></h3>
+<p>Isso aqui roda no <strong>front-end</strong> (<code>unieventos-web</code>), não na API que vamos criar depois — o SDK do Firebase fala direto com a nuvem do Google a partir do navegador.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>npm<span class="w"> </span>install<span class="w"> </span>firebase@12
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/firebase.js — em unieventos-web</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">initializeApp</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;firebase/app&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">getFirestore</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;firebase/firestore&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">firebaseConfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">apiKey</span><span class="o">:</span><span class="w"> </span><span class="k">import</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">VITE_FIREBASE_API_KEY</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">authDomain</span><span class="o">:</span><span class="w"> </span><span class="k">import</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">VITE_FIREBASE_AUTH_DOMAIN</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">projectId</span><span class="o">:</span><span class="w"> </span><span class="k">import</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">VITE_FIREBASE_PROJECT_ID</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">storageBucket</span><span class="o">:</span><span class="w"> </span><span class="k">import</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">VITE_FIREBASE_STORAGE_BUCKET</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">messagingSenderId</span><span class="o">:</span><span class="w"> </span><span class="k">import</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">VITE_FIREBASE_MESSAGING_SENDER_ID</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">appId</span><span class="o">:</span><span class="w"> </span><span class="k">import</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">VITE_FIREBASE_APP_ID</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1">// inicializa a conexão com o projeto Firebase</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">appFirebase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">initializeApp</span><span class="p">(</span><span class="nx">firebaseConfig</span><span class="p">)</span>
+
+<span class="c1">// instância do Firestore usada em todo o projeto</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getFirestore</span><span class="p">(</span><span class="nx">appFirebase</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1"># .env (em unieventos-web, prefixo VITE_ obrigatório para o Vite expor a variável ao front)</span>
+<span class="nv">VITE_FIREBASE_API_KEY</span><span class="o">=</span>AIzaSyExemploDeChaveNaoUseEsta
+<span class="nv">VITE_FIREBASE_AUTH_DOMAIN</span><span class="o">=</span>unieventos-xxxxx.firebaseapp.com
+<span class="nv">VITE_FIREBASE_PROJECT_ID</span><span class="o">=</span>unieventos-xxxxx
+<span class="nv">VITE_FIREBASE_STORAGE_BUCKET</span><span class="o">=</span>unieventos-xxxxx.firebasestorage.app
+<span class="nv">VITE_FIREBASE_MESSAGING_SENDER_ID</span><span class="o">=</span><span class="m">123456789012</span>
+<span class="nv">VITE_FIREBASE_APP_ID</span><span class="o">=</span><span class="m">1</span>:123456789012:web:abcdef1234567890
+</code></pre></div></div>
+
+<blockquote class="dica">
+<p><strong>💡 Dica</strong>
+No Vite, variáveis de ambiente expostas ao código do navegador precisam começar com <code>VITE_</code>. É uma proteção: assim você não expõe acidentalmente uma variável sensível do servidor de build para o navegador.</p>
+</blockquote>
+<h3 id="primeira-leitura-e-escrita-no-firestore">Primeira leitura e escrita no Firestore<a class="anchor" href="#primeira-leitura-e-escrita-no-firestore" title="Permanent link">¶</a></h3>
+<p>O Firestore organiza dados em <strong>coleções</strong> (como uma tabela, mas sem schema fixo) de <strong>documentos</strong> (como uma linha, mas um objeto JSON aninhável). Vamos escrever e ler eventos de teste.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/testeFirestore.js — script de exploração, não faz parte da app final</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">collection</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">addDoc</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">getDocs</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">doc</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">updateDoc</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">deleteDoc</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">query</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">where</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">orderBy</span><span class="p">,</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;firebase/firestore&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">db</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./firebase.js&#39;</span>
+
+<span class="c1">// referência para a coleção &quot;eventos&quot;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">colecaoEventos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">collection</span><span class="p">(</span><span class="nx">db</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;eventos&#39;</span><span class="p">)</span>
+
+<span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">criarEventoDeTeste</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// addDoc gera um id automático e grava o documento</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">referencia</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">addDoc</span><span class="p">(</span><span class="nx">colecaoEventos</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Semana Acadêmica de Computação&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;palestra&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">80</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">dataHora</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2026-10-15T19:00:00&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">})</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;documento criado com id:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">referencia</span><span class="p">.</span><span class="nx">id</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">listarTodosOsEventos</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">snapshot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">getDocs</span><span class="p">(</span><span class="nx">colecaoEventos</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">eventos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">snapshot</span><span class="p">.</span><span class="nx">docs</span><span class="p">.</span><span class="nx">map</span><span class="p">((</span><span class="nx">d</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="nx">d</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span><span class="w"> </span><span class="p">...</span><span class="nx">d</span><span class="p">.</span><span class="nx">data</span><span class="p">()</span><span class="w"> </span><span class="p">}))</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;eventos encontrados:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">eventos</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">listarPalestrasOrdenadasPorData</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// query + where + orderBy formam uma consulta filtrada e ordenada</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">consulta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">query</span><span class="p">(</span>
+<span class="w">    </span><span class="nx">colecaoEventos</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">where</span><span class="p">(</span><span class="s1">&#39;categoria&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;==&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;palestra&#39;</span><span class="p">),</span>
+<span class="w">    </span><span class="nx">orderBy</span><span class="p">(</span><span class="s1">&#39;dataHora&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;asc&#39;</span><span class="p">),</span>
+<span class="w">  </span><span class="p">)</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">snapshot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">getDocs</span><span class="p">(</span><span class="nx">consulta</span><span class="p">)</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">snapshot</span><span class="p">.</span><span class="nx">docs</span><span class="p">.</span><span class="nx">map</span><span class="p">((</span><span class="nx">d</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">({</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="nx">d</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span><span class="w"> </span><span class="p">...</span><span class="nx">d</span><span class="p">.</span><span class="nx">data</span><span class="p">()</span><span class="w"> </span><span class="p">}))</span>
+<span class="p">}</span>
+
+<span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">atualizarVagas</span><span class="p">(</span><span class="nx">idDoEvento</span><span class="p">,</span><span class="w"> </span><span class="nx">novasVagas</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// doc() aponta para um documento específico dentro da coleção</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">referenciaDoDocumento</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">doc</span><span class="p">(</span><span class="nx">db</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;eventos&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">idDoEvento</span><span class="p">)</span>
+<span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">updateDoc</span><span class="p">(</span><span class="nx">referenciaDoDocumento</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="nx">novasVagas</span><span class="w"> </span><span class="p">})</span>
+<span class="p">}</span>
+
+<span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">removerEvento</span><span class="p">(</span><span class="nx">idDoEvento</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">referenciaDoDocumento</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">doc</span><span class="p">(</span><span class="nx">db</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;eventos&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">idDoEvento</span><span class="p">)</span>
+<span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">deleteDoc</span><span class="p">(</span><span class="nx">referenciaDoDocumento</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">await</span><span class="w"> </span><span class="nx">criarEventoDeTeste</span><span class="p">()</span>
+<span class="k">await</span><span class="w"> </span><span class="nx">listarTodosOsEventos</span><span class="p">()</span>
+</code></pre></div></div>
+
+<blockquote class="capo">
+<p><strong>🔎 Por baixo do capô</strong>
+<code>getDocs</code> devolve um <code>QuerySnapshot</code>, não um array direto. Cada item é um <code>QueryDocumentSnapshot</code>, com <code>.id</code> (o id do documento) separado de <code>.data()</code> (o conteúdo). Por isso o padrão <code>{ id: d.id, ...d.data() }</code> aparece toda vez que você lê uma coleção — é assim que você recompõe um objeto "normal" com id incluso.</p>
+</blockquote>
+<h3 id="as-regras-de-seguranca-por-tras-do-modo-de-teste">As regras de segurança por trás do modo de teste<a class="anchor" href="#as-regras-de-seguranca-por-tras-do-modo-de-teste" title="Permanent link">¶</a></h3>
+<p>Quando você escolheu "modo de teste" ao criar o banco, o Firebase gravou uma regra de segurança liberando tudo por 30 dias. Vale abrir <strong>Firestore Database → Regras</strong> no console e olhar o que foi gerado:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>rules_version = &#39;2&#39;;
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if request.time &lt; timestamp.date(2026, 10, 12);
+    }
+  }
+}
+</code></pre></div></div>
+
+<p>Note a condição: <code>allow read, write</code> só vale <strong>até uma data</strong>. Depois disso, toda leitura e escrita passa a ser negada por padrão — é assim que o Firestore evita bancos de teste esquecidos abertos para o mundo. Não precisa mexer nessas regras hoje; na Aula 10, quando o Firebase Authentication entrar, vamos trocar essa condição por algo como <code>allow read: if true; allow write: if request.auth != null;</code> — leitura pública, escrita só para quem está autenticado.</p>
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+Um erro comum é confundir "regra de segurança do Firestore" com "regra de negócio da aplicação". A regra de segurança só decide <strong>quem pode ler/escrever</strong>; ela não valida, por exemplo, se o número de vagas de um evento é positivo. Esse tipo de validação continua sendo responsabilidade do código — do front-end como primeira camada de UX, e do back-end como camada de verdade (Aula 08).</p>
+</blockquote>
+<p>Esta exploração no Firestore serve para você conhecer o SDK modular — ele volta com força na Aula 10, quando o Firebase Authentication entrar em cena. <strong>A partir de agora</strong>, porém, o motor de dados principal do UniEventos passa a ser a API Express que vamos construir, primeiro em memória (hoje e na Aula 08) e depois em MySQL (Aula 09).</p>
+<h2 id="4-express-521-o-servidor-minimo">4. Express 5.2.1: o servidor mínimo<a class="anchor" href="#4-express-521-o-servidor-minimo" title="Permanent link">¶</a></h2>
+<p>Express é um <strong>framework web minimalista</strong> para Node.js: ele não decide como você organiza pastas nem qual banco usar, só oferece o essencial para receber requisições HTTP, rotear por método e caminho, e responder. É a ferramenta padrão de mercado para APIs Node.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>src
+npm<span class="w"> </span>install<span class="w"> </span>express<span class="w"> </span>cors
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/servidor.js</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">express</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;express&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">cors</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;cors&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">app</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">express</span><span class="p">()</span>
+
+<span class="c1">// middlewares de aplicação: rodam em toda requisição, nesta ordem</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">cors</span><span class="p">())</span><span class="w">           </span><span class="c1">// libera requisições de outras origens (o front em outra porta)</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">express</span><span class="p">.</span><span class="nx">json</span><span class="p">())</span><span class="w">   </span><span class="c1">// faz o parse do corpo JSON e popula req.body</span>
+
+<span class="c1">// primeira rota: responde a GET /</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">res</span><span class="p">.</span><span class="nx">json</span><span class="p">({</span><span class="w"> </span><span class="nx">mensagem</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;API do UniEventos no ar&#39;</span><span class="w"> </span><span class="p">})</span>
+<span class="p">})</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">porta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">PORTA</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="mf">3000</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">listen</span><span class="p">(</span><span class="nx">porta</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`unieventos-api rodando em http://localhost:</span><span class="si">${</span><span class="nx">porta</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<p>Suba o servidor:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>node<span class="w"> </span>--watch<span class="w"> </span>src/servidor.js
+</code></pre></div></div>
+
+<p>Teste no navegador acessando <code>http://localhost:3000/</code>, ou no terminal:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>curl<span class="w"> </span>http://localhost:3000/
+<span class="c1"># {&quot;mensagem&quot;:&quot;API do UniEventos no ar&quot;}</span>
+</code></pre></div></div>
+
+<p><code>express.json()</code> e <code>cors()</code> são exemplos de <strong>middlewares de aplicação</strong>: funções que rodam para toda requisição, registradas com <code>app.use()</code>, antes de qualquer rota. <code>express.json()</code> lê o corpo da requisição, faz o parse como JSON, e disponibiliza o resultado em <code>req.body</code>. <code>cors()</code> adiciona os cabeçalhos que autorizam o navegador a aceitar a resposta quando a requisição vem de uma origem diferente (por exemplo, o front-end rodando em <code>localhost:5173</code> chamando a API em <code>localhost:3000</code>) — sem isso, o navegador bloqueia a resposta por política de mesma origem.</p>
+<h3 id="estrutura-inicial-de-pastas">Estrutura inicial de pastas<a class="anchor" href="#estrutura-inicial-de-pastas" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>unieventos-api/
+├─ src/
+│  └─ servidor.js
+├─ .env
+├─ .env.example
+├─ .gitignore
+├─ package.json
+└─ requests.http
+</code></pre></div></div>
+
+<p>Vamos crescer essa estrutura nas próximas duas aulas (<code>routes/</code>, <code>middlewares/</code>, <code>repositories/</code>, <code>services/</code>, <code>controllers/</code>). Por enquanto, um único arquivo é suficiente.</p>
+<h2 id="express-5-nao-e-express-4">⚠️ Express 5 não é Express 4<a class="anchor" href="#express-5-nao-e-express-4" title="Permanent link">¶</a></h2>
+<p>Quando você instala Express hoje (<code>npm install express</code>), recebe a versão 5.2.1 — mas a maioria dos tutoriais, cursos gravados e respostas de fórum na internet ainda ensina Express 4, que tem sintaxe diferente em pontos que quebram silenciosamente ou lançam erro. A tabela a seguir foi <strong>testada no ambiente real</strong> desta disciplina — não é teoria, é o que de fato acontece rodando o código.</p>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Express 4 (não use)</th>
+<th>Express 5.2.1 (use)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>erro em handler <code>async</code> precisa de <code>.catch(next)</code> manual</td>
+<td>erro em handler <code>async</code> é capturado automaticamente pelo Express</td>
+</tr>
+<tr>
+<td><code>req.query</code> podia ser reatribuído</td>
+<td><code>req.query</code> é <strong>somente leitura</strong></td>
+</tr>
+<tr>
+<td><code>app.del('/rota', ...)</code></td>
+<td><code>app.delete('/rota', ...)</code> — <code>app.del</code> foi removido</td>
+</tr>
+<tr>
+<td><code>res.redirect('/rota', 302)</code></td>
+<td><code>res.redirect(302, '/rota')</code> — ordem invertida</td>
+</tr>
+<tr>
+<td><code>res.json(objeto, 201)</code></td>
+<td><code>res.status(201).json(objeto)</code> — a assinatura de dois argumentos não existe mais</td>
+</tr>
+<tr>
+<td><code>req.param('id')</code></td>
+<td><code>req.params.id</code> — <code>req.param()</code> foi removido</td>
+</tr>
+<tr>
+<td><code>res.sendfile()</code></td>
+<td><code>res.sendFile()</code></td>
+</tr>
+<tr>
+<td><code>app.get('/arquivos/*')</code></td>
+<td><code>app.get('/arquivos/*splat')</code> — curinga nomeado, <code>req.params.splat</code> vira <strong>array</strong></td>
+</tr>
+<tr>
+<td><code>app.get('/relatorio/:ano?')</code></td>
+<td><code>app.get('/relatorio{/:ano}')</code> — segmento opcional é chave, não <code>?</code></td>
+</tr>
+<tr>
+<td>exigia <code>body-parser</code> instalado à parte</td>
+<td><code>express.json()</code>/<code>express.urlencoded()</code> já são nativos</td>
+</tr>
+<tr>
+<td><code>req.body</code> virava <code>{}</code> sem parser</td>
+<td><code>req.body</code> é <code>undefined</code> se nada foi parseado</td>
+</tr>
+</tbody>
+</table></div>
+<p>Os pontos que mais pegam quem está aprendendo:</p>
+<p><strong>Erros assíncronos, agora automáticos.</strong> No Express 4, se um handler <code>async</code> lançasse uma exceção, ela <strong>não</strong> era capturada pelo tratador de erros — a requisição ficava pendurada ou o processo caía, a menos que você embrulhasse manualmente com <code>.catch(next)</code> ou usasse o pacote <code>express-async-handler</code>. É por isso que tanto código por aí ainda importa esse pacote. No Express 5, isso já funciona sem nada extra:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// Express 5: pode dar throw dentro de um handler async — cai direto no error handler</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/api/eventos/:id&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">evento</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">buscarEventoPorId</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">id</span><span class="p">)</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="s1">&#39;Evento não encontrado&#39;</span><span class="p">)</span><span class="w">  </span><span class="c1">// capturado automaticamente</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">res</span><span class="p">.</span><span class="nx">json</span><span class="p">(</span><span class="nx">evento</span><span class="p">)</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<p>Vamos explorar isso a fundo na Aula 08, com uma classe de erro própria (<code>ErroHttp</code>) e um tratador central.</p>
+<p><strong><code>req.query</code> é somente leitura.</strong> No Express 4 era comum, embora não recomendado, fazer <code>req.query.pagina = Number(req.query.pagina)</code> para normalizar um valor. No Express 5, isso lança erro em runtime — <code>req.query</code> não pode ser reatribuído. Se precisar de um valor tratado, crie uma variável nova:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// ERRADO no Express 5: lança TypeError</span>
+<span class="c1">// req.query.pagina = Number(req.query.pagina)</span>
+
+<span class="c1">// CORRETO: crie uma variável nova a partir do valor lido</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">pagina</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Number</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">query</span><span class="p">.</span><span class="nx">pagina</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="mf">1</span>
+</code></pre></div></div>
+
+<p><strong>Curingas e segmentos opcionais mudaram de sintaxe.</strong> O Express 5 trocou o motor de rotas para <code>path-to-regexp</code> v8, que não aceita mais <code>*</code> solto nem <code>?</code> para tornar um segmento opcional. É preciso nomear o curinga e envolver o opcional em chaves:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// Express 4 (não use): curinga solto</span>
+<span class="c1">// app.get(&#39;/arquivos/*&#39;, (req, res) =&gt; { ... })</span>
+
+<span class="c1">// Express 5: curinga nomeado — req.params.splat vem como ARRAY de segmentos</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/arquivos/*splat&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">splat</span><span class="p">)</span><span class="w"> </span><span class="c1">// ex.: [&#39;pdf&#39;, &#39;edital-2026.pdf&#39;]</span>
+<span class="p">})</span>
+
+<span class="c1">// Express 4 (não use): segmento opcional com &quot;?&quot;</span>
+<span class="c1">// app.get(&#39;/relatorio/:ano?&#39;, (req, res) =&gt; { ... })</span>
+
+<span class="c1">// Express 5: segmento opcional entre chaves</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/relatorio{/:ano}&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// GET /relatorio      -&gt; req.params.ano é undefined</span>
+<span class="w">  </span><span class="c1">// GET /relatorio/2026 -&gt; req.params.ano é &#39;2026&#39;</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">ano</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">ano</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;atual&#39;</span>
+<span class="w">  </span><span class="nx">res</span><span class="p">.</span><span class="nx">json</span><span class="p">({</span><span class="w"> </span><span class="nx">relatorioDoAno</span><span class="o">:</span><span class="w"> </span><span class="nx">ano</span><span class="w"> </span><span class="p">})</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<p>Não vamos precisar de curingas nem de segmentos opcionais na API do UniEventos por enquanto, mas é comum encontrar essa sintaxe em documentação de upload de arquivos ou rotas de relatório — reconhecer a diferença evita copiar sintaxe do Express 4 sem perceber.</p>
+<p><strong><code>app.del</code> e <code>res.sendfile</code>, os "quase iguais" que quebram silenciosamente.</strong> Esses dois têm um detalhe traiçoeiro: o Express 5 não lança erro amigável — <code>app.del</code> simplesmente não existe mais como método (<code>TypeError: app.del is not a function</code>), e <code>res.sendfile</code> (tudo minúsculo) também não existe (<code>res.sendfile is not a function</code>). A diferença de capitalização em <code>sendFile</code> é sutil o bastante para passar despercebida numa leitura rápida.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// ERRADO — Express 4</span>
+<span class="c1">// app.del(&#39;/api/eventos/:id&#39;, removerEvento)</span>
+<span class="c1">// res.sendfile(caminhoDoArquivo)</span>
+
+<span class="c1">// CORRETO — Express 5</span>
+<span class="nx">app</span><span class="p">.</span><span class="ow">delete</span><span class="p">(</span><span class="s1">&#39;/api/eventos/:id&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">removerEvento</span><span class="p">)</span>
+<span class="nx">res</span><span class="p">.</span><span class="nx">sendFile</span><span class="p">(</span><span class="nx">caminhoDoArquivo</span><span class="p">)</span>
+</code></pre></div></div>
+
+<blockquote class="prova">
+<p><strong>📌 Na prova</strong>
+Se aparecer um trecho de código com <code>app.del(...)</code>, <code>res.json(obj, 201)</code> ou <code>req.param('id')</code>, é Express 4 — identifique a sintaxe errada e corrija para a equivalente do Express 5.</p>
+</blockquote>
+<h2 id="mao-na-massa-criando-a-unieventos-api-e-conectando-o-front">💻 Mão na massa — criando a <code>unieventos-api</code> e conectando o front<a class="anchor" href="#mao-na-massa-criando-a-unieventos-api-e-conectando-o-front" title="Permanent link">¶</a></h2>
+<h3 id="passo-1-criar-o-repositorio-e-o-projeto-node">Passo 1 — criar o repositório e o projeto Node<a class="anchor" href="#passo-1-criar-o-repositorio-e-o-projeto-node" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>unieventos-api<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>unieventos-api
+git<span class="w"> </span>init
+npm<span class="w"> </span>init<span class="w"> </span>-y
+npm<span class="w"> </span>install<span class="w"> </span>express<span class="w"> </span>cors
+</code></pre></div></div>
+
+<p>Edite o <code>package.json</code> gerado:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;unieventos-api&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;API do projeto UniEventos — FACET-SNP-310&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;module&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;main&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;src/servidor.js&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;scripts&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;dev&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;node --watch --env-file=.env src/servidor.js&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;start&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;node --env-file=.env src/servidor.js&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;dependencies&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;cors&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^2.8.5&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;express&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^5.2.1&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code># .gitignore
+node_modules/
+.env
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1"># .env.example</span>
+<span class="nv">PORTA</span><span class="o">=</span><span class="m">3000</span>
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1"># .env</span>
+<span class="nv">PORTA</span><span class="o">=</span><span class="m">3000</span>
+</code></pre></div></div>
+
+<h3 id="passo-2-dados-de-eventos-em-memoria">Passo 2 — dados de eventos em memória<a class="anchor" href="#passo-2-dados-de-eventos-em-memoria" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/dados/eventos.js</span>
+<span class="c1">// dados em memória — nesta aula ainda não temos banco de dados (chega na Aula 09)</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">eventos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Semana Acadêmica de Computação&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">descricao</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Palestras e minicursos sobre o mercado de tecnologia.&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;palestra&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">dataHora</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2026-10-15T19:00:00&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">local</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Auditório FACET&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">80</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">imagemUrl</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://picsum.photos/seed/semana-computacao/400/240&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">2</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Minicurso de Vue 3&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">descricao</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Introdução prática ao framework Vue com Composition API.&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;minicurso&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">dataHora</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2026-10-20T14:00:00&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">local</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Laboratório 3&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">30</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">imagemUrl</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://picsum.photos/seed/minicurso-vue/400/240&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">3</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Workshop de Firebase e Express&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">descricao</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Construindo uma API real do zero.&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;workshop&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">dataHora</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2026-10-28T19:30:00&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">local</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Laboratório 1&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">25</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">imagemUrl</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://picsum.photos/seed/workshop-firebase/400/240&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">]</span>
+</code></pre></div></div>
+
+<h3 id="passo-3-servidor-com-as-duas-primeiras-rotas">Passo 3 — servidor com as duas primeiras rotas<a class="anchor" href="#passo-3-servidor-com-as-duas-primeiras-rotas" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/servidor.js</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">express</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;express&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">cors</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;cors&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">eventos</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./dados/eventos.js&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">app</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">express</span><span class="p">()</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">cors</span><span class="p">())</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">express</span><span class="p">.</span><span class="nx">json</span><span class="p">())</span>
+
+<span class="c1">// GET /api/eventos — lista todos os eventos</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/api/eventos&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">res</span><span class="p">.</span><span class="nx">json</span><span class="p">(</span><span class="nx">eventos</span><span class="p">)</span>
+<span class="p">})</span>
+
+<span class="c1">// GET /api/eventos/:id — busca um evento específico</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/api/eventos/:id&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// req.params.id sempre chega como string — convertemos para comparar com o id numérico</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Number</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">id</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">evento</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">find</span><span class="p">((</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">id</span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">res</span><span class="p">.</span><span class="nx">status</span><span class="p">(</span><span class="mf">404</span><span class="p">).</span><span class="nx">json</span><span class="p">({</span><span class="w"> </span><span class="nx">erro</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Evento não encontrado&#39;</span><span class="w"> </span><span class="p">})</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">res</span><span class="p">.</span><span class="nx">json</span><span class="p">(</span><span class="nx">evento</span><span class="p">)</span>
+<span class="p">})</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">porta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">PORTA</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="mf">3000</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">listen</span><span class="p">(</span><span class="nx">porta</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`unieventos-api rodando em http://localhost:</span><span class="si">${</span><span class="nx">porta</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<p>Suba com <code>npm run dev</code> e teste:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>curl<span class="w"> </span>http://localhost:3000/api/eventos
+curl<span class="w"> </span>http://localhost:3000/api/eventos/1
+curl<span class="w"> </span>http://localhost:3000/api/eventos/999
+<span class="c1"># {&quot;erro&quot;:&quot;Evento não encontrado&quot;}</span>
+</code></pre></div></div>
+
+<h3 id="tres-formas-de-testar-e-quando-usar-cada-uma">Três formas de testar, e quando usar cada uma<a class="anchor" href="#tres-formas-de-testar-e-quando-usar-cada-uma" title="Permanent link">¶</a></h3>
+<p>Você vai testar a mesma API de três jeitos diferentes ao longo do curso. Cada um serve para um momento:</p>
+<p><strong>Navegador.</strong> Rápido para conferir uma rota <code>GET</code> simples visualmente — cole a URL na barra de endereços. Limitação: o navegador só faz <code>GET</code> ao digitar uma URL; não dá para testar <code>POST</code>, <code>PUT</code>, <code>DELETE</code> nem enviar cabeçalhos customizados dessa forma.</p>
+<p><strong><code>curl</code>.</strong> Funciona para qualquer método, direto do terminal, sem depender do VS Code estar aberto. Ótimo para scripts, para depuração rápida e para copiar/colar em relatos de bug. A sintaxe fica mais verbosa conforme a requisição cresce:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3000/api/eventos<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;titulo&quot;:&quot;Palestra de teste&quot;,&quot;categoria&quot;:&quot;palestra&quot;,&quot;vagas&quot;:10}&#39;</span>
+</code></pre></div></div>
+
+<p><strong>REST Client / Thunder Client (VS Code).</strong> O melhor equilíbrio para desenvolvimento do dia a dia: a requisição fica escrita em um arquivo versionado (<code>requests.http</code>), legível, reaproveitável pelo time todo, e você clica para executar sem digitar nada no terminal. É o que vamos usar como principal ferramenta de teste manual a partir de agora — inclusive na Aula 08, onde o arquivo <code>requests.http</code> cresce para cobrir todo o CRUD.</p>
+<blockquote class="dica">
+<p><strong>💡 Dica</strong>
+Nenhuma das três ferramentas substitui testes automatizados (fora do escopo desta disciplina). Elas servem para verificação manual durante o desenvolvimento — e o arquivo <code>requests.http</code> tem a vantagem extra de documentar a API para quem vai usá-la depois, inclusive você mesmo daqui a um mês.</p>
+</blockquote>
+<h3 id="passo-4-testando-com-rest-client-vs-code">Passo 4 — testando com REST Client (VS Code)<a class="anchor" href="#passo-4-testando-com-rest-client-vs-code" title="Permanent link">¶</a></h3>
+<p>Crie um arquivo de requisições versionado, que serve de documentação viva da API:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="err">### requests.http — abra este arquivo no VS Code com a extensão REST Client instalada</span>
+<span class="err">### clique em &quot;Send Request&quot; acima de cada bloco para testar</span>
+
+<span class="err">### listar todos os eventos</span>
+<span class="err">GET http://localhost:3000/api/eventos</span>
+
+<span class="err">### buscar um evento específico</span>
+<span class="err">GET http://localhost:3000/api/eventos/1</span>
+
+<span class="err">### buscar um evento que não existe (deve responder 404)</span>
+<span class="err">GET http://localhost:3000/api/eventos/999</span>
+</code></pre></div></div>
+
+<blockquote class="dica">
+<p><strong>💡 Dica</strong>
+Se você usa a extensão <strong>Thunder Client</strong> em vez de REST Client, a ideia é a mesma, mas a interface é uma aba própria no VS Code, com histórico de requisições e coleções salvas. Escolha a que preferir — o importante é testar toda rota antes de conectar o front.</p>
+</blockquote>
+<h3 id="passo-5-apontar-o-front-end-da-aula-06-para-a-api-real">Passo 5 — apontar o front-end da Aula 06 para a API real<a class="anchor" href="#passo-5-apontar-o-front-end-da-aula-06-para-a-api-real" title="Permanent link">¶</a></h3>
+<p>No <code>unieventos-web</code>, você já tem uma instância dedicada do Axios (Aula 06). Troque só a <code>baseURL</code>:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/services/api.js — em unieventos-web</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">axios</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;axios&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">api</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">axios</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+<span class="w">  </span><span class="c1">// antes: baseURL: &#39;http://localhost:3001&#39; (json-server)</span>
+<span class="w">  </span><span class="nx">baseURL</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;http://localhost:3000/api&#39;</span><span class="p">,</span>
+<span class="p">})</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">api</span>
+</code></pre></div></div>
+
+<p>Nada mais no front-end precisa mudar — nem a store Pinia, nem os componentes. O service continua chamando <code>api.get('/eventos')</code> e <code>api.get(</code>/eventos/${id}<code>)</code>; quem muda é só o destino das requisições. Esse desacoplamento é exatamente o motivo pelo qual a Aula 06 insistiu em centralizar o <code>baseURL</code> numa instância única, em vez de espalhar URLs pelo código.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1"># em dois terminais separados:</span>
+
+<span class="c1"># terminal 1 — dentro de unieventos-api</span>
+npm<span class="w"> </span>run<span class="w"> </span>dev
+
+<span class="c1"># terminal 2 — dentro de unieventos-web</span>
+npm<span class="w"> </span>run<span class="w"> </span>dev
+</code></pre></div></div>
+
+<p>Abra o front no navegador. A lista de eventos deve carregar exatamente como antes — só que agora vem de um servidor Express que você escreveu, não de um <code>json-server</code>.</p>
+<h2 id="laboratorio">🧪 Laboratório<a class="anchor" href="#laboratorio" title="Permanent link">¶</a></h2>
+<p><strong>1. Rota de saudação personalizada.</strong> Crie <code>GET /api/saudacao/:nome</code> que responde <code>{ "mensagem": "Olá, &lt;nome&gt;!" }</code>, capitalizando a primeira letra do nome recebido.</p>
+<details>
+<summary>Dica</summary>
+<p>Use <code>req.params.nome</code> e uma função para capitalizar: <code>nome.charAt(0).toUpperCase() + nome.slice(1)</code>.</p>
+</details>
+<p><strong>2. Filtro por categoria via query string.</strong> Modifique <code>GET /api/eventos</code> para aceitar <code>?categoria=palestra</code> e retornar só os eventos daquela categoria. Sem o parâmetro, retorna todos.</p>
+<details>
+<summary>Dica</summary>
+<p>Leia <code>req.query.categoria</code> (lembre-se: é somente leitura, não reatribua). Se estiver presente, filtre o array com <code>.filter()</code> antes de responder.</p>
+</details>
+<p><strong>3. Contagem total no cabeçalho.</strong> Adicione um cabeçalho de resposta <code>X-Total-Count</code> com a quantidade de eventos retornados em <code>GET /api/eventos</code>, usando <code>res.set('X-Total-Count', String(eventos.length))</code>.</p>
+<details>
+<summary>Dica</summary>
+<p><code>res.set(nome, valor)</code> precisa vir antes de <code>res.json(...)</code>, porque depois que o corpo é enviado os cabeçalhos não podem mais ser alterados.</p>
+</details>
+<p><strong>4. Teste de erro proposital.</strong> Escreva uma rota <code>GET /api/quebra</code> que dá <code>throw new Error('falha proposital')</code> dentro de um handler <code>async</code>. Suba o servidor, acesse a rota e observe no terminal o que acontece — sem nenhum tratamento de erro escrito por você ainda.</p>
+<details>
+<summary>Dica</summary>
+<p>No Express 5 isso não derruba o servidor: a resposta padrão é um HTML de erro 500. Guarde essa observação — na Aula 08 você substitui isso por um tratador de erros customizado.</p>
+</details>
+<p><strong>5. Front consumindo a nova rota de filtro.</strong> No <code>unieventos-web</code>, adicione um <code>&lt;v-select&gt;</code> de categoria na Home e faça a requisição incluir <code>params: { categoria }</code> quando um filtro estiver selecionado (lembre do terceiro parâmetro do <code>axios.get</code>, visto na Aula 06).</p>
+<details>
+<summary>Dica</summary>
+<p><code>api.get('/eventos', { params: { categoria: valorSelecionado } })</code> — se <code>valorSelecionado</code> for <code>undefined</code> ou string vazia, o Axios omite o parâmetro da URL automaticamente.</p>
+</details>
+<p><strong>6. Explorando o Firestore com uma segunda coleção.</strong> Crie, pelo console do Firebase ou por script, uma coleção <code>organizadores</code> com pelo menos 2 documentos (<code>nome</code>, <code>email</code>). Escreva uma função <code>listarOrganizadores()</code> que usa <code>getDocs</code> para trazer todos e imprime no console. Depois, escreva <code>buscarOrganizadorPorEmail(email)</code> usando <code>query</code> + <code>where('email', '==', email)</code>.</p>
+<details>
+<summary>Dica</summary>
+<p><code>where</code> sempre entra como argumento de <code>query(colecao, where(...), ...)</code> — não é um método encadeado como em outras bibliotecas. Lembre de importar <code>where</code> de <code>'firebase/firestore'</code>.</p>
+</details>
+<h2 id="erros-comuns-e-como-resolver">🐛 Erros comuns e como resolver<a class="anchor" href="#erros-comuns-e-como-resolver" title="Permanent link">¶</a></h2>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Sintoma</th>
+<th>Causa</th>
+<th>Solução</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ReferenceError: require is not defined in ES module scope</code></td>
+<td>copiou código CommonJS num projeto com <code>"type": "module"</code></td>
+<td>troque <code>require</code>/<code>module.exports</code> por <code>import</code>/<code>export</code></td>
+</tr>
+<tr>
+<td><code>EADDRINUSE: address already in use :::3000</code></td>
+<td>outro processo já ocupa a porta 3000</td>
+<td>finalize o processo anterior ou mude <code>PORTA</code> no <code>.env</code></td>
+</tr>
+<tr>
+<td>Front recebe erro de CORS no console do navegador</td>
+<td>esqueceu <code>app.use(cors())</code> ou ele vem depois das rotas</td>
+<td>registre <code>app.use(cors())</code> antes de declarar as rotas</td>
+</tr>
+<tr>
+<td><code>req.body</code> chega <code>undefined</code></td>
+<td><code>express.json()</code> não foi registrado, ou o <code>Content-Type</code> da requisição não é <code>application/json</code></td>
+<td>adicione <code>app.use(express.json())</code> antes das rotas; confira o cabeçalho enviado</td>
+</tr>
+<tr>
+<td><code>TypeError: Cannot set property query of #&lt;IncomingMessage&gt;</code></td>
+<td>tentou reatribuir <code>req.query</code> diretamente (hábito do Express 4)</td>
+<td>crie uma variável nova a partir do valor lido, não reatribua <code>req.query</code></td>
+</tr>
+<tr>
+<td>Página em branco ao testar rota no navegador, sem erro no terminal</td>
+<td>esqueceu do <code>return</code> antes de um segundo <code>res.status().json()</code> na mesma função</td>
+<td>sempre <code>return res...</code> quando houver mais de uma resposta possível no handler</td>
+</tr>
+<tr>
+<td>Firestore: <code>getDocs</code> retorna vazio mesmo com dados no console</td>
+<td>está lendo de uma coleção com nome diferente do usado ao gravar (ex.: <code>Eventos</code> vs <code>eventos</code>)</td>
+<td>nomes de coleção são case-sensitive; confira a grafia exata</td>
+</tr>
+<tr>
+<td><code>FirebaseError: Missing or insufficient permissions</code></td>
+<td>as regras de segurança de teste do Firestore expiraram (30 dias)</td>
+<td>reabra o modo de teste no console ou escreva regras explícitas (Aula 10)</td>
+</tr>
+<tr>
+<td><code>Cannot find module 'firebase/app'</code></td>
+<td>instalou uma versão muito antiga do pacote, ou digitou <code>firebase-admin</code> por engano no front</td>
+<td>confirme <code>npm install firebase@12</code> no <code>unieventos-web</code>; <code>firebase-admin</code> é só para back-end (Aula 10)</td>
+</tr>
+<tr>
+<td>Rota <code>GET /api/eventos/:id</code> sempre cai no "não encontrado"</td>
+<td>comparou <code>req.params.id</code> (string) com <code>id</code> (number) sem converter</td>
+<td>use <code>Number(req.params.id)</code> antes de comparar com <code>===</code></td>
+</tr>
+<tr>
+<td><code>npm run dev</code> não reinicia ao salvar o arquivo</td>
+<td>versão do Node anterior à 18.11, sem suporte a <code>--watch</code></td>
+<td>rode <code>node -v</code> e atualize para a 22.x indicada na disciplina</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="atividade-assincrona-1-h">🏠 Atividade assíncrona (1 h)<a class="anchor" href="#atividade-assincrona-1-h" title="Permanent link">¶</a></h2>
+<p>No seu <strong>projeto autoral</strong>, replique o que foi feito hoje:</p>
+<ol>
+<li>Crie o repositório <code>&lt;seu-projeto&gt;-api</code>, com <code>package.json</code> configurado em ESM, scripts <code>dev</code>/<code>start</code>, <code>.env</code>/<code>.env.example</code>/<code>.gitignore</code>.</li>
+<li>Monte um arquivo <code>src/dados/&lt;entidade-principal&gt;.js</code> com pelo menos 4 itens de exemplo do domínio do seu projeto autoral (ex.: se seu tema é "cardápio de restaurante", 4 pratos).</li>
+<li>Escreva <code>src/servidor.js</code> com Express 5, <code>cors()</code>, <code>express.json()</code>, e as duas rotas equivalentes: listar tudo e buscar por id.</li>
+<li>Teste as duas rotas com <code>curl</code> <strong>e</strong> com REST Client/Thunder Client — cole as evidências (prints ou saída do terminal) num arquivo <code>EVIDENCIAS.md</code> no repositório.</li>
+<li>Aponte o front-end do seu projeto autoral (já existente desde a Aula 06) para esta nova API, trocando só o <code>baseURL</code>.</li>
+</ol>
+<p><strong>Critério de pronto:</strong> os dois repositórios (<code>-web</code> e <code>-api</code>) rodando simultaneamente em portas diferentes, com a listagem do seu projeto autoral carregando dados vindos da sua própria API Express — nada de <code>json-server</code> a partir de agora.</p>
+<h2 id="checkpoint-do-projeto-autoral">✅ Checkpoint do projeto autoral<a class="anchor" href="#checkpoint-do-projeto-autoral" title="Permanent link">¶</a></h2>
+<ul>
+<li>[ ] Repositório <code>&lt;seu-projeto&gt;-api</code> criado, com <code>"type": "module"</code> no <code>package.json</code>.</li>
+<li>[ ] Servidor Express 5 rodando com <code>npm run dev</code> (usando <code>node --watch</code>).</li>
+<li>[ ] <code>.env</code> e <code>.env.example</code> configurados; <code>.env</code> no <code>.gitignore</code> (nunca commitado).</li>
+<li>[ ] <code>cors()</code> e <code>express.json()</code> registrados antes das rotas.</li>
+<li>[ ] <code>GET /api/&lt;entidade&gt;</code> e <code>GET /api/&lt;entidade&gt;/:id</code> respondendo corretamente, inclusive o caso de id inexistente (404).</li>
+<li>[ ] Front-end do projeto autoral consumindo essa API real via a instância Axios dedicada.</li>
+<li>[ ] Nenhuma sintaxe de Express 4 (<code>app.del</code>, <code>res.json(obj, 201)</code>, <code>req.param()</code>) presente no código.</li>
+</ul>
+<h2 id="para-aprofundar">📚 Para aprofundar<a class="anchor" href="#para-aprofundar" title="Permanent link">¶</a></h2>
+<ul>
+<li>Documentação oficial do Node.js — <a href="https://nodejs.org/en/docs">nodejs.org/docs</a> (seções <em>Modules: ECMAScript modules</em> e <em>Command-line API</em> para <code>--watch</code> e <code>--env-file</code>).</li>
+<li>Documentação oficial do Express — <a href="https://expressjs.com/">expressjs.com</a> e o guia de migração <em>Express 5 changes</em> — <a href="https://expressjs.com/en/guide/migrating-5.html">expressjs.com/en/guide/migrating-5.html</a>.</li>
+<li>Documentação oficial do Firebase — <a href="https://firebase.google.com/docs/web/setup">firebase.google.com/docs/web/setup</a> e <a href="https://firebase.google.com/docs/firestore">firebase.google.com/docs/firestore</a> (API modular).</li>
+<li>Referência de <code>path-to-regexp</code> v8, usado internamente pelo Express 5 para casar rotas — útil para entender a sintaxe de curingas e segmentos opcionais em profundidade.</li>
+<li>Plano de curso FACET-SNP-310 — bibliografia básica, capítulos sobre arquitetura cliente-servidor e Node.js.</li>
+</ul>
+<p>Na Aula 08 você transforma o servidor de hoje num CRUD completo, modulariza rotas com <code>express.Router()</code>, escreve middlewares próprios e recebe as instruções da <strong>Avaliação 2</strong>. Deixe a <code>unieventos-api</code> rodando — ela cresce a partir daqui, aula após aula, até virar a API do seu projeto autoral final.</p><nav class="navpe"><a data-nav="anterior" href="aula-06.html"><span class="rot">← Aula 06</span><span class="tit">Axios e Pinia</span></a><a class="dir" data-nav="proxima" href="aula-08.html"><span class="rot">Aula 08 →</span><span class="tit">Definindo endpoints e middlewares</span></a></nav>
+    <div class="rodape">
+      UNEMAT — Universidade do Estado de Mato Grosso · Campus Cáceres · FACET<br>
+      FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas · 2026.2<br>
+      Prof. Ivan Luiz Pedroso Pires
+    </div>
+  </main>
+  <aside class="toc"><h4>Nesta aula</h4><a class="" href="#objetivos-de-aprendizagem">🎯 Objetivos de aprendizagem</a><a class="" href="#pre-requisitos-desta-aula">📋 Pré-requisitos desta aula</a><a class="" href="#roteiro">🗺️ Roteiro</a><a class="" href="#1-por-que-o-front-sozinho-nao-basta">1. Por que o front sozinho não basta</a><a class="n3" href="#arquitetura-cliente-servidor-o-que-trafega-onde-cada-coisa-roda">Arquitetura cliente-servidor: o que trafega, onde cada coisa roda</a><a class="n3" href="#relembrando-http-porque-hoje-voce-escreve-os-dois-lados">Relembrando HTTP, porque hoje você escreve os dois lados</a><a class="" href="#2-nodejs-o-runtime-por-tras-do-servidor">2. Node.js: o runtime por trás do servidor</a><a class="n3" href="#event-loop-e-io-nao-bloqueante-sem-misterio">Event loop e I/O não bloqueante, sem mistério</a><a class="n3" href="#modulos-commonjs-vs-es-modules">Módulos: CommonJS vs ES Modules</a><a class="n3" href="#preparando-o-ambiente-npm-init-scripts-node-watch">Preparando o ambiente: npm init, scripts, node --watch</a><a class="n3" href="#dependencies-vs-devdependencies-e-o-que-e-o-package-lockjson">dependencies vs devDependencies, e o que é o package-lock.json</a><a class="" href="#padrao-de-projeto-em-uso">🧩 Padrão de projeto em uso</a><a class="n3" href="#padrao-de-projeto-em-uso-chain-of-responsibility">🧩 Padrão de projeto em uso — Chain of Responsibility</a><a class="" href="#3-baas-vs-api-propria-o-que-e-o-firebase">3. BaaS vs API própria: o que é o Firebase</a><a class="n3" href="#criando-o-projeto-no-console-do-firebase">Criando o projeto no console do Firebase</a><a class="n3" href="#instalando-o-sdk-e-inicializando-o-app">Instalando o SDK e inicializando o app</a><a class="n3" href="#primeira-leitura-e-escrita-no-firestore">Primeira leitura e escrita no Firestore</a><a class="n3" href="#as-regras-de-seguranca-por-tras-do-modo-de-teste">As regras de segurança por trás do modo de teste</a><a class="" href="#4-express-521-o-servidor-minimo">4. Express 5.2.1: o servidor mínimo</a><a class="n3" href="#estrutura-inicial-de-pastas">Estrutura inicial de pastas</a><a class="" href="#express-5-nao-e-express-4">⚠️ Express 5 não é Express 4</a><a class="" href="#mao-na-massa-criando-a-unieventos-api-e-conectando-o-front">💻 Mão na massa — criando a unieventos-api e conectando o front</a><a class="n3" href="#passo-1-criar-o-repositorio-e-o-projeto-node">Passo 1 — criar o repositório e o projeto Node</a><a class="n3" href="#passo-2-dados-de-eventos-em-memoria">Passo 2 — dados de eventos em memória</a><a class="n3" href="#passo-3-servidor-com-as-duas-primeiras-rotas">Passo 3 — servidor com as duas primeiras rotas</a><a class="n3" href="#tres-formas-de-testar-e-quando-usar-cada-uma">Três formas de testar, e quando usar cada uma</a><a class="n3" href="#passo-4-testando-com-rest-client-vs-code">Passo 4 — testando com REST Client (VS Code)</a><a class="n3" href="#passo-5-apontar-o-front-end-da-aula-06-para-a-api-real">Passo 5 — apontar o front-end da Aula 06 para a API real</a><a class="" href="#laboratorio">🧪 Laboratório</a><a class="" href="#erros-comuns-e-como-resolver">🐛 Erros comuns e como resolver</a><a class="" href="#atividade-assincrona-1-h">🏠 Atividade assíncrona (1 h)</a><a class="" href="#checkpoint-do-projeto-autoral">✅ Checkpoint do projeto autoral</a><a class="" href="#para-aprofundar">📚 Para aprofundar</a></aside>
+</div>
+<script>
+(function(){
+  var raiz=document.documentElement;
+  var salvo=null;
+  try{salvo=window.localStorage&&localStorage.getItem('fds-tema')}catch(e){}
+  if(salvo){raiz.setAttribute('data-tema',salvo)}
+  var bt=document.getElementById('tema');
+  if(bt){bt.addEventListener('click',function(){
+    var novo=raiz.getAttribute('data-tema')==='claro'?'escuro':'claro';
+    raiz.setAttribute('data-tema',novo);
+    try{localStorage.setItem('fds-tema',novo)}catch(e){}
+    bt.textContent=novo==='claro'?'● Escuro':'○ Claro';
+  });
+  bt.textContent=raiz.getAttribute('data-tema')==='claro'?'● Escuro':'○ Claro';}
+
+  // copiar código
+  document.querySelectorAll('.copiar').forEach(function(b){
+    b.addEventListener('click',function(){
+      var pre=b.closest('.bloco').querySelector('pre');
+      var txt=pre.innerText;
+      var ok=function(){b.textContent='Copiado';b.classList.add('ok');
+        setTimeout(function(){b.textContent='Copiar';b.classList.remove('ok')},1600)};
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(ok)}
+      else{var t=document.createElement('textarea');t.value=txt;document.body.appendChild(t);
+           t.select();document.execCommand('copy');t.remove();ok()}
+    });
+  });
+
+  // barra de progresso
+  var pr=document.getElementById('progresso');
+  if(pr){window.addEventListener('scroll',function(){
+    var h=document.documentElement.scrollHeight-window.innerHeight;
+    pr.style.width=(h>0?(window.scrollY/h)*100:0)+'%';
+  },{passive:true})}
+
+  // sumário ativo
+  var alvos=[].slice.call(document.querySelectorAll('main h2[id],main h3[id]'));
+  var links={};
+  document.querySelectorAll('.toc a').forEach(function(a){links[a.getAttribute('href').slice(1)]=a});
+  if(alvos.length&&'IntersectionObserver' in window){
+    var obs=new IntersectionObserver(function(ents){
+      ents.forEach(function(e){
+        var a=links[e.target.id];
+        if(!a)return;
+        if(e.isIntersecting){
+          Object.keys(links).forEach(function(k){links[k].classList.remove('ativo')});
+          a.classList.add('ativo');
+        }
+      });
+    },{rootMargin:'-76px 0px -75% 0px'});
+    alvos.forEach(function(t){obs.observe(t)});
+  }
+
+  // busca no índice
+  var busca=document.getElementById('busca');
+  if(busca){
+    busca.addEventListener('input',function(){
+      var q=busca.value.toLowerCase().trim();
+      document.querySelectorAll('[data-busca]').forEach(function(el){
+        el.classList.toggle('oculto', q!=='' && el.getAttribute('data-busca').indexOf(q)===-1);
+      });
+    });
+  }
+
+  // atalhos de teclado
+  document.addEventListener('keydown',function(e){
+    if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+    var ant=document.querySelector('[data-nav="anterior"]');
+    var pro=document.querySelector('[data-nav="proxima"]');
+    if(e.key==='j'&&pro)pro.click();
+    if(e.key==='k'&&ant)ant.click();
+    if(e.key==='/'&&busca){e.preventDefault();busca.focus()}
+  });
+})();
+</script>
+</body>
+</html>

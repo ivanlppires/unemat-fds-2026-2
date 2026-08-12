@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-tema="escuro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aula 03 — Vue: listas, computed e ciclo de vida · FACET-SNP-310</title>
+<meta name="description" content="Unidade 1 · 24/08/2026 · Vue: listas, computed e ciclo de vida">
+<style>
+:root{
+  --bg:#0f1117; --bg-soft:#161922; --bg-code:#11131a; --line:#272b38;
+  --fg:#e6e8ee; --fg-dim:#a6adbb; --fg-faint:#6f7686;
+  --accent:#5eead4; --accent-2:#818cf8; --warn:#fbbf24; --danger:#fb7185;
+  --u1:#5eead4; --u2:#818cf8; --u3:#f0abfc;
+  --radius:12px; --max:860px;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+}
+html[data-tema="claro"]{
+  --bg:#ffffff; --bg-soft:#f6f7f9; --bg-code:#f2f3f6; --line:#e2e5ea;
+  --fg:#1a1d24; --fg-dim:#4b5262; --fg-faint:#8a92a3;
+  --accent:#0d9488; --accent-2:#4f46e5; --warn:#b45309; --danger:#be123c;
+  --u1:#0d9488; --u2:#4f46e5; --u3:#a21caf;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:76px}
+body{
+  margin:0; background:var(--bg); color:var(--fg); font-family:var(--font);
+  font-size:16.5px; line-height:1.72; -webkit-font-smoothing:antialiased;
+}
+a{color:var(--accent); text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ---------- barra superior ---------- */
+.topo{
+  position:sticky; top:0; z-index:50; background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:blur(12px); border-bottom:1px solid var(--line);
+}
+.topo-in{max-width:1400px;margin:0 auto;display:flex;align-items:center;gap:14px;padding:10px 18px}
+.marca{font-weight:700;font-size:.82rem;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-dim);white-space:nowrap}
+.marca b{color:var(--accent)}
+.topo .espaco{flex:1}
+.btn{
+  background:var(--bg-soft); color:var(--fg-dim); border:1px solid var(--line);
+  border-radius:8px; padding:6px 12px; font-size:.82rem; cursor:pointer; font-family:inherit;
+  transition:.15s;
+}
+.btn:hover{color:var(--fg); border-color:var(--accent)}
+#busca{
+  background:var(--bg-soft); border:1px solid var(--line); border-radius:8px; color:var(--fg);
+  padding:6px 12px; font-size:.85rem; font-family:inherit; width:200px;
+}
+#busca:focus{outline:none;border-color:var(--accent)}
+
+/* ---------- layout ---------- */
+.wrap{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:260px minmax(0,1fr) 240px;gap:34px;padding:0 18px}
+@media(max-width:1150px){.wrap{grid-template-columns:240px minmax(0,1fr)} .toc{display:none}}
+@media(max-width:860px){.wrap{grid-template-columns:minmax(0,1fr)} .lateral{display:none}}
+
+.lateral,.toc{position:sticky;top:76px;align-self:start;max-height:calc(100vh - 90px);overflow-y:auto;padding:22px 0 60px;font-size:.85rem}
+.lateral::-webkit-scrollbar,.toc::-webkit-scrollbar{width:6px}
+.lateral::-webkit-scrollbar-thumb,.toc::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+.lateral h4,.toc h4{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-faint);margin:0 0 12px}
+.lateral ol{list-style:none;margin:0;padding:0}
+.lateral li a{
+  display:flex;gap:9px;align-items:baseline;padding:6px 10px;border-radius:7px;
+  color:var(--fg-dim);border-left:2px solid transparent;line-height:1.35;
+}
+.lateral li a:hover{background:var(--bg-soft);color:var(--fg);text-decoration:none}
+.lateral li a.ativo{background:var(--bg-soft);color:var(--fg);border-left-color:var(--accent);font-weight:600}
+.lateral .num{font-variant-numeric:tabular-nums;color:var(--fg-faint);font-size:.78rem;min-width:16px}
+.lateral .grupo{margin:18px 0 6px;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-faint);padding-left:10px}
+.toc a{display:block;padding:4px 0 4px 12px;color:var(--fg-dim);border-left:2px solid var(--line);line-height:1.35;font-size:.8rem}
+.toc a:hover{color:var(--fg);text-decoration:none}
+.toc a.ativo{color:var(--accent);border-left-color:var(--accent)}
+.toc a.n3{padding-left:24px;font-size:.76rem;opacity:.8}
+
+/* ---------- conteúdo ---------- */
+main{padding:34px 0 100px;min-width:0}
+.cabecalho{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:34px}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.tag{font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;font-weight:700;padding:4px 10px;border-radius:999px;border:1px solid var(--line);color:var(--fg-dim)}
+.tag.u1{color:var(--u1);border-color:color-mix(in srgb,var(--u1) 40%,transparent)}
+.tag.u2{color:var(--u2);border-color:color-mix(in srgb,var(--u2) 40%,transparent)}
+.tag.u3{color:var(--u3);border-color:color-mix(in srgb,var(--u3) 40%,transparent)}
+.tag.av{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 45%,transparent)}
+.cabecalho h1{margin:0;font-size:2.05rem;line-height:1.2;letter-spacing:-.02em}
+.cabecalho .sub{color:var(--fg-faint);font-size:.9rem;margin-top:10px}
+
+main h1{font-size:1.9rem;line-height:1.22;letter-spacing:-.02em;margin:0 0 .6em}
+main h2{font-size:1.4rem;margin:2.4em 0 .7em;padding-top:.5em;border-top:1px solid var(--line);letter-spacing:-.01em}
+main h3{font-size:1.12rem;margin:1.9em 0 .5em;color:var(--fg)}
+main h4{font-size:.98rem;margin:1.5em 0 .4em;color:var(--fg-dim)}
+main h2:first-of-type{border-top:none;padding-top:0}
+main p{margin:0 0 1.05em}
+main ul,main ol{margin:0 0 1.15em;padding-left:1.4em}
+main li{margin:.32em 0}
+main li>ul,main li>ol{margin:.35em 0}
+hr{border:none;border-top:1px solid var(--line);margin:2.6em 0}
+strong{color:var(--fg);font-weight:650}
+
+/* âncoras */
+.anchor{opacity:0;margin-left:.4em;font-weight:400;color:var(--fg-faint);text-decoration:none;font-size:.8em}
+h2:hover .anchor,h3:hover .anchor{opacity:1}
+
+/* citações / callouts */
+blockquote{
+  margin:1.4em 0;padding:14px 18px;background:var(--bg-soft);border-left:3px solid var(--accent-2);
+  border-radius:0 var(--radius) var(--radius) 0;color:var(--fg-dim);
+}
+blockquote p:last-child{margin-bottom:0}
+blockquote.dica{border-left-color:var(--accent)}
+blockquote.atencao{border-left-color:var(--warn)}
+blockquote.capo{border-left-color:var(--accent-2)}
+blockquote.prova{border-left-color:var(--danger)}
+
+/* tabelas */
+.tabela-wrap{overflow-x:auto;margin:1.4em 0;border:1px solid var(--line);border-radius:var(--radius)}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{padding:9px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--bg-soft);font-weight:650;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-dim);white-space:nowrap}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:color-mix(in srgb,var(--bg-soft) 60%,transparent)}
+
+/* código */
+code{font-family:var(--mono);font-size:.87em;background:var(--bg-soft);padding:.14em .42em;border-radius:5px;border:1px solid var(--line)}
+.bloco{position:relative;margin:1.3em 0}
+.bloco-topo{
+  display:flex;align-items:center;gap:10px;background:var(--bg-soft);border:1px solid var(--line);
+  border-bottom:none;border-radius:var(--radius) var(--radius) 0 0;padding:6px 12px;
+  font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;color:var(--fg-faint);font-family:var(--mono);
+}
+.bloco-topo .espaco{flex:1}
+.copiar{
+  background:transparent;border:1px solid var(--line);color:var(--fg-faint);border-radius:6px;
+  padding:2px 9px;font-size:.68rem;cursor:pointer;font-family:inherit;letter-spacing:.06em;text-transform:uppercase;transition:.15s;
+}
+.copiar:hover{color:var(--accent);border-color:var(--accent)}
+.copiar.ok{color:var(--accent);border-color:var(--accent)}
+.highlight{
+  margin:0;background:var(--bg-code)!important;border:1px solid var(--line);
+  border-radius:0 0 var(--radius) var(--radius);overflow-x:auto;
+}
+.bloco:not(:has(.bloco-topo)) .highlight{border-radius:var(--radius)}
+.highlight pre{margin:0;padding:15px 17px;font-family:var(--mono);font-size:.845rem;line-height:1.62;background:transparent!important}
+.highlight code{background:transparent;border:none;padding:0;font-size:inherit}
+html[data-tema="claro"] .highlight pre{color:#1a1d24}
+
+/* detalhes */
+details{background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px;margin:1.2em 0}
+details[open]{padding-bottom:6px}
+summary{cursor:pointer;font-weight:600;color:var(--fg-dim);font-size:.9rem;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▸ ";color:var(--accent)}
+details[open] summary::before{content:"▾ "}
+details[open] summary{margin-bottom:10px}
+
+img{max-width:100%;border-radius:var(--radius)}
+
+/* rodapé / navegação */
+.navpe{display:flex;gap:14px;margin-top:60px;padding-top:26px;border-top:1px solid var(--line)}
+.navpe a{
+  flex:1;padding:14px 18px;background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);
+  color:var(--fg-dim);transition:.15s;
+}
+.navpe a:hover{border-color:var(--accent);color:var(--fg);text-decoration:none}
+.navpe .rot{display:block;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-faint);margin-bottom:4px}
+.navpe .tit{font-weight:600;font-size:.9rem}
+.navpe .dir{text-align:right}
+.rodape{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:var(--fg-faint);font-size:.8rem}
+
+/* progresso */
+#progresso{position:fixed;top:0;left:0;height:2px;background:var(--accent);z-index:60;width:0}
+
+/* índice (home) */
+.hero{padding:56px 0 34px;border-bottom:1px solid var(--line);margin-bottom:38px}
+.hero h1{font-size:2.6rem;margin:0 0 12px;letter-spacing:-.03em;line-height:1.1}
+.hero p{color:var(--fg-dim);max-width:640px;font-size:1.02rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin:34px 0}
+.stat{background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px}
+.stat .n{font-size:1.7rem;font-weight:700;letter-spacing:-.02em;color:var(--accent)}
+.stat .l{font-size:.75rem;letter-spacing:.07em;text-transform:uppercase;color:var(--fg-faint);margin-top:2px}
+.grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;margin:20px 0 44px}
+.cartao{
+  display:block;background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);
+  padding:17px 19px;color:var(--fg);transition:.16s;position:relative;overflow:hidden;
+}
+.cartao::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--line);transition:.16s}
+.cartao.u1::before{background:var(--u1)} .cartao.u2::before{background:var(--u2)} .cartao.u3::before{background:var(--u3)}
+.cartao:hover{transform:translateY(-2px);border-color:var(--fg-faint);text-decoration:none}
+.cartao .meta{display:flex;justify-content:space-between;align-items:center;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-faint);margin-bottom:8px}
+.cartao .t{font-weight:650;line-height:1.35;font-size:.97rem}
+.cartao .av{display:inline-block;margin-top:9px;font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;color:var(--warn);border:1px solid color-mix(in srgb,var(--warn) 40%,transparent);border-radius:999px;padding:2px 9px}
+.oculto{display:none!important}
+@media print{
+  .topo,.lateral,.toc,.navpe,#progresso{display:none!important}
+  .wrap{display:block;max-width:none;padding:0}
+  body{background:#fff;color:#000;font-size:11pt}
+  .highlight{border:1px solid #ccc;background:#fafafa!important}
+  a{color:#000}
+}
+
+pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #49483e }
+.highlight { background: #232629; color: #CCC }
+.highlight .c { color: #777; font-style: italic } /* Comment */
+.highlight .err { color: #A61717; background-color: #E3D2D2 } /* Error */
+.highlight .esc { color: #CCC } /* Escape */
+.highlight .g { color: #CCC } /* Generic */
+.highlight .k { color: #7686BB; font-weight: bold } /* Keyword */
+.highlight .l { color: #CCC } /* Literal */
+.highlight .n { color: #CCC } /* Name */
+.highlight .o { color: #CCC } /* Operator */
+.highlight .x { color: #CCC } /* Other */
+.highlight .p { color: #CCC } /* Punctuation */
+.highlight .ch { color: #777; font-style: italic } /* Comment.Hashbang */
+.highlight .cm { color: #777; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #777; font-style: italic } /* Comment.Preproc */
+.highlight .cpf { color: #777; font-style: italic } /* Comment.PreprocFile */
+.highlight .c1 { color: #777; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #777; font-style: italic } /* Comment.Special */
+.highlight .gd { color: #CCC } /* Generic.Deleted */
+.highlight .ge { color: #CCC } /* Generic.Emph */
+.highlight .ges { color: #CCC } /* Generic.EmphStrong */
+.highlight .gr { color: #CCC } /* Generic.Error */
+.highlight .gh { color: #CCC } /* Generic.Heading */
+.highlight .gi { color: #CCC } /* Generic.Inserted */
+.highlight .go { color: #CCC } /* Generic.Output */
+.highlight .gp { color: #FFF } /* Generic.Prompt */
+.highlight .gs { color: #CCC } /* Generic.Strong */
+.highlight .gu { color: #CCC } /* Generic.Subheading */
+.highlight .gt { color: #CCC } /* Generic.Traceback */
+.highlight .kc { color: #7686BB; font-weight: bold } /* Keyword.Constant */
+.highlight .kd { color: #7686BB; font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { color: #7686BB; font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { color: #7686BB; font-weight: bold } /* Keyword.Pseudo */
+.highlight .kr { color: #7686BB; font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #7686BB; font-weight: bold } /* Keyword.Type */
+.highlight .ld { color: #CCC } /* Literal.Date */
+.highlight .m { color: #4FB8CC } /* Literal.Number */
+.highlight .s { color: #51CC99 } /* Literal.String */
+.highlight .na { color: #CCC } /* Name.Attribute */
+.highlight .nb { color: #CCC } /* Name.Builtin */
+.highlight .nc { color: #CCC } /* Name.Class */
+.highlight .no { color: #CCC } /* Name.Constant */
+.highlight .nd { color: #CCC } /* Name.Decorator */
+.highlight .ni { color: #CCC } /* Name.Entity */
+.highlight .ne { color: #CCC } /* Name.Exception */
+.highlight .nf { color: #6A6AFF } /* Name.Function */
+.highlight .nl { color: #CCC } /* Name.Label */
+.highlight .nn { color: #CCC } /* Name.Namespace */
+.highlight .nx { color: #E2828E } /* Name.Other */
+.highlight .py { color: #CCC } /* Name.Property */
+.highlight .nt { color: #CCC } /* Name.Tag */
+.highlight .nv { color: #7AB4DB; font-weight: bold } /* Name.Variable */
+.highlight .ow { color: #CCC } /* Operator.Word */
+.highlight .pm { color: #CCC } /* Punctuation.Marker */
+.highlight .w { color: #BBB } /* Text.Whitespace */
+.highlight .mb { color: #4FB8CC } /* Literal.Number.Bin */
+.highlight .mf { color: #4FB8CC } /* Literal.Number.Float */
+.highlight .mh { color: #4FB8CC } /* Literal.Number.Hex */
+.highlight .mi { color: #4FB8CC } /* Literal.Number.Integer */
+.highlight .mo { color: #4FB8CC } /* Literal.Number.Oct */
+.highlight .sa { color: #51CC99 } /* Literal.String.Affix */
+.highlight .sb { color: #51CC99 } /* Literal.String.Backtick */
+.highlight .sc { color: #51CC99 } /* Literal.String.Char */
+.highlight .dl { color: #51CC99 } /* Literal.String.Delimiter */
+.highlight .sd { color: #51CC99 } /* Literal.String.Doc */
+.highlight .s2 { color: #51CC99 } /* Literal.String.Double */
+.highlight .se { color: #51CC99 } /* Literal.String.Escape */
+.highlight .sh { color: #51CC99 } /* Literal.String.Heredoc */
+.highlight .si { color: #51CC99 } /* Literal.String.Interpol */
+.highlight .sx { color: #51CC99 } /* Literal.String.Other */
+.highlight .sr { color: #51CC99 } /* Literal.String.Regex */
+.highlight .s1 { color: #51CC99 } /* Literal.String.Single */
+.highlight .ss { color: #51CC99 } /* Literal.String.Symbol */
+.highlight .bp { color: #CCC } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #6A6AFF } /* Name.Function.Magic */
+.highlight .vc { color: #7AB4DB; font-weight: bold } /* Name.Variable.Class */
+.highlight .vg { color: #BE646C; font-weight: bold } /* Name.Variable.Global */
+.highlight .vi { color: #7AB4DB; font-weight: bold } /* Name.Variable.Instance */
+.highlight .vm { color: #7AB4DB; font-weight: bold } /* Name.Variable.Magic */
+.highlight .il { color: #4FB8CC } /* Literal.Number.Integer.Long */
+</style>
+</head>
+<body>
+<div id="progresso"></div>
+<header class="topo"><div class="topo-in">
+  <span class="marca"><b>FACET-SNP-310</b> &nbsp;Frameworks Modernos</span>
+  <span class="espaco"></span>
+  
+  <a class="btn" href="indice.html">Índice</a>
+  <button class="btn" id="tema" type="button">Tema</button>
+</div></header>
+<div class="wrap">
+  <nav class="lateral"><h4>Aulas</h4><ol><li class="grupo">Unidade 1</li><li><a class="" href="aula-01.html"><span class="num">01</span><span>Apresentação da Disciplina e Revisão JavaScript</span></a></li><li><a class="" href="aula-02.html"><span class="num">02</span><span>Introdução ao Vue: instância, ciclo de vida e diretivas</span></a></li><li><a class="ativo" href="aula-03.html"><span class="num">03</span><span>Vue: listas, computed e ciclo de vida</span></a></li><li><a class="" href="aula-04.html"><span class="num">04</span><span>Introdução a Vuetify e Vue Router</span></a></li><li class="grupo">Unidade 2</li><li><a class="" href="aula-05.html"><span class="num">05</span><span>Componentes, Vue Router e Vuetify avançado</span></a></li><li><a class="" href="aula-06.html"><span class="num">06</span><span>Axios e Pinia</span></a></li><li class="grupo">Unidade 3</li><li><a class="" href="aula-07.html"><span class="num">07</span><span>Introdução ao Firebase, Node.js e Express</span></a></li><li><a class="" href="aula-08.html"><span class="num">08</span><span>Definindo endpoints e middlewares</span></a></li><li><a class="" href="aula-09.html"><span class="num">09</span><span>Integrando com SGBD MySQL</span></a></li><li><a class="" href="aula-10.html"><span class="num">10</span><span>Requisições autenticadas com Firebase</span></a></li><li><a class="" href="aula-11.html"><span class="num">11</span><span>Integrando front-end com back-end: CRUD</span></a></li><li><a class="" href="aula-12.html"><span class="num">12</span><span>CRUD com banco em nuvem (Supabase)</span></a></li><li><a class="" href="aula-13.html"><span class="num">13</span><span>Desenvolvimento do Back-end</span></a></li><li><a class="" href="aula-14.html"><span class="num">14</span><span>Documentação com Swagger</span></a></li><li><a class="" href="aula-15.html"><span class="num">15</span><span>Deploy, apresentação e finalização</span></a></li></ol></nav>
+  <main class=""><div class="cabecalho"><div class="tags"><span class="tag u1">Unidade 1</span><span class="tag">24/08/2026</span><span class="tag">3 aulas de 50 min + 1 h EAD</span></div><h1>Aula 03 — Vue: listas, computed e ciclo de vida</h1><div class="sub">FACET-SNP-310 · Frameworks Modernos para Desenvolvimento de Sistemas · UNEMAT/Cáceres · Prof. Ivan Luiz Pedroso Pires</div></div>
+<blockquote>
+<p><strong>FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas</strong> · Unidade 1
+UNEMAT/Cáceres — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
+<strong>Data:</strong> 24/08/2026 · <strong>Carga:</strong> 3 aulas de 50 min (síncrona) + 1 h (assíncrona)</p>
+</blockquote>
+<p>Na Aula 02 criamos a primeira versão do UniEventos: lista, busca, filtro e inscrição, tudo com diretivas básicas e uma função de filtro chamada manualmente três vezes no template. Hoje resolvemos exatamente esse desperdício com <code>computed()</code>, aprofundamos <code>v-for</code> e passamos a carregar os eventos de forma assíncrona dentro de <code>onMounted()</code>.</p>
+<h2 id="objetivos-de-aprendizagem">🎯 Objetivos de aprendizagem<a class="anchor" href="#objetivos-de-aprendizagem" title="Permanent link">¶</a></h2>
+<p>Ao final desta aula você será capaz de:</p>
+<ul>
+<li>Usar <code>v-for</code> sobre arrays, objetos e ranges, inclusive em <code>&lt;template&gt;</code> e listas aninhadas.</li>
+<li>Explicar por que combinar <code>v-for</code> com <code>v-if</code> no mesmo elemento é um antipadrão e resolvê-lo com <code>computed</code>.</li>
+<li>Criar propriedades <code>computed()</code>, entender seu cache e diferenciar computed de método e de watch.</li>
+<li>Usar <code>watch()</code> e <code>watchEffect()</code> com as opções <code>immediate</code> e <code>deep</code>, e parar um watcher.</li>
+<li>Carregar dados assincronamente dentro de <code>onMounted()</code>, implementando os três estados de tela: carregando, erro e vazio.</li>
+<li>Formatar datas e números em pt-BR com <code>Intl</code>, e aplicar classes/estilos condicionais com <code>:class</code> e <code>:style</code>.</li>
+<li>Entregar uma versão do UniEventos com filtros combinados resolvidos por computed, carregamento assíncrono e destaque visual condicional.</li>
+</ul>
+<h2 id="pre-requisitos-desta-aula">📋 Pré-requisitos desta aula<a class="anchor" href="#pre-requisitos-desta-aula" title="Permanent link">¶</a></h2>
+<ul>
+<li>Projeto <code>unieventos-web</code> funcionando, com a listagem, busca e filtro da Aula 02.</li>
+<li>Domínio de <code>ref()</code>, <code>v-model</code>, <code>v-for</code>+<code>:key</code>, <code>v-if</code>/<code>v-show</code> e dos hooks <code>onMounted</code>/<code>onUnmounted</code> (Aula 02).</li>
+</ul>
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+Se seu <code>App.vue</code> da Aula 02 ainda não estiver rodando com <code>npm run dev</code> sem erros, resolva isso antes de continuar — hoje vamos editar esse mesmo arquivo.</p>
+</blockquote>
+<h2 id="roteiro">🗺️ Roteiro<a class="anchor" href="#roteiro" title="Permanent link">¶</a></h2>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Bloco</th>
+<th>Tempo</th>
+<th>Atividade</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>50 min</td>
+<td><code>v-for</code> avançado, o antipadrão <code>v-for</code>+<code>v-if</code>, introdução a <code>computed()</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>50 min</td>
+<td><code>computed</code> com getter/setter, <code>watch</code>/<code>watchEffect</code>, <code>onMounted</code> com os três estados</td>
+</tr>
+<tr>
+<td>3</td>
+<td>50 min</td>
+<td>Formatação <code>Intl</code>, <code>:class</code>/<code>:style</code>, mão na massa: UniEventos com filtros combinados</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="1-v-for-avancado">1. <code>v-for</code> avançado<a class="anchor" href="#1-v-for-avancado" title="Permanent link">¶</a></h2>
+<p>Na Aula 02 vimos <code>v-for</code> sobre um array simples. O Vue também itera sobre objetos, ranges numéricos, e permite estruturas mais ricas.</p>
+<h3 id="11-v-for-sobre-objetos">1.1 <code>v-for</code> sobre objetos<a class="anchor" href="#11-v-for-sobre-objetos" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">evento</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Semana da Computação&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;palestra&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">local</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Auditório Central&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">40</span><span class="p">,</span>
+<span class="p">})</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- (valor, chave) — nessa ordem --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">ul</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">li</span> <span class="na">v-for</span><span class="o">=</span><span class="s">&quot;</span><span class="p">(</span><span class="nx">valor</span><span class="p">,</span><span class="w"> </span><span class="nx">chave</span><span class="p">)</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">evento</span><span class="s">&quot;</span> <span class="p">:</span><span class="na">key</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">chave</span><span class="s">&quot;</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">strong</span><span class="p">&gt;</span><span class="cp">{{</span><span class="w"> </span><span class="nx">chave</span><span class="w"> </span><span class="cp">}}</span>:<span class="p">&lt;/</span><span class="nt">strong</span><span class="p">&gt;</span> <span class="cp">{{</span><span class="w"> </span><span class="nx">valor</span><span class="w"> </span><span class="cp">}}</span>
+    <span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
+
+  <span class="cm">&lt;!-- também existe (valor, chave, indice) com o terceiro parâmetro opcional --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">ul</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">li</span> <span class="na">v-for</span><span class="o">=</span><span class="s">&quot;</span><span class="p">(</span><span class="nx">valor</span><span class="p">,</span><span class="w"> </span><span class="nx">chave</span><span class="p">,</span><span class="w"> </span><span class="nx">indice</span><span class="p">)</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">evento</span><span class="s">&quot;</span> <span class="p">:</span><span class="na">key</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">chave</span><span class="s">&quot;</span><span class="p">&gt;</span>
+      <span class="cp">{{</span><span class="w"> </span><span class="nx">indice</span><span class="w"> </span><span class="cp">}}</span>. <span class="cp">{{</span><span class="w"> </span><span class="nx">chave</span><span class="w"> </span><span class="cp">}}</span> = <span class="cp">{{</span><span class="w"> </span><span class="nx">valor</span><span class="w"> </span><span class="cp">}}</span>
+    <span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<h3 id="12-v-for-sobre-um-range-numerico">1.2 <code>v-for</code> sobre um range numérico<a class="anchor" href="#12-v-for-sobre-um-range-numerico" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- v-for=&quot;n in 5&quot; gera n = 1, 2, 3, 4, 5 (começa em 1, não em 0) --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">span</span> <span class="na">v-for</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">n</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="mf">5</span><span class="s">&quot;</span> <span class="p">:</span><span class="na">key</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">n</span><span class="s">&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;estrela&quot;</span><span class="p">&gt;</span>⭐<span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+
+  <span class="cm">&lt;!-- útil para paginação simples --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">button</span> <span class="na">v-for</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">pagina</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="mf">4</span><span class="s">&quot;</span> <span class="p">:</span><span class="na">key</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">pagina</span><span class="s">&quot;</span><span class="p">&gt;</span><span class="cp">{{</span><span class="w"> </span><span class="nx">pagina</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<h3 id="13-v-for-em-template-repetir-um-grupo-sem-elemento-extra">1.3 <code>v-for</code> em <code>&lt;template&gt;</code> — repetir um grupo sem elemento extra<a class="anchor" href="#13-v-for-em-template-repetir-um-grupo-sem-elemento-extra" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">eventos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">([</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Semana da Computação&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;palestra&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">2</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Oficina de Vue.js&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;minicurso&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="p">])</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">dl</span><span class="p">&gt;</span>
+    <span class="cm">&lt;!-- &lt;template&gt; com v-for não gera elemento HTML próprio no DOM final —</span>
+<span class="cm">         só repete o que está dentro dele. Útil quando você precisa de</span>
+<span class="cm">         MAIS de um elemento irmão por item, sem um &lt;div&gt; desnecessário. --&gt;</span>
+    <span class="p">&lt;</span><span class="nt">template</span> <span class="na">v-for</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">eventos</span><span class="s">&quot;</span> <span class="p">:</span><span class="na">key</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="p">.</span><span class="nx">id</span><span class="s">&quot;</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">dt</span><span class="p">&gt;</span><span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">dt</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">dd</span><span class="p">&gt;</span><span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">categoria</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">dd</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">dl</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<h3 id="14-listas-aninhadas">1.4 Listas aninhadas<a class="anchor" href="#14-listas-aninhadas" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">programacao</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">([</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">dia</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;10/09/2026&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">sessoes</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">horario</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;19h&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Abertura&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">horario</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;20h&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Palestra magna&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">dia</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;11/09/2026&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">sessoes</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">horario</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;14h&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Oficina de Vue.js&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">horario</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;16h&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Mesa redonda&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">])</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">v-for</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">dia</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">programacao</span><span class="s">&quot;</span> <span class="p">:</span><span class="na">key</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">dia</span><span class="p">.</span><span class="nx">dia</span><span class="s">&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;dia-programacao&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">h3</span><span class="p">&gt;</span><span class="cp">{{</span><span class="w"> </span><span class="nx">dia</span><span class="p">.</span><span class="nx">dia</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">h3</span><span class="p">&gt;</span>
+    <span class="cm">&lt;!-- v-for aninhado: a key interna só precisa ser única DENTRO do</span>
+<span class="cm">         v-for externo, mas usar algo que combine as duas chaves evita</span>
+<span class="cm">         qualquer ambiguidade em listas grandes --&gt;</span>
+    <span class="p">&lt;</span><span class="nt">ul</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">li</span> <span class="na">v-for</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">sessao</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">dia</span><span class="p">.</span><span class="nx">sessoes</span><span class="s">&quot;</span> <span class="p">:</span><span class="na">key</span><span class="o">=</span><span class="s">&quot;</span><span class="sb">`</span><span class="si">${</span><span class="nx">dia</span><span class="p">.</span><span class="nx">dia</span><span class="si">}</span><span class="sb">-</span><span class="si">${</span><span class="nx">sessao</span><span class="p">.</span><span class="nx">horario</span><span class="si">}</span><span class="sb">`</span><span class="s">&quot;</span><span class="p">&gt;</span>
+        <span class="cp">{{</span><span class="w"> </span><span class="nx">sessao</span><span class="p">.</span><span class="nx">horario</span><span class="w"> </span><span class="cp">}}</span> — <span class="cp">{{</span><span class="w"> </span><span class="nx">sessao</span><span class="p">.</span><span class="nx">titulo</span><span class="w"> </span><span class="cp">}}</span>
+      <span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<h2 id="2-o-antipadrao-v-for-v-if-juntos">2. O antipadrão <code>v-for</code> + <code>v-if</code> juntos<a class="anchor" href="#2-o-antipadrao-v-for-v-if-juntos" title="Permanent link">¶</a></h2>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">eventos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">([</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Semana da Computação&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;palestra&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">40</span><span class="p">,</span><span class="w"> </span><span class="nx">inscritos</span><span class="o">:</span><span class="w"> </span><span class="mf">40</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">2</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Oficina de Vue.js&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;minicurso&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">25</span><span class="p">,</span><span class="w"> </span><span class="nx">inscritos</span><span class="o">:</span><span class="w"> </span><span class="mf">10</span><span class="w"> </span><span class="p">},</span>
+<span class="p">])</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- ⚠️ EVITE: v-for e v-if no MESMO elemento --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">li</span>
+    <span class="na">v-for</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">eventos</span><span class="s">&quot;</span>
+    <span class="na">v-if</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="p">.</span><span class="nx">inscritos</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">vagas</span><span class="s">&quot;</span>
+    <span class="p">:</span><span class="na">key</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="p">.</span><span class="nx">id</span><span class="s">&quot;</span>
+  <span class="p">&gt;</span>
+    <span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="w"> </span><span class="cp">}}</span>
+  <span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<p>Por que isso é um problema:</p>
+<ol>
+<li><strong>Precedência confusa.</strong> No Vue 3, quando <code>v-if</code> e <code>v-for</code> estão no mesmo elemento, <code>v-if</code> tem prioridade mais alta na avaliação, mas isso significa que ele tenta avaliar a condição <strong>antes</strong> da variável do <code>v-for</code> (<code>evento</code>) estar disponível no escopo — um erro fácil de disparar sem perceber.</li>
+<li><strong>Desempenho.</strong> O Vue recria a checagem <code>v-if</code> a cada item, em <strong>todo</strong> re-render da lista, mesmo quando o critério do filtro não teve nenhuma relação com a mudança que disparou a atualização.</li>
+<li><strong>Legibilidade.</strong> Misturar "o que iterar" com "o que exibir" no mesmo atributo deixa o template difícil de ler.</li>
+</ol>
+<p><strong>A solução: filtre antes, com <code>computed</code>, e itere sobre o resultado já filtrado.</strong></p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="p">,</span><span class="w"> </span><span class="nx">computed</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">eventos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">([</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Semana da Computação&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;palestra&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">40</span><span class="p">,</span><span class="w"> </span><span class="nx">inscritos</span><span class="o">:</span><span class="w"> </span><span class="mf">40</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">2</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Oficina de Vue.js&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;minicurso&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">25</span><span class="p">,</span><span class="w"> </span><span class="nx">inscritos</span><span class="o">:</span><span class="w"> </span><span class="mf">10</span><span class="w"> </span><span class="p">},</span>
+<span class="p">])</span>
+
+<span class="c1">// computed: calcula UMA VEZ, o template só itera sobre o resultado</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">eventosComVaga</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">computed</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span>
+<span class="w">  </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">value</span><span class="p">.</span><span class="nx">filter</span><span class="p">((</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">inscritos</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">vagas</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- correto: v-for sozinho, sobre uma lista já pronta --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">li</span> <span class="na">v-for</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">eventosComVaga</span><span class="s">&quot;</span> <span class="p">:</span><span class="na">key</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="p">.</span><span class="nx">id</span><span class="s">&quot;</span><span class="p">&gt;</span>
+    <span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="w"> </span><span class="cp">}}</span>
+  <span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<p>Isso nos leva ao assunto central da aula de hoje: <code>computed()</code>.</p>
+<h2 id="3-computed-cache-de-verdade">3. <code>computed()</code>: cache de verdade<a class="anchor" href="#3-computed-cache-de-verdade" title="Permanent link">¶</a></h2>
+<h3 id="31-o-problema-que-computed-resolve">3.1 O problema que <code>computed</code> resolve<a class="anchor" href="#31-o-problema-que-computed-resolve" title="Permanent link">¶</a></h3>
+<p>Na Aula 02, <code>obterEventosFiltrados()</code> era uma <strong>função comum</strong>, chamada manualmente no template. Toda chamada refaz o cálculo do zero — não importa se os dados mudaram ou não.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">eventos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">([</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Semana da Computação&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">40</span><span class="p">,</span><span class="w"> </span><span class="nx">inscritos</span><span class="o">:</span><span class="w"> </span><span class="mf">12</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">2</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Oficina de Vue.js&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">25</span><span class="p">,</span><span class="w"> </span><span class="nx">inscritos</span><span class="o">:</span><span class="w"> </span><span class="mf">25</span><span class="w"> </span><span class="p">},</span>
+<span class="p">])</span>
+
+<span class="c1">// MÉTODO: recalcula toda vez que é chamado, mesmo sem nada ter mudado</span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">totalDeVagasComMetodo</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;calculando total de vagas (método)...&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">value</span><span class="p">.</span><span class="nx">reduce</span><span class="p">((</span><span class="nx">total</span><span class="p">,</span><span class="w"> </span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">total</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">vagas</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- se este valor aparecer 3 vezes no template, o log acima roda 3 vezes --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span><span class="cp">{{</span><span class="w"> </span><span class="nx">totalDeVagasComMetodo</span><span class="p">()</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span><span class="cp">{{</span><span class="w"> </span><span class="nx">totalDeVagasComMetodo</span><span class="p">()</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="p">,</span><span class="w"> </span><span class="nx">computed</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">eventos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">([</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Semana da Computação&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">40</span><span class="p">,</span><span class="w"> </span><span class="nx">inscritos</span><span class="o">:</span><span class="w"> </span><span class="mf">12</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">2</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Oficina de Vue.js&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">25</span><span class="p">,</span><span class="w"> </span><span class="nx">inscritos</span><span class="o">:</span><span class="w"> </span><span class="mf">25</span><span class="w"> </span><span class="p">},</span>
+<span class="p">])</span>
+
+<span class="c1">// COMPUTED: calcula uma vez e GUARDA o resultado em cache.</span>
+<span class="c1">// Só recalcula quando uma dependência reativa (eventos, neste caso) muda.</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">totalDeVagas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">computed</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;calculando total de vagas (computed)...&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">value</span><span class="p">.</span><span class="nx">reduce</span><span class="p">((</span><span class="nx">total</span><span class="p">,</span><span class="w"> </span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">total</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">vagas</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span>
+<span class="p">})</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- mesmo aparecendo 2 vezes, o log acima roda 1 vez só,</span>
+<span class="cm">       porque o segundo acesso lê o valor já em cache --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span><span class="cp">{{</span><span class="w"> </span><span class="nx">totalDeVagas</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span><span class="cp">{{</span><span class="w"> </span><span class="nx">totalDeVagas</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<blockquote class="capo">
+<p><strong>🔎 Por baixo do capô</strong>
+Um <code>computed</code> sabe exatamente quais variáveis reativas ele lê durante sua execução (aqui, <code>eventos</code>) — o mesmo mecanismo de rastreamento de dependências do padrão Observer que vimos na Aula 02. Enquanto nenhuma dessas dependências mudar, o Vue devolve o valor guardado em cache, sem executar a função de novo. Isso é diferente de um método, que roda de novo a cada chamada, sempre, sem cache algum.</p>
+</blockquote>
+<h3 id="32-computed-com-getter-e-setter">3.2 <code>computed</code> com getter e setter<a class="anchor" href="#32-computed-com-getter-e-setter" title="Permanent link">¶</a></h3>
+<p>Por padrão, um <code>computed</code> é somente leitura. Mas é possível criar um que também aceita escrita, definindo <code>get</code> e <code>set</code>:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="p">,</span><span class="w"> </span><span class="nx">computed</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">nome</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="s1">&#39;Ivan&#39;</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">sobrenome</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="s1">&#39;Pires&#39;</span><span class="p">)</span>
+
+<span class="c1">// forma somente leitura (a mais comum)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">nomeCompleto</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">computed</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="sb">`</span><span class="si">${</span><span class="nx">nome</span><span class="p">.</span><span class="nx">value</span><span class="si">}</span><span class="sb"> </span><span class="si">${</span><span class="nx">sobrenome</span><span class="p">.</span><span class="nx">value</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+
+<span class="c1">// forma com getter E setter</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">nomeCompletoEditavel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">computed</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">get</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="sb">`</span><span class="si">${</span><span class="nx">nome</span><span class="p">.</span><span class="nx">value</span><span class="si">}</span><span class="sb"> </span><span class="si">${</span><span class="nx">sobrenome</span><span class="p">.</span><span class="nx">value</span><span class="si">}</span><span class="sb">`</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">set</span><span class="p">(</span><span class="nx">novoValor</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">partes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">novoValor</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">nome</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">partes</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span>
+<span class="w">    </span><span class="nx">sobrenome</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">partes</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mf">1</span><span class="p">).</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">})</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">renomear</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// escrever em um computed com setter dispara o &quot;set&quot; acima,</span>
+<span class="w">  </span><span class="c1">// que por sua vez atualiza nome e sobrenome</span>
+<span class="w">  </span><span class="nx">nomeCompletoEditavel</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;Maria Silva&#39;</span>
+<span class="p">}</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span><span class="cp">{{</span><span class="w"> </span><span class="nx">nomeCompleto</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">button</span> <span class="p">@</span><span class="na">click</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">renomear</span><span class="s">&quot;</span><span class="p">&gt;</span>Renomear<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<h3 id="33-computed-encadeadas">3.3 Computed encadeadas<a class="anchor" href="#33-computed-encadeadas" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="p">,</span><span class="w"> </span><span class="nx">computed</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">eventos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">([</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Semana da Computação&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;palestra&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">40</span><span class="p">,</span><span class="w"> </span><span class="nx">inscritos</span><span class="o">:</span><span class="w"> </span><span class="mf">40</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">2</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Oficina de Vue.js&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;minicurso&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">25</span><span class="p">,</span><span class="w"> </span><span class="nx">inscritos</span><span class="o">:</span><span class="w"> </span><span class="mf">10</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">3</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Hackathon FACET&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;workshop&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">60</span><span class="p">,</span><span class="w"> </span><span class="nx">inscritos</span><span class="o">:</span><span class="w"> </span><span class="mf">18</span><span class="w"> </span><span class="p">},</span>
+<span class="p">])</span>
+
+<span class="c1">// primeira computed: filtra por vaga disponível</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">eventosComVaga</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">computed</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span>
+<span class="w">  </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">value</span><span class="p">.</span><span class="nx">filter</span><span class="p">((</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">inscritos</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">vagas</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="c1">// segunda computed: DEPENDE da primeira — encadeamento</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">totalDeVagasLivres</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">computed</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span>
+<span class="w">  </span><span class="nx">eventosComVaga</span><span class="p">.</span><span class="nx">value</span><span class="p">.</span><span class="nx">reduce</span><span class="p">((</span><span class="nx">total</span><span class="p">,</span><span class="w"> </span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">total</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="nx">evento</span><span class="p">.</span><span class="nx">vagas</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">inscritos</span><span class="p">),</span><span class="w"> </span><span class="mf">0</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Eventos com vaga: <span class="cp">{{</span><span class="w"> </span><span class="nx">eventosComVaga</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Total de vagas livres: <span class="cp">{{</span><span class="w"> </span><span class="nx">totalDeVagasLivres</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<h3 id="34-computed-metodo-watch">3.4 Computed × método × watch<a class="anchor" href="#34-computed-metodo-watch" title="Permanent link">¶</a></h3>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th><code>computed</code></th>
+<th>método</th>
+<th><code>watch</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tem cache?</td>
+<td>Sim</td>
+<td>Não</td>
+<td>Não se aplica (não retorna valor)</td>
+</tr>
+<tr>
+<td>Quando roda</td>
+<td>Só quando uma dependência muda</td>
+<td>Toda vez que é chamado</td>
+<td>Quando a fonte observada muda</td>
+</tr>
+<tr>
+<td>Uso típico</td>
+<td>Derivar um valor a partir de outro estado</td>
+<td>Reagir a um evento de UI (clique)</td>
+<td>Executar um efeito colateral (chamar API, logar, sincronizar <code>localStorage</code>)</td>
+</tr>
+<tr>
+<td>Retorna valor usável no template?</td>
+<td>Sim</td>
+<td>Sim (se chamado)</td>
+<td>Não diretamente</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="4-watch-e-watcheffect">4. <code>watch()</code> e <code>watchEffect()</code><a class="anchor" href="#4-watch-e-watcheffect" title="Permanent link">¶</a></h2>
+<p><code>computed</code> deriva um <strong>valor</strong>. <code>watch</code>/<code>watchEffect</code> executam um <strong>efeito colateral</strong> (algo que não é "calcular e devolver", como fazer uma requisição, gravar em <code>localStorage</code>, exibir um alerta) em reação a uma mudança.</p>
+<h3 id="41-watch-observa-uma-fonte-especifica">4.1 <code>watch()</code> — observa uma fonte específica<a class="anchor" href="#41-watch-observa-uma-fonte-especifica" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="p">,</span><span class="w"> </span><span class="nx">watch</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">busca</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">totalDeBuscas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="mf">0</span><span class="p">)</span>
+
+<span class="c1">// watch(fonte, callback) — só roda quando &quot;busca&quot; muda</span>
+<span class="nx">watch</span><span class="p">(</span><span class="nx">busca</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">valorNovo</span><span class="p">,</span><span class="w"> </span><span class="nx">valorAntigo</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`busca mudou de &quot;</span><span class="si">${</span><span class="nx">valorAntigo</span><span class="si">}</span><span class="sb">&quot; para &quot;</span><span class="si">${</span><span class="nx">valorNovo</span><span class="si">}</span><span class="sb">&quot;`</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">totalDeBuscas</span><span class="p">.</span><span class="nx">value</span><span class="o">++</span>
+<span class="p">})</span>
+
+<span class="c1">// watch com { immediate: true } — roda também na primeira vez,</span>
+<span class="c1">// mesmo sem a fonte ainda ter mudado</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">categoriaFiltro</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="nx">watch</span><span class="p">(</span>
+<span class="w">  </span><span class="nx">categoriaFiltro</span><span class="p">,</span>
+<span class="w">  </span><span class="p">(</span><span class="nx">valor</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;categoria selecionada:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">valor</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;(nenhuma)&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">immediate</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">},</span>
+<span class="p">)</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<h3 id="42-watch-com-deep-true-observar-objetosarrays-por-dentro">4.2 <code>watch</code> com <code>{ deep: true }</code> — observar objetos/arrays por dentro<a class="anchor" href="#42-watch-com-deep-true-observar-objetosarrays-por-dentro" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">reactive</span><span class="p">,</span><span class="w"> </span><span class="nx">watch</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">filtros</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">reactive</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">busca</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">apenasComVaga</span><span class="o">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="p">})</span>
+
+<span class="c1">// por padrão, watch em um objeto reactive só dispara se a REFERÊNCIA mudar.</span>
+<span class="c1">// como alterações em filtros.busca são mudanças INTERNAS ao objeto,</span>
+<span class="c1">// precisamos de { deep: true } para o watch perceber.</span>
+<span class="nx">watch</span><span class="p">(</span>
+<span class="w">  </span><span class="nx">filtros</span><span class="p">,</span>
+<span class="w">  </span><span class="p">(</span><span class="nx">valorNovo</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;algum filtro mudou:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">valorNovo</span><span class="p">)</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">deep</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">},</span>
+<span class="p">)</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<h3 id="43-watcheffect-roda-de-novo-automaticamente-sem-declarar-a-fonte">4.3 <code>watchEffect()</code> — roda de novo automaticamente, sem declarar a fonte<a class="anchor" href="#43-watcheffect-roda-de-novo-automaticamente-sem-declarar-a-fonte" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="p">,</span><span class="w"> </span><span class="nx">watchEffect</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">busca</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">categoriaFiltro</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+<span class="c1">// watchEffect executa a função IMEDIATAMENTE (não precisa de immediate: true)</span>
+<span class="c1">// e registra sozinho, ao rodar, quais variáveis reativas ela leu —</span>
+<span class="c1">// depois reexecuta sempre que qualquer uma delas mudar.</span>
+<span class="nx">watchEffect</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`filtro atual → busca: &quot;</span><span class="si">${</span><span class="nx">busca</span><span class="p">.</span><span class="nx">value</span><span class="si">}</span><span class="sb">&quot;, categoria: &quot;</span><span class="si">${</span><span class="nx">categoriaFiltro</span><span class="p">.</span><span class="nx">value</span><span class="si">}</span><span class="sb">&quot;`</span><span class="p">)</span>
+<span class="p">})</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<h3 id="44-parando-um-watcher">4.4 Parando um watcher<a class="anchor" href="#44-parando-um-watcher" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="p">,</span><span class="w"> </span><span class="nx">watch</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">contador</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="mf">0</span><span class="p">)</span>
+
+<span class="c1">// watch() e watchEffect() retornam uma função para PARAR de observar</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">pararDeObservar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">watch</span><span class="p">(</span><span class="nx">contador</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">valor</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;contador:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">valor</span><span class="p">)</span>
+<span class="p">})</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">pararObservacao</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">pararDeObservar</span><span class="p">()</span><span class="w"> </span><span class="c1">// a partir daqui, mudanças em `contador` não disparam mais o log</span>
+<span class="p">}</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th><code>watch</code></th>
+<th><code>watchEffect</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Declara a fonte explicitamente?</td>
+<td>Sim — <code>watch(fonte, callback)</code></td>
+<td>Não — descobre sozinho lendo o corpo da função</td>
+</tr>
+<tr>
+<td>Roda na criação, por padrão?</td>
+<td>Não (a menos que <code>immediate: true</code>)</td>
+<td>Sim, sempre</td>
+</tr>
+<tr>
+<td>Acesso ao valor antigo?</td>
+<td>Sim (<code>(novo, antigo) =&gt; ...</code>)</td>
+<td>Não</td>
+</tr>
+<tr>
+<td>Quando usar</td>
+<td>Precisa saber o valor anterior, ou observar só uma fonte específica</td>
+<td>Quer reagir a "qualquer coisa que a função usa", de forma mais enxuta</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote class="prova">
+<p><strong>📌 Na prova</strong>
+Regra prática: se você precisa <strong>de um valor derivado</strong> para usar no template, use <code>computed</code>. Se precisa <strong>fazer algo</strong> (chamar API, gravar em disco, mostrar um alerta) quando um dado muda, use <code>watch</code> ou <code>watchEffect</code>.</p>
+</blockquote>
+<h2 id="5-onmounted-e-carregamento-de-dados">5. <code>onMounted()</code> e carregamento de dados<a class="anchor" href="#5-onmounted-e-carregamento-de-dados" title="Permanent link">¶</a></h2>
+<p>Até agora, <code>eventos</code> nasce pronto, direto de um array local. Na prática, dados vêm de uma API ou arquivo remoto — e isso é assíncrono. O lugar certo para disparar essa busca é o hook <code>onMounted</code> (Aula 02), porque é aí que temos garantia de que o componente já existe.</p>
+<h3 id="51-o-padrao-dos-tres-estados-de-tela">5.1 O padrão dos três estados de tela<a class="anchor" href="#51-o-padrao-dos-tres-estados-de-tela" title="Permanent link">¶</a></h3>
+<p>Toda tela que depende de dados assíncronos deveria tratar três situações:</p>
+<ol>
+<li><strong>Carregando</strong> — a requisição está em andamento.</li>
+<li><strong>Erro</strong> — a requisição falhou (rede caiu, servidor retornou erro).</li>
+<li><strong>Vazio</strong> — a requisição funcionou, mas não há dados para mostrar.</li>
+</ol>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="cm">&lt;!-- src/components/ListaEventosAssincrona.vue --&gt;</span>
+<span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="p">,</span><span class="w"> </span><span class="nx">onMounted</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">eventos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">([])</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">carregando</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">erro</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="kc">null</span><span class="p">)</span>
+
+<span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">carregarEventos</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">carregando</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">  </span><span class="nx">erro</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span>
+
+<span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">resposta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span><span class="s1">&#39;/eventos.json&#39;</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">resposta</span><span class="p">.</span><span class="nx">ok</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="sb">`Erro HTTP: </span><span class="si">${</span><span class="nx">resposta</span><span class="p">.</span><span class="nx">status</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">dados</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">resposta</span><span class="p">.</span><span class="nx">json</span><span class="p">()</span>
+<span class="w">    </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">dados</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">erroCapturado</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">erro</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;Não foi possível carregar os eventos. Tente novamente mais tarde.&#39;</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="nx">erroCapturado</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">finally</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">carregando</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nx">onMounted</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">carregarEventos</span><span class="p">()</span>
+<span class="p">})</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;lista-eventos&quot;</span><span class="p">&gt;</span>
+    <span class="cm">&lt;!-- estado 1: carregando --&gt;</span>
+    <span class="p">&lt;</span><span class="nt">p</span> <span class="na">v-if</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">carregando</span><span class="s">&quot;</span><span class="p">&gt;</span>Carregando eventos...<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+
+    <span class="cm">&lt;!-- estado 2: erro --&gt;</span>
+    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">v-else-if</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">erro</span><span class="s">&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;erro&quot;</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span><span class="cp">{{</span><span class="w"> </span><span class="nx">erro</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">button</span> <span class="p">@</span><span class="na">click</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">carregarEventos</span><span class="s">&quot;</span><span class="p">&gt;</span>Tentar novamente<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+
+    <span class="cm">&lt;!-- estado 3: vazio (sem erro, sem carregar, mas sem itens) --&gt;</span>
+    <span class="p">&lt;</span><span class="nt">p</span> <span class="na">v-else-if</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">eventos</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="s">&quot;</span><span class="p">&gt;</span>Nenhum evento cadastrado no momento.<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+
+    <span class="cm">&lt;!-- estado 4 (implícito): sucesso com dados --&gt;</span>
+    <span class="p">&lt;</span><span class="nt">ul</span> <span class="na">v-else</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">li</span> <span class="na">v-for</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">eventos</span><span class="s">&quot;</span> <span class="p">:</span><span class="na">key</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="p">.</span><span class="nx">id</span><span class="s">&quot;</span><span class="p">&gt;</span><span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<p>Crie o arquivo de dados simulando uma API, em <code>public/eventos.json</code> (a pasta <code>public/</code> do Vite é servida como está, sem processamento):</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;titulo&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Semana da Computação&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;categoria&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;palestra&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;dataHora&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-09-10T19:00:00&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;local&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Auditório Central&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;vagas&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">40</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;inscritos&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">12</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;titulo&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Oficina de Vue.js&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;categoria&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;minicurso&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;dataHora&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-08-20T14:00:00&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;local&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Laboratório 3&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;vagas&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;inscritos&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;titulo&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Hackathon FACET&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;categoria&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;workshop&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;dataHora&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-10-05T08:00:00&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;local&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Bloco B&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;vagas&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">60</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;inscritos&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">18</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;titulo&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Introdução a IA&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;categoria&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;palestra&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;dataHora&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-08-18T19:30:00&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;local&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Auditório Central&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;vagas&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">80</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;inscritos&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">55</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">]</span>
+</code></pre></div></div>
+
+<blockquote class="dica">
+<p><strong>💡 Dica</strong>
+Para testar o estado de erro de propósito, troque a URL do <code>fetch</code> para algo que não existe (<code>/eventos-inexistente.json</code>) e veja a tela de erro com o botão "Tentar novamente" funcionando.</p>
+</blockquote>
+<h2 id="6-formatacao-com-intl-e-ligacao-de-classesestilos">6. Formatação com <code>Intl</code> e ligação de classes/estilos<a class="anchor" href="#6-formatacao-com-intl-e-ligacao-de-classesestilos" title="Permanent link">¶</a></h2>
+<h3 id="61-intldatetimeformat-e-intlnumberformat">6.1 <code>Intl.DateTimeFormat</code> e <code>Intl.NumberFormat</code><a class="anchor" href="#61-intldatetimeformat-e-intlnumberformat" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">dataEvento</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">(</span><span class="s1">&#39;2026-09-10T19:00:00&#39;</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">valorInscricao</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">45.9</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">dataFormatada</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Intl</span><span class="p">.</span><span class="nx">DateTimeFormat</span><span class="p">(</span><span class="s1">&#39;pt-BR&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">day</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2-digit&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">month</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;long&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">year</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;numeric&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">hour</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2-digit&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">minute</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2-digit&#39;</span><span class="p">,</span>
+<span class="p">}).</span><span class="nx">format</span><span class="p">(</span><span class="nx">dataEvento</span><span class="p">)</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">valorFormatado</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Intl</span><span class="p">.</span><span class="nx">NumberFormat</span><span class="p">(</span><span class="s1">&#39;pt-BR&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">style</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;currency&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">currency</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;BRL&#39;</span><span class="p">,</span>
+<span class="p">}).</span><span class="nx">format</span><span class="p">(</span><span class="nx">valorInscricao</span><span class="p">)</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Data: <span class="cp">{{</span><span class="w"> </span><span class="nx">dataFormatada</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- 10 de setembro de 2026 19:00 --&gt;</span>
+
+  <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Valor: <span class="cp">{{</span><span class="w"> </span><span class="nx">valorFormatado</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- R$ 45,90 --&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<blockquote class="dica">
+<p><strong>💡 Dica</strong>
+Em vez de instanciar <code>Intl.DateTimeFormat</code>/<code>Intl.NumberFormat</code> de novo a cada uso, crie uma função utilitária reaproveitável (<code>src/utils/formatadores.js</code>) — é o que faremos na seção de "Mão na massa" a seguir.</p>
+</blockquote>
+<h3 id="62-class-objeto-e-array">6.2 <code>:class</code> — objeto e array<a class="anchor" href="#62-class-objeto-e-array" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="p">,</span><span class="w"> </span><span class="nx">computed</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">evento</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">({</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Oficina de Vue.js&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">25</span><span class="p">,</span><span class="w"> </span><span class="nx">inscritos</span><span class="o">:</span><span class="w"> </span><span class="mf">25</span><span class="w"> </span><span class="p">})</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">estaLotado</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">computed</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">value</span><span class="p">.</span><span class="nx">inscritos</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">value</span><span class="p">.</span><span class="nx">vagas</span><span class="p">)</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- :class com OBJETO: cada chave é uma classe, o valor decide se ela é aplicada --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="p">:</span><span class="na">class</span><span class="o">=</span><span class="s">&quot;</span><span class="p">{</span><span class="w"> </span><span class="s1">&#39;card-lotado&#39;</span><span class="o">:</span><span class="w"> </span><span class="nx">estaLotado</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;card-disponivel&#39;</span><span class="o">:</span><span class="w"> </span><span class="o">!</span><span class="nx">estaLotado</span><span class="w"> </span><span class="p">}</span><span class="s">&quot;</span><span class="p">&gt;</span>
+    <span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="w"> </span><span class="cp">}}</span>
+  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+
+  <span class="cm">&lt;!-- :class com ARRAY: combina classes fixas e condicionais --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="p">:</span><span class="na">class</span><span class="o">=</span><span class="s">&quot;</span><span class="p">[</span><span class="s1">&#39;card&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">estaLotado</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;card-lotado&#39;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;card-disponivel&#39;</span><span class="p">]</span><span class="s">&quot;</span><span class="p">&gt;</span>
+    <span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="w"> </span><span class="cp">}}</span>
+  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+
+  <span class="cm">&lt;!-- misturando classe estática (sem :) com classe dinâmica (com :) --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;card&quot;</span> <span class="p">:</span><span class="na">class</span><span class="o">=</span><span class="s">&quot;</span><span class="p">{</span><span class="w"> </span><span class="s1">&#39;card-lotado&#39;</span><span class="o">:</span><span class="w"> </span><span class="nx">estaLotado</span><span class="w"> </span><span class="p">}</span><span class="s">&quot;</span><span class="p">&gt;</span>
+    <span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="w"> </span><span class="cp">}}</span>
+  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">style</span> <span class="na">scoped</span><span class="p">&gt;</span>
+<span class="p">.</span><span class="nc">card</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">border</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="kt">px</span><span class="w"> </span><span class="kc">solid</span><span class="w"> </span><span class="mh">#ccc</span><span class="p">;</span>
+<span class="w">  </span><span class="k">padding</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="kt">rem</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="p">.</span><span class="nc">card-lotado</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">border-color</span><span class="p">:</span><span class="w"> </span><span class="mh">#c0392b</span><span class="p">;</span>
+<span class="w">  </span><span class="k">background-color</span><span class="p">:</span><span class="w"> </span><span class="mh">#fdecea</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="p">.</span><span class="nc">card-disponivel</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">border-color</span><span class="p">:</span><span class="w"> </span><span class="mh">#27ae60</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="p">&lt;/</span><span class="nt">style</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<h3 id="63-style">6.3 <code>:style</code><a class="anchor" href="#63-style" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="p">,</span><span class="w"> </span><span class="nx">computed</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">vagas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="mf">40</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">inscritos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="mf">30</span><span class="p">)</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">percentualOcupado</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">computed</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nb">Math</span><span class="p">.</span><span class="nx">round</span><span class="p">((</span><span class="nx">inscritos</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nx">vagas</span><span class="p">.</span><span class="nx">value</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">100</span><span class="p">))</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- :style com objeto --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span>
+    <span class="na">class</span><span class="o">=</span><span class="s">&quot;barra-progresso&quot;</span>
+    <span class="p">:</span><span class="na">style</span><span class="o">=</span><span class="s">&quot;</span><span class="p">{</span><span class="w"> </span><span class="nx">width</span><span class="o">:</span><span class="w"> </span><span class="nx">percentualOcupado</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39;%&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">backgroundColor</span><span class="o">:</span><span class="w"> </span><span class="nx">percentualOcupado</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">80</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;#c0392b&#39;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#27ae60&#39;</span><span class="w"> </span><span class="p">}</span><span class="s">&quot;</span>
+  <span class="p">&gt;&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+
+  <span class="cm">&lt;!-- :style com array de objetos: combina múltiplos conjuntos de estilo --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">p</span> <span class="p">:</span><span class="na">style</span><span class="o">=</span><span class="s">&quot;</span><span class="p">[{</span><span class="w"> </span><span class="nx">fontWeight</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;bold&#39;</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">color</span><span class="o">:</span><span class="w"> </span><span class="nx">percentualOcupado</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">80</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;red&#39;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;black&#39;</span><span class="w"> </span><span class="p">}]</span><span class="s">&quot;</span><span class="p">&gt;</span>
+    <span class="cp">{{</span><span class="w"> </span><span class="nx">percentualOcupado</span><span class="w"> </span><span class="cp">}}</span>% ocupado
+  <span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">style</span> <span class="na">scoped</span><span class="p">&gt;</span>
+<span class="p">.</span><span class="nc">barra-progresso</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">height</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="kt">px</span><span class="p">;</span>
+<span class="w">  </span><span class="k">border-radius</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="kt">px</span><span class="p">;</span>
+<span class="w">  </span><span class="k">transition</span><span class="p">:</span><span class="w"> </span><span class="k">width</span><span class="w"> </span><span class="mf">0.3</span><span class="kt">s</span><span class="w"> </span><span class="kc">ease</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="p">&lt;/</span><span class="nt">style</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<h2 id="padrao-de-projeto-em-uso">🧩 Padrão de projeto em uso<a class="anchor" href="#padrao-de-projeto-em-uso" title="Permanent link">¶</a></h2>
+<blockquote>
+<h3 id="padrao-de-projeto-em-uso-proxy-estrutural">🧩 Padrão de projeto em uso — Proxy (estrutural)<a class="anchor" href="#padrao-de-projeto-em-uso-proxy-estrutural" title="Permanent link">¶</a></h3>
+<p>O padrão <strong>Proxy</strong> cria um objeto substituto que controla o acesso a outro objeto — interceptando leituras, escritas ou chamadas, e adicionando comportamento extra sem que quem usa o objeto perceba a diferença.</p>
+<p>Um Proxy simplificado, em JavaScript puro, para logar todo acesso a um objeto:</p>
+<p>```js
+const evento = { titulo: 'Semana da Computação', vagas: 40 }</p>
+<p>const eventoComLog = new Proxy(evento, {
+  get(alvo, propriedade) {
+    console.log(<code>[leitura] alguém acessou "${propriedade}"</code>)
+    return alvo[propriedade]
+  },
+  set(alvo, propriedade, novoValor) {
+    console.log(<code>[escrita] "${propriedade}" mudou de "${alvo[propriedade]}" para "${novoValor}"</code>)
+    alvo[propriedade] = novoValor
+    return true
+  },
+})</p>
+<p>console.log(eventoComLog.titulo) // dispara o "get" -&gt; loga e retorna o valor
+eventoComLog.vagas = 39          // dispara o "set" -&gt; loga e altera o valor real
+```</p>
+<p><strong>É exatamente este mecanismo que <code>reactive()</code> usa por dentro.</strong> Quando você chama <code>reactive(objeto)</code>, o Vue devolve um <code>Proxy</code> que envolve o objeto original. Toda leitura de propriedade (<code>evento.titulo</code>) passa pelo <code>get</code> do Proxy, que registra "este trecho de template/computed depende de <code>titulo</code>" (o rastreamento de dependências que sustenta o padrão Observer da Aula 02). Toda escrita (<code>evento.vagas = 39</code>) passa pelo <code>set</code>, que dispara a notificação para quem depende daquele valor, disparando a re-renderização. <code>ref()</code> usa uma técnica um pouco diferente por baixo (um objeto com getter/setter na propriedade <code>.value</code>, sem precisar de um <code>Proxy</code> completo, já que só precisa interceptar uma única propriedade), mas o princípio — interceptar acesso para adicionar comportamento reativo — é o mesmo padrão <strong>Proxy</strong>.</p>
+</blockquote>
+<h2 id="mao-na-massa-unieventos-com-filtros-combinados">💻 Mão na massa — UniEventos com filtros combinados<a class="anchor" href="#mao-na-massa-unieventos-com-filtros-combinados" title="Permanent link">¶</a></h2>
+<p>Vamos consolidar tudo em uma versão mais completa: busca por texto + categoria + "apenas com vagas", ordenação, contadores derivados, carregamento assíncrono no <code>onMounted</code> e destaque visual para eventos lotados ou que acontecem nos próximos 7 dias.</p>
+<p><strong>Passo 1 — utilitário de formatação, reaproveitável em todo o projeto.</strong></p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/utils/formatadores.js</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">formatarDataHora</span><span class="p">(</span><span class="nx">dataIso</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Intl</span><span class="p">.</span><span class="nx">DateTimeFormat</span><span class="p">(</span><span class="s1">&#39;pt-BR&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">day</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2-digit&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">month</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;long&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">year</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;numeric&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">hour</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2-digit&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">minute</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2-digit&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">}).</span><span class="nx">format</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">(</span><span class="nx">dataIso</span><span class="p">))</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">formatarPercentual</span><span class="p">(</span><span class="nx">valor</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Intl</span><span class="p">.</span><span class="nx">NumberFormat</span><span class="p">(</span><span class="s1">&#39;pt-BR&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">style</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;percent&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">maximumFractionDigits</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span>
+<span class="w">  </span><span class="p">}).</span><span class="nx">format</span><span class="p">(</span><span class="nx">valor</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">100</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">ocorreNosProximosDias</span><span class="p">(</span><span class="nx">dataIso</span><span class="p">,</span><span class="w"> </span><span class="nx">dias</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">agora</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">()</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">dataDoEvento</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">(</span><span class="nx">dataIso</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">diferencaEmMs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">dataDoEvento</span><span class="p">.</span><span class="nx">getTime</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">agora</span><span class="p">.</span><span class="nx">getTime</span><span class="p">()</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">diferencaEmDias</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">diferencaEmMs</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="mf">1000</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">60</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">60</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">24</span><span class="p">)</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">diferencaEmDias</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mf">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">diferencaEmDias</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="nx">dias</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>Passo 2 — mantenha <code>public/eventos.json</code> da Seção 5.1</strong> (ou ajuste as datas para ficarem próximas da data atual, se quiser testar o destaque de "próximos 7 dias").</p>
+<p><strong>Passo 3 — o componente completo.</strong></p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="cm">&lt;!-- src/App.vue --&gt;</span>
+<span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="p">,</span><span class="w"> </span><span class="nx">computed</span><span class="p">,</span><span class="w"> </span><span class="nx">onMounted</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">formatarDataHora</span><span class="p">,</span><span class="w"> </span><span class="nx">formatarPercentual</span><span class="p">,</span><span class="w"> </span><span class="nx">ocorreNosProximosDias</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./utils/formatadores.js&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">eventos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">([])</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">carregando</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">erro</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="kc">null</span><span class="p">)</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">busca</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">categoriaFiltro</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">apenasComVaga</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">criterioOrdenacao</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">)</span><span class="w"> </span><span class="c1">// &#39;data&#39; | &#39;vagas&#39;</span>
+
+<span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">carregarEventos</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">carregando</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">  </span><span class="nx">erro</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span>
+
+<span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">resposta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span><span class="s1">&#39;/eventos.json&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">resposta</span><span class="p">.</span><span class="nx">ok</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="sb">`Erro HTTP: </span><span class="si">${</span><span class="nx">resposta</span><span class="p">.</span><span class="nx">status</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">resposta</span><span class="p">.</span><span class="nx">json</span><span class="p">()</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">erroCapturado</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">erro</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;Não foi possível carregar os eventos. Tente novamente mais tarde.&#39;</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="nx">erroCapturado</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">finally</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">carregando</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nx">onMounted</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">carregarEventos</span><span class="p">()</span>
+<span class="p">})</span>
+
+<span class="c1">// computed principal: aplica os TRÊS filtros de uma vez, em cadeia</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">eventosFiltrados</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">computed</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">value</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">filter</span><span class="p">((</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">().</span><span class="nx">includes</span><span class="p">(</span><span class="nx">busca</span><span class="p">.</span><span class="nx">value</span><span class="p">.</span><span class="nx">trim</span><span class="p">().</span><span class="nx">toLowerCase</span><span class="p">()))</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">filter</span><span class="p">((</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">categoriaFiltro</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">categoria</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">categoriaFiltro</span><span class="p">.</span><span class="nx">value</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">filter</span><span class="p">((</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="o">!</span><span class="nx">apenasComVaga</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">inscritos</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">vagas</span><span class="p">)</span>
+<span class="p">})</span>
+
+<span class="c1">// computed encadeada: ordena o resultado já filtrado</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">eventosOrdenados</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">computed</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">copia</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[...</span><span class="nx">eventosFiltrados</span><span class="p">.</span><span class="nx">value</span><span class="p">]</span>
+
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">criterioOrdenacao</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;data&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">copia</span><span class="p">.</span><span class="nx">sort</span><span class="p">((</span><span class="nx">a</span><span class="p">,</span><span class="w"> </span><span class="nx">b</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">(</span><span class="nx">a</span><span class="p">.</span><span class="nx">dataHora</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">(</span><span class="nx">b</span><span class="p">.</span><span class="nx">dataHora</span><span class="p">))</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// ordenar por vagas restantes, da maior para a menor</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">copia</span><span class="p">.</span><span class="nx">sort</span><span class="p">((</span><span class="nx">a</span><span class="p">,</span><span class="w"> </span><span class="nx">b</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">(</span><span class="nx">b</span><span class="p">.</span><span class="nx">vagas</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">b</span><span class="p">.</span><span class="nx">inscritos</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">(</span><span class="nx">a</span><span class="p">.</span><span class="nx">vagas</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">a</span><span class="p">.</span><span class="nx">inscritos</span><span class="p">))</span>
+<span class="p">})</span>
+
+<span class="c1">// contadores derivados — cada um é barato de calcular porque</span>
+<span class="c1">// eventosFiltrados já está em cache</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">totalFiltrado</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">computed</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">eventosFiltrados</span><span class="p">.</span><span class="nx">value</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">totalVagasLivres</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">computed</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span>
+<span class="w">  </span><span class="nx">eventosFiltrados</span><span class="p">.</span><span class="nx">value</span><span class="p">.</span><span class="nx">reduce</span><span class="p">((</span><span class="nx">total</span><span class="p">,</span><span class="w"> </span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">total</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="nx">evento</span><span class="p">.</span><span class="nx">vagas</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">inscritos</span><span class="p">),</span><span class="w"> </span><span class="mf">0</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">vagasRestantes</span><span class="p">(</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">vagas</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">inscritos</span>
+<span class="p">}</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">percentualOcupacao</span><span class="p">(</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nb">Math</span><span class="p">.</span><span class="nx">round</span><span class="p">((</span><span class="nx">evento</span><span class="p">.</span><span class="nx">inscritos</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">vagas</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">100</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">inscrever</span><span class="p">(</span><span class="nx">eventoId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">evento</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">value</span><span class="p">.</span><span class="nx">find</span><span class="p">((</span><span class="nx">item</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">item</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">eventoId</span><span class="p">)</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">evento</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">inscritos</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">vagas</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+<span class="w">  </span><span class="nx">evento</span><span class="p">.</span><span class="nx">inscritos</span><span class="o">++</span>
+<span class="p">}</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">limparFiltros</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">busca</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&#39;</span>
+<span class="w">  </span><span class="nx">categoriaFiltro</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&#39;</span>
+<span class="w">  </span><span class="nx">apenasComVaga</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span>
+<span class="p">}</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">main</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;pagina&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>UniEventos<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Encontre e inscreva-se em eventos acadêmicos.<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+
+    <span class="cm">&lt;!-- estado: carregando --&gt;</span>
+    <span class="p">&lt;</span><span class="nt">p</span> <span class="na">v-if</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">carregando</span><span class="s">&quot;</span><span class="p">&gt;</span>Carregando eventos...<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+
+    <span class="cm">&lt;!-- estado: erro --&gt;</span>
+    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">v-else-if</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">erro</span><span class="s">&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;erro&quot;</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span><span class="cp">{{</span><span class="w"> </span><span class="nx">erro</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">button</span> <span class="p">@</span><span class="na">click</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">carregarEventos</span><span class="s">&quot;</span><span class="p">&gt;</span>Tentar novamente<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+
+    <span class="cm">&lt;!-- estado: sucesso --&gt;</span>
+    <span class="p">&lt;</span><span class="nt">template</span> <span class="na">v-else</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;filtros&quot;</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">input</span> <span class="na">v-model</span><span class="p">.</span><span class="na">trim</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">busca</span><span class="s">&quot;</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;text&quot;</span> <span class="na">placeholder</span><span class="o">=</span><span class="s">&quot;Buscar por título...&quot;</span> <span class="p">/&gt;</span>
+
+        <span class="p">&lt;</span><span class="nt">select</span> <span class="na">v-model</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">categoriaFiltro</span><span class="s">&quot;</span><span class="p">&gt;</span>
+          <span class="p">&lt;</span><span class="nt">option</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">&gt;</span>Todas as categorias<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+          <span class="p">&lt;</span><span class="nt">option</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;palestra&quot;</span><span class="p">&gt;</span>Palestra<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+          <span class="p">&lt;</span><span class="nt">option</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;minicurso&quot;</span><span class="p">&gt;</span>Minicurso<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+          <span class="p">&lt;</span><span class="nt">option</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;workshop&quot;</span><span class="p">&gt;</span>Workshop<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+        <span class="p">&lt;/</span><span class="nt">select</span><span class="p">&gt;</span>
+
+        <span class="p">&lt;</span><span class="nt">label</span><span class="p">&gt;</span>
+          <span class="p">&lt;</span><span class="nt">input</span> <span class="na">v-model</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">apenasComVaga</span><span class="s">&quot;</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;checkbox&quot;</span> <span class="p">/&gt;</span>
+          Apenas com vagas
+        <span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+
+        <span class="p">&lt;</span><span class="nt">select</span> <span class="na">v-model</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">criterioOrdenacao</span><span class="s">&quot;</span><span class="p">&gt;</span>
+          <span class="p">&lt;</span><span class="nt">option</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;data&quot;</span><span class="p">&gt;</span>Ordenar por data<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+          <span class="p">&lt;</span><span class="nt">option</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;vagas&quot;</span><span class="p">&gt;</span>Ordenar por vagas livres<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+        <span class="p">&lt;/</span><span class="nt">select</span><span class="p">&gt;</span>
+
+        <span class="p">&lt;</span><span class="nt">button</span> <span class="p">@</span><span class="na">click</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">limparFiltros</span><span class="s">&quot;</span><span class="p">&gt;</span>Limpar filtros<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+      <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+
+      <span class="p">&lt;</span><span class="nt">p</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;resumo&quot;</span><span class="p">&gt;</span>
+        <span class="cp">{{</span><span class="w"> </span><span class="nx">totalFiltrado</span><span class="w"> </span><span class="cp">}}</span> evento(s) encontrado(s) — <span class="cp">{{</span><span class="w"> </span><span class="nx">totalVagasLivres</span><span class="w"> </span><span class="cp">}}</span> vaga(s) livre(s) no total
+      <span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+
+      <span class="cm">&lt;!-- estado: vazio (sucesso, mas sem itens após o filtro) --&gt;</span>
+      <span class="p">&lt;</span><span class="nt">p</span> <span class="na">v-if</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">eventosOrdenados</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="s">&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;vazio&quot;</span><span class="p">&gt;</span>
+        Nenhum evento encontrado com estes filtros.
+      <span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+
+      <span class="p">&lt;</span><span class="nt">ul</span> <span class="na">v-else</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;lista-eventos&quot;</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">li</span>
+          <span class="na">v-for</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">eventosOrdenados</span><span class="s">&quot;</span>
+          <span class="p">:</span><span class="na">key</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="p">.</span><span class="nx">id</span><span class="s">&quot;</span>
+          <span class="na">class</span><span class="o">=</span><span class="s">&quot;card-evento&quot;</span>
+          <span class="p">:</span><span class="na">class</span><span class="o">=</span><span class="s">&quot;</span><span class="p">{</span>
+<span class="w">            </span><span class="s1">&#39;card-lotado&#39;</span><span class="o">:</span><span class="w"> </span><span class="nx">vagasRestantes</span><span class="p">(</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span>
+<span class="w">            </span><span class="s1">&#39;card-em-breve&#39;</span><span class="o">:</span><span class="w"> </span><span class="nx">ocorreNosProximosDias</span><span class="p">(</span><span class="nx">evento</span><span class="p">.</span><span class="nx">dataHora</span><span class="p">,</span><span class="w"> </span><span class="mf">7</span><span class="p">),</span>
+<span class="w">          </span><span class="p">}</span><span class="s">&quot;</span>
+        <span class="p">&gt;</span>
+          <span class="p">&lt;</span><span class="nt">h2</span><span class="p">&gt;</span><span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">h2</span><span class="p">&gt;</span>
+          <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span><span class="cp">{{</span><span class="w"> </span><span class="nx">formatarDataHora</span><span class="p">(</span><span class="nx">evento</span><span class="p">.</span><span class="nx">dataHora</span><span class="p">)</span><span class="w"> </span><span class="cp">}}</span> — <span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">local</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+          <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Categoria: <span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">categoria</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+
+          <span class="p">&lt;</span><span class="nt">p</span> <span class="na">v-if</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">ocorreNosProximosDias</span><span class="p">(</span><span class="nx">evento</span><span class="p">.</span><span class="nx">dataHora</span><span class="p">,</span><span class="w"> </span><span class="mf">7</span><span class="p">)</span><span class="s">&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;selo-em-breve&quot;</span><span class="p">&gt;</span>
+            Acontece em breve!
+          <span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+
+          <span class="p">&lt;</span><span class="nt">div</span>
+            <span class="na">class</span><span class="o">=</span><span class="s">&quot;barra-progresso-fundo&quot;</span>
+            <span class="p">:</span><span class="na">style</span><span class="o">=</span><span class="s">&quot;</span><span class="p">{</span><span class="w"> </span><span class="s1">&#39;--percentual&#39;</span><span class="o">:</span><span class="w"> </span><span class="nx">percentualOcupacao</span><span class="p">(</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39;%&#39;</span><span class="w"> </span><span class="p">}</span><span class="s">&quot;</span>
+          <span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">div</span>
+              <span class="na">class</span><span class="o">=</span><span class="s">&quot;barra-progresso&quot;</span>
+              <span class="p">:</span><span class="na">style</span><span class="o">=</span><span class="s">&quot;</span><span class="p">{</span>
+<span class="w">                </span><span class="nx">width</span><span class="o">:</span><span class="w"> </span><span class="nx">percentualOcupacao</span><span class="p">(</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39;%&#39;</span><span class="p">,</span>
+<span class="w">                </span><span class="nx">backgroundColor</span><span class="o">:</span><span class="w"> </span><span class="nx">vagasRestantes</span><span class="p">(</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;#c0392b&#39;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#27ae60&#39;</span><span class="p">,</span>
+<span class="w">              </span><span class="p">}</span><span class="s">&quot;</span>
+            <span class="p">&gt;&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+          <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+          <span class="p">&lt;</span><span class="nt">p</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;texto-ocupacao&quot;</span><span class="p">&gt;</span><span class="cp">{{</span><span class="w"> </span><span class="nx">formatarPercentual</span><span class="p">(</span><span class="nx">percentualOcupacao</span><span class="p">(</span><span class="nx">evento</span><span class="p">))</span><span class="w"> </span><span class="cp">}}</span> ocupado<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+
+          <span class="p">&lt;</span><span class="nt">p</span> <span class="na">v-if</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">vagasRestantes</span><span class="p">(</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0</span><span class="s">&quot;</span><span class="p">&gt;</span><span class="cp">{{</span><span class="w"> </span><span class="nx">vagasRestantes</span><span class="p">(</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="cp">}}</span> vaga(s) restante(s)<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+          <span class="p">&lt;</span><span class="nt">p</span> <span class="na">v-else</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;lotado&quot;</span><span class="p">&gt;</span>Evento lotado<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+
+          <span class="p">&lt;</span><span class="nt">button</span> <span class="p">:</span><span class="na">disabled</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">vagasRestantes</span><span class="p">(</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="s">&quot;</span> <span class="p">@</span><span class="na">click</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">inscrever</span><span class="p">(</span><span class="nx">evento</span><span class="p">.</span><span class="nx">id</span><span class="p">)</span><span class="s">&quot;</span><span class="p">&gt;</span>
+            Inscrever-se
+          <span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+        <span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+      <span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">main</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">style</span> <span class="na">scoped</span><span class="p">&gt;</span>
+<span class="p">.</span><span class="nc">pagina</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">max-width</span><span class="p">:</span><span class="w"> </span><span class="mi">780</span><span class="kt">px</span><span class="p">;</span>
+<span class="w">  </span><span class="k">margin</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="kc">auto</span><span class="p">;</span>
+<span class="w">  </span><span class="k">padding</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="kt">rem</span><span class="p">;</span>
+<span class="w">  </span><span class="k">font-family</span><span class="p">:</span><span class="w"> </span><span class="kc">sans-serif</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">filtros</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">display</span><span class="p">:</span><span class="w"> </span><span class="kc">flex</span><span class="p">;</span>
+<span class="w">  </span><span class="k">flex-wrap</span><span class="p">:</span><span class="w"> </span><span class="kc">wrap</span><span class="p">;</span>
+<span class="w">  </span><span class="k">gap</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="kt">rem</span><span class="p">;</span>
+<span class="w">  </span><span class="k">align-items</span><span class="p">:</span><span class="w"> </span><span class="kc">center</span><span class="p">;</span>
+<span class="w">  </span><span class="k">margin-bottom</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="kt">rem</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">resumo</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">color</span><span class="p">:</span><span class="w"> </span><span class="mh">#555</span><span class="p">;</span>
+<span class="w">  </span><span class="k">margin-bottom</span><span class="p">:</span><span class="w"> </span><span class="mf">1.5</span><span class="kt">rem</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">lista-eventos</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">list-style</span><span class="p">:</span><span class="w"> </span><span class="kc">none</span><span class="p">;</span>
+<span class="w">  </span><span class="k">padding</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">  </span><span class="k">display</span><span class="p">:</span><span class="w"> </span><span class="k">grid</span><span class="p">;</span>
+<span class="w">  </span><span class="k">gap</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="kt">rem</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">card-evento</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">border</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="kt">px</span><span class="w"> </span><span class="kc">solid</span><span class="w"> </span><span class="mh">#ddd</span><span class="p">;</span>
+<span class="w">  </span><span class="k">border-radius</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="kt">px</span><span class="p">;</span>
+<span class="w">  </span><span class="k">padding</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="kt">rem</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">card-lotado</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">border-color</span><span class="p">:</span><span class="w"> </span><span class="mh">#c0392b</span><span class="p">;</span>
+<span class="w">  </span><span class="k">background-color</span><span class="p">:</span><span class="w"> </span><span class="mh">#fdecea</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">card-em-breve</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">border-left</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="kt">px</span><span class="w"> </span><span class="kc">solid</span><span class="w"> </span><span class="mh">#f39c12</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">selo-em-breve</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">color</span><span class="p">:</span><span class="w"> </span><span class="mh">#d68910</span><span class="p">;</span>
+<span class="w">  </span><span class="k">font-weight</span><span class="p">:</span><span class="w"> </span><span class="kc">bold</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">barra-progresso-fundo</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">background-color</span><span class="p">:</span><span class="w"> </span><span class="mh">#eee</span><span class="p">;</span>
+<span class="w">  </span><span class="k">border-radius</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="kt">px</span><span class="p">;</span>
+<span class="w">  </span><span class="k">height</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="kt">px</span><span class="p">;</span>
+<span class="w">  </span><span class="k">overflow</span><span class="p">:</span><span class="w"> </span><span class="kc">hidden</span><span class="p">;</span>
+<span class="w">  </span><span class="k">margin-top</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span><span class="kt">rem</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">barra-progresso</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">height</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="kt">%</span><span class="p">;</span>
+<span class="w">  </span><span class="k">transition</span><span class="p">:</span><span class="w"> </span><span class="k">width</span><span class="w"> </span><span class="mf">0.3</span><span class="kt">s</span><span class="w"> </span><span class="kc">ease</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">texto-ocupacao</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">font-size</span><span class="p">:</span><span class="w"> </span><span class="mf">0.85</span><span class="kt">rem</span><span class="p">;</span>
+<span class="w">  </span><span class="k">color</span><span class="p">:</span><span class="w"> </span><span class="mh">#666</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">lotado</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">color</span><span class="p">:</span><span class="w"> </span><span class="mh">#c0392b</span><span class="p">;</span>
+<span class="w">  </span><span class="k">font-weight</span><span class="p">:</span><span class="w"> </span><span class="kc">bold</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">erro</span><span class="o">,</span>
+<span class="p">.</span><span class="nc">vazio</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">text-align</span><span class="p">:</span><span class="w"> </span><span class="kc">center</span><span class="p">;</span>
+<span class="w">  </span><span class="k">color</span><span class="p">:</span><span class="w"> </span><span class="mh">#666</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="p">&lt;/</span><span class="nt">style</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<blockquote class="prova">
+<p><strong>📌 Na prova</strong>
+Observe que <code>eventosFiltrados</code> e <code>eventosOrdenados</code> são duas computed <strong>encadeadas</strong>, e <code>totalFiltrado</code>/<code>totalVagasLivres</code> dependem de <code>eventosFiltrados</code>. Se você mudar <code>busca</code>, o Vue recalcula <code>eventosFiltrados</code> (porque ela lê <code>busca</code>), o que por sua vez invalida o cache de <code>eventosOrdenados</code>, <code>totalFiltrado</code> e <code>totalVagasLivres</code> — tudo automático, seguindo a cadeia de dependências. Você não escreve nenhuma chamada manual de "atualizar".</p>
+</blockquote>
+<h2 id="laboratorio">🧪 Laboratório<a class="anchor" href="#laboratorio" title="Permanent link">¶</a></h2>
+<p><strong>1. Refatorar método em computed</strong> — pegue esta função e transforme-a em <code>computed</code>:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">eventosPalestrasComVaga</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">value</span><span class="p">.</span><span class="nx">filter</span><span class="p">((</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">categoria</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;palestra&#39;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">inscritos</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">vagas</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Resultado esperado: uma constante <code>eventosPalestrasComVaga</code> criada com <code>computed(() =&gt; ...)</code>, usada no template sem parênteses (<code>v-for="evento in eventosPalestrasComVaga"</code>, não <code>eventosPalestrasComVaga()</code>).</p>
+<details>
+<summary>Dica</summary>
+<p><code>const eventosPalestrasComVaga = computed(() =&gt; eventos.value.filter((e) =&gt; e.categoria === 'palestra' &amp;&amp; e.inscritos &lt; e.vagas))</code></p>
+</details>
+<p><strong>2. Corrigir uma lista sem <code>:key</code></strong> — dado este trecho com um bug proposital, corrija-o:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">li</span> <span class="na">v-for</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">eventosOrdenados</span><span class="s">&quot;</span><span class="p">&gt;</span><span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<p>Resultado esperado: <code>:key="evento.id"</code> adicionado, e o console do navegador sem o aviso <code>Elements in iteration expect to have 'v-bind:key'</code>.</p>
+<details>
+<summary>Dica</summary>
+<p>Abra o DevTools (Console) — o Vue avisa explicitamente quando falta <code>:key</code> em um <code>v-for</code>.</p>
+</details>
+<p><strong>3. <code>watch</code> para persistir o filtro</strong> — use <code>watch</code> sobre <code>categoriaFiltro</code> para gravar a categoria escolhida em <code>localStorage.setItem('ultimaCategoria', valor)</code>, e leia esse valor com <code>localStorage.getItem</code> para definir o valor inicial de <code>categoriaFiltro</code>.</p>
+<p>Resultado esperado: recarregar a página mantém a última categoria filtrada.</p>
+<details>
+<summary>Dica</summary>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">categoriaFiltro</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="nx">localStorage</span><span class="p">.</span><span class="nx">getItem</span><span class="p">(</span><span class="s1">&#39;ultimaCategoria&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="nx">watch</span><span class="p">(</span><span class="nx">categoriaFiltro</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">valor</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">localStorage</span><span class="p">.</span><span class="nx">setItem</span><span class="p">(</span><span class="s1">&#39;ultimaCategoria&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">valor</span><span class="p">))</span>
+</code></pre></div></div>
+
+</details>
+<p><strong>4. Computed com getter e setter</strong> — crie uma computed <code>buscaEmMaiusculas</code> que exiba <code>busca</code> sempre em maiúsculas ao ler, mas ao escrever converta para minúsculas antes de gravar em <code>busca</code>.</p>
+<p>Resultado esperado: digitar "VUE" em um campo ligado a <code>buscaEmMaiusculas</code> faz <code>busca.value</code> valer <code>"vue"</code>.</p>
+<details>
+<summary>Dica</summary>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">buscaEmMaiusculas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">computed</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">get</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">busca</span><span class="p">.</span><span class="nx">value</span><span class="p">.</span><span class="nx">toUpperCase</span><span class="p">(),</span>
+<span class="w">  </span><span class="nx">set</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">valor</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">busca</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">valor</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">()</span><span class="w"> </span><span class="p">},</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+</details>
+<p><strong>5. Estado de erro proposital</strong> — troque a URL do <code>fetch</code> em <code>carregarEventos</code> para <code>/eventos-inexistente.json</code>, confirme que a tela de erro aparece com o botão "Tentar novamente", depois desfaça a mudança.</p>
+<p>Resultado esperado: você reproduz e depois corrige o estado de erro descrito na Seção 5.</p>
+<details>
+<summary>Dica</summary>
+<p>O <code>catch</code> do <code>try/catch</code> precisa capturar tanto falha de rede quanto <code>resposta.ok === false</code>.</p>
+</details>
+<h2 id="erros-comuns-e-como-resolver">🐛 Erros comuns e como resolver<a class="anchor" href="#erros-comuns-e-como-resolver" title="Permanent link">¶</a></h2>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Sintoma</th>
+<th>Causa</th>
+<th>Solução</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>computed</code> não atualiza quando eu esperava</td>
+<td>A função do computed não lê nenhuma variável reativa (ex.: lê uma variável comum, não um <code>ref</code>/<code>reactive</code>)</td>
+<td>Garanta que tudo que o computed depende é reativo</td>
+</tr>
+<tr>
+<td><code>v-for</code> com <code>v-if</code> no mesmo elemento gera erro ou resultado estranho</td>
+<td>Antipadrão descrito na Seção 2</td>
+<td>Mova o filtro para um <code>computed</code> e itere sobre o resultado</td>
+</tr>
+<tr>
+<td><code>watch</code> não dispara ao mudar uma propriedade interna de um objeto</td>
+<td>Faltou <code>{ deep: true }</code> ao observar um <code>reactive</code>/objeto</td>
+<td>Adicione a opção <code>deep: true</code></td>
+</tr>
+<tr>
+<td>Tela fica presa em "Carregando eventos..." para sempre</td>
+<td>Esqueceu de setar <code>carregando.value = false</code> no <code>finally</code>, ou uma exceção interrompeu antes de chegar lá</td>
+<td>Sempre use <code>try/catch/finally</code>, com <code>carregando.value = false</code> no <code>finally</code></td>
+</tr>
+<tr>
+<td>Data aparece como <code>Invalid Date</code></td>
+<td><code>dataIso</code> no formato errado, ou <code>new Date()</code> recebendo <code>undefined</code></td>
+<td>Confira o formato ISO (<code>YYYY-MM-DDTHH:mm:ss</code>) vindo do JSON</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="atividade-assincrona-1-h">🏠 Atividade assíncrona (1 h)<a class="anchor" href="#atividade-assincrona-1-h" title="Permanent link">¶</a></h2>
+<p>No repositório do seu projeto autoral:</p>
+<ol>
+<li>Substitua a listagem estática do seu domínio por dados carregados via <code>fetch</code> dentro de <code>onMounted</code>, a partir de um arquivo em <code>public/&lt;entidade&gt;.json</code> (siga o modelo da Seção 5.1).</li>
+<li>Implemente os três estados de tela: carregando, erro (com botão de tentar novamente) e vazio.</li>
+<li>Transforme pelo menos uma função de filtro em <code>computed</code>, e combine dois ou mais critérios de filtro na mesma computed (texto + categoria/tipo, como fizemos hoje).</li>
+<li>Adicione formatação de datas e/ou valores com <code>Intl</code> para os campos do seu domínio.</li>
+<li>Adicione um destaque visual condicional (<code>:class</code>) para algum estado relevante do seu domínio (ex.: "esgotado", "últimas unidades", "encerra em breve").</li>
+<li>Faça commit e push.</li>
+</ol>
+<p><strong>Critério de pronto:</strong> os três estados de tela funcionam (teste forçando um erro), os filtros combinados funcionam via <code>computed</code>, e existe pelo menos um destaque visual condicional.</p>
+<h2 id="checkpoint-do-projeto-autoral">✅ Checkpoint do projeto autoral<a class="anchor" href="#checkpoint-do-projeto-autoral" title="Permanent link">¶</a></h2>
+<ul>
+<li>[ ] Dados carregados via <code>fetch</code> dentro de <code>onMounted</code>, a partir de um JSON em <code>public/</code>.</li>
+<li>[ ] Estados de carregando, erro e vazio implementados e testados.</li>
+<li>[ ] Pelo menos um <code>computed</code> combinando dois ou mais critérios de filtro.</li>
+<li>[ ] Formatação de data e/ou valor com <code>Intl</code> aplicada em pelo menos um campo.</li>
+<li>[ ] Destaque visual condicional com <code>:class</code> em pelo menos um cenário do domínio.</li>
+<li>[ ] Todo <code>v-for</code> do projeto usa <code>:key</code> com um identificador estável (nunca o índice).</li>
+<li>[ ] Commit enviado ao GitHub.</li>
+</ul>
+<p>Na próxima aula você vai reestruturar seu projeto com <strong>Vuetify</strong> e <strong>Vue Router</strong> — os filtros e listas que você já tem hoje continuam valendo, só ganham um visual pronto e navegação entre telas.</p>
+<h2 id="aviso-avaliacao-1-se-aproxima">📝 Aviso — Avaliação 1 se aproxima<a class="anchor" href="#aviso-avaliacao-1-se-aproxima" title="Permanent link">¶</a></h2>
+<p>A <strong>Avaliação 1</strong> (implementação introdutória de Vue 3 com CLI: estrutura, componentes, diretivas) tem entrega até <strong>31/08/2026, 23h59</strong>, e as instruções completas — escopo, rubrica e formato de entrega — serão publicadas na <strong>Aula 04</strong> (31/08/2026), junto com Vuetify e Vue Router. Use esta semana assíncrona também para revisar: estrutura do projeto Vite, diretivas da Aula 02 e <code>computed</code>/<code>onMounted</code> de hoje são a base de tudo que será cobrado.</p>
+<h2 id="para-aprofundar">📚 Para aprofundar<a class="anchor" href="#para-aprofundar" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="https://vuejs.org/guide/essentials/computed.html">Vue 3 — Computed Properties</a></li>
+<li><a href="https://vuejs.org/guide/essentials/watchers.html">Vue 3 — Watchers</a></li>
+<li><a href="https://vuejs.org/guide/essentials/list.html#v-for-with-v-if">Vue 3 — List Rendering, seção "v-for with v-if"</a></li>
+<li><a href="https://vuejs.org/guide/essentials/class-and-style.html">Vue 3 — Class and Style Bindings</a></li>
+<li><a href="https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat">MDN — <code>Intl.DateTimeFormat</code></a></li>
+<li><a href="https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat">MDN — <code>Intl.NumberFormat</code></a></li>
+<li><a href="https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Global_Objects/Proxy">MDN — <code>Proxy</code></a></li>
+</ul>
+<hr />
+<p><strong>Próxima aula (04, 31/08/2026):</strong> introdução a <strong>Vuetify</strong> e <strong>Vue Router</strong>, transformando o UniEventos em uma SPA navegável com componentes visuais prontos — e publicação das instruções completas da <strong>Avaliação 1</strong>.</p><nav class="navpe"><a data-nav="anterior" href="aula-02.html"><span class="rot">← Aula 02</span><span class="tit">Introdução ao Vue: instância, ciclo de vida e diretivas</span></a><a class="dir" data-nav="proxima" href="aula-04.html"><span class="rot">Aula 04 →</span><span class="tit">Introdução a Vuetify e Vue Router</span></a></nav>
+    <div class="rodape">
+      UNEMAT — Universidade do Estado de Mato Grosso · Campus Cáceres · FACET<br>
+      FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas · 2026.2<br>
+      Prof. Ivan Luiz Pedroso Pires
+    </div>
+  </main>
+  <aside class="toc"><h4>Nesta aula</h4><a class="" href="#objetivos-de-aprendizagem">🎯 Objetivos de aprendizagem</a><a class="" href="#pre-requisitos-desta-aula">📋 Pré-requisitos desta aula</a><a class="" href="#roteiro">🗺️ Roteiro</a><a class="" href="#1-v-for-avancado">1. v-for avançado</a><a class="n3" href="#11-v-for-sobre-objetos">1.1 v-for sobre objetos</a><a class="n3" href="#12-v-for-sobre-um-range-numerico">1.2 v-for sobre um range numérico</a><a class="n3" href="#13-v-for-em-template-repetir-um-grupo-sem-elemento-extra">1.3 v-for em &amp;lt;template&amp;gt; — repetir um grupo sem elemento extra</a><a class="n3" href="#14-listas-aninhadas">1.4 Listas aninhadas</a><a class="" href="#2-o-antipadrao-v-for-v-if-juntos">2. O antipadrão v-for + v-if juntos</a><a class="" href="#3-computed-cache-de-verdade">3. computed(): cache de verdade</a><a class="n3" href="#31-o-problema-que-computed-resolve">3.1 O problema que computed resolve</a><a class="n3" href="#32-computed-com-getter-e-setter">3.2 computed com getter e setter</a><a class="n3" href="#33-computed-encadeadas">3.3 Computed encadeadas</a><a class="n3" href="#34-computed-metodo-watch">3.4 Computed × método × watch</a><a class="" href="#4-watch-e-watcheffect">4. watch() e watchEffect()</a><a class="n3" href="#41-watch-observa-uma-fonte-especifica">4.1 watch() — observa uma fonte específica</a><a class="n3" href="#42-watch-com-deep-true-observar-objetosarrays-por-dentro">4.2 watch com { deep: true } — observar objetos/arrays por dentro</a><a class="n3" href="#43-watcheffect-roda-de-novo-automaticamente-sem-declarar-a-fonte">4.3 watchEffect() — roda de novo automaticamente, sem declarar a fonte</a><a class="n3" href="#44-parando-um-watcher">4.4 Parando um watcher</a><a class="" href="#5-onmounted-e-carregamento-de-dados">5. onMounted() e carregamento de dados</a><a class="n3" href="#51-o-padrao-dos-tres-estados-de-tela">5.1 O padrão dos três estados de tela</a><a class="" href="#6-formatacao-com-intl-e-ligacao-de-classesestilos">6. Formatação com Intl e ligação de classes/estilos</a><a class="n3" href="#61-intldatetimeformat-e-intlnumberformat">6.1 Intl.DateTimeFormat e Intl.NumberFormat</a><a class="n3" href="#62-class-objeto-e-array">6.2 :class — objeto e array</a><a class="n3" href="#63-style">6.3 :style</a><a class="" href="#padrao-de-projeto-em-uso">🧩 Padrão de projeto em uso</a><a class="n3" href="#padrao-de-projeto-em-uso-proxy-estrutural">🧩 Padrão de projeto em uso — Proxy (estrutural)</a><a class="" href="#mao-na-massa-unieventos-com-filtros-combinados">💻 Mão na massa — UniEventos com filtros combinados</a><a class="" href="#laboratorio">🧪 Laboratório</a><a class="" href="#erros-comuns-e-como-resolver">🐛 Erros comuns e como resolver</a><a class="" href="#atividade-assincrona-1-h">🏠 Atividade assíncrona (1 h)</a><a class="" href="#checkpoint-do-projeto-autoral">✅ Checkpoint do projeto autoral</a><a class="" href="#aviso-avaliacao-1-se-aproxima">📝 Aviso — Avaliação 1 se aproxima</a><a class="" href="#para-aprofundar">📚 Para aprofundar</a></aside>
+</div>
+<script>
+(function(){
+  var raiz=document.documentElement;
+  var salvo=null;
+  try{salvo=window.localStorage&&localStorage.getItem('fds-tema')}catch(e){}
+  if(salvo){raiz.setAttribute('data-tema',salvo)}
+  var bt=document.getElementById('tema');
+  if(bt){bt.addEventListener('click',function(){
+    var novo=raiz.getAttribute('data-tema')==='claro'?'escuro':'claro';
+    raiz.setAttribute('data-tema',novo);
+    try{localStorage.setItem('fds-tema',novo)}catch(e){}
+    bt.textContent=novo==='claro'?'● Escuro':'○ Claro';
+  });
+  bt.textContent=raiz.getAttribute('data-tema')==='claro'?'● Escuro':'○ Claro';}
+
+  // copiar código
+  document.querySelectorAll('.copiar').forEach(function(b){
+    b.addEventListener('click',function(){
+      var pre=b.closest('.bloco').querySelector('pre');
+      var txt=pre.innerText;
+      var ok=function(){b.textContent='Copiado';b.classList.add('ok');
+        setTimeout(function(){b.textContent='Copiar';b.classList.remove('ok')},1600)};
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(ok)}
+      else{var t=document.createElement('textarea');t.value=txt;document.body.appendChild(t);
+           t.select();document.execCommand('copy');t.remove();ok()}
+    });
+  });
+
+  // barra de progresso
+  var pr=document.getElementById('progresso');
+  if(pr){window.addEventListener('scroll',function(){
+    var h=document.documentElement.scrollHeight-window.innerHeight;
+    pr.style.width=(h>0?(window.scrollY/h)*100:0)+'%';
+  },{passive:true})}
+
+  // sumário ativo
+  var alvos=[].slice.call(document.querySelectorAll('main h2[id],main h3[id]'));
+  var links={};
+  document.querySelectorAll('.toc a').forEach(function(a){links[a.getAttribute('href').slice(1)]=a});
+  if(alvos.length&&'IntersectionObserver' in window){
+    var obs=new IntersectionObserver(function(ents){
+      ents.forEach(function(e){
+        var a=links[e.target.id];
+        if(!a)return;
+        if(e.isIntersecting){
+          Object.keys(links).forEach(function(k){links[k].classList.remove('ativo')});
+          a.classList.add('ativo');
+        }
+      });
+    },{rootMargin:'-76px 0px -75% 0px'});
+    alvos.forEach(function(t){obs.observe(t)});
+  }
+
+  // busca no índice
+  var busca=document.getElementById('busca');
+  if(busca){
+    busca.addEventListener('input',function(){
+      var q=busca.value.toLowerCase().trim();
+      document.querySelectorAll('[data-busca]').forEach(function(el){
+        el.classList.toggle('oculto', q!=='' && el.getAttribute('data-busca').indexOf(q)===-1);
+      });
+    });
+  }
+
+  // atalhos de teclado
+  document.addEventListener('keydown',function(e){
+    if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+    var ant=document.querySelector('[data-nav="anterior"]');
+    var pro=document.querySelector('[data-nav="proxima"]');
+    if(e.key==='j'&&pro)pro.click();
+    if(e.key==='k'&&ant)ant.click();
+    if(e.key==='/'&&busca){e.preventDefault();busca.focus()}
+  });
+})();
+</script>
+</body>
+</html>

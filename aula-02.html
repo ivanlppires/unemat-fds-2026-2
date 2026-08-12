@@ -1,0 +1,1589 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-tema="escuro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aula 02 — Introdução ao Vue: instância, ciclo de vida e diretivas · FACET-SNP-310</title>
+<meta name="description" content="Unidade 1 · 17/08/2026 · Introdução ao Vue: instância, ciclo de vida e diretivas">
+<style>
+:root{
+  --bg:#0f1117; --bg-soft:#161922; --bg-code:#11131a; --line:#272b38;
+  --fg:#e6e8ee; --fg-dim:#a6adbb; --fg-faint:#6f7686;
+  --accent:#5eead4; --accent-2:#818cf8; --warn:#fbbf24; --danger:#fb7185;
+  --u1:#5eead4; --u2:#818cf8; --u3:#f0abfc;
+  --radius:12px; --max:860px;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+}
+html[data-tema="claro"]{
+  --bg:#ffffff; --bg-soft:#f6f7f9; --bg-code:#f2f3f6; --line:#e2e5ea;
+  --fg:#1a1d24; --fg-dim:#4b5262; --fg-faint:#8a92a3;
+  --accent:#0d9488; --accent-2:#4f46e5; --warn:#b45309; --danger:#be123c;
+  --u1:#0d9488; --u2:#4f46e5; --u3:#a21caf;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:76px}
+body{
+  margin:0; background:var(--bg); color:var(--fg); font-family:var(--font);
+  font-size:16.5px; line-height:1.72; -webkit-font-smoothing:antialiased;
+}
+a{color:var(--accent); text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ---------- barra superior ---------- */
+.topo{
+  position:sticky; top:0; z-index:50; background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:blur(12px); border-bottom:1px solid var(--line);
+}
+.topo-in{max-width:1400px;margin:0 auto;display:flex;align-items:center;gap:14px;padding:10px 18px}
+.marca{font-weight:700;font-size:.82rem;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-dim);white-space:nowrap}
+.marca b{color:var(--accent)}
+.topo .espaco{flex:1}
+.btn{
+  background:var(--bg-soft); color:var(--fg-dim); border:1px solid var(--line);
+  border-radius:8px; padding:6px 12px; font-size:.82rem; cursor:pointer; font-family:inherit;
+  transition:.15s;
+}
+.btn:hover{color:var(--fg); border-color:var(--accent)}
+#busca{
+  background:var(--bg-soft); border:1px solid var(--line); border-radius:8px; color:var(--fg);
+  padding:6px 12px; font-size:.85rem; font-family:inherit; width:200px;
+}
+#busca:focus{outline:none;border-color:var(--accent)}
+
+/* ---------- layout ---------- */
+.wrap{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:260px minmax(0,1fr) 240px;gap:34px;padding:0 18px}
+@media(max-width:1150px){.wrap{grid-template-columns:240px minmax(0,1fr)} .toc{display:none}}
+@media(max-width:860px){.wrap{grid-template-columns:minmax(0,1fr)} .lateral{display:none}}
+
+.lateral,.toc{position:sticky;top:76px;align-self:start;max-height:calc(100vh - 90px);overflow-y:auto;padding:22px 0 60px;font-size:.85rem}
+.lateral::-webkit-scrollbar,.toc::-webkit-scrollbar{width:6px}
+.lateral::-webkit-scrollbar-thumb,.toc::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+.lateral h4,.toc h4{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-faint);margin:0 0 12px}
+.lateral ol{list-style:none;margin:0;padding:0}
+.lateral li a{
+  display:flex;gap:9px;align-items:baseline;padding:6px 10px;border-radius:7px;
+  color:var(--fg-dim);border-left:2px solid transparent;line-height:1.35;
+}
+.lateral li a:hover{background:var(--bg-soft);color:var(--fg);text-decoration:none}
+.lateral li a.ativo{background:var(--bg-soft);color:var(--fg);border-left-color:var(--accent);font-weight:600}
+.lateral .num{font-variant-numeric:tabular-nums;color:var(--fg-faint);font-size:.78rem;min-width:16px}
+.lateral .grupo{margin:18px 0 6px;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-faint);padding-left:10px}
+.toc a{display:block;padding:4px 0 4px 12px;color:var(--fg-dim);border-left:2px solid var(--line);line-height:1.35;font-size:.8rem}
+.toc a:hover{color:var(--fg);text-decoration:none}
+.toc a.ativo{color:var(--accent);border-left-color:var(--accent)}
+.toc a.n3{padding-left:24px;font-size:.76rem;opacity:.8}
+
+/* ---------- conteúdo ---------- */
+main{padding:34px 0 100px;min-width:0}
+.cabecalho{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:34px}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.tag{font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;font-weight:700;padding:4px 10px;border-radius:999px;border:1px solid var(--line);color:var(--fg-dim)}
+.tag.u1{color:var(--u1);border-color:color-mix(in srgb,var(--u1) 40%,transparent)}
+.tag.u2{color:var(--u2);border-color:color-mix(in srgb,var(--u2) 40%,transparent)}
+.tag.u3{color:var(--u3);border-color:color-mix(in srgb,var(--u3) 40%,transparent)}
+.tag.av{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 45%,transparent)}
+.cabecalho h1{margin:0;font-size:2.05rem;line-height:1.2;letter-spacing:-.02em}
+.cabecalho .sub{color:var(--fg-faint);font-size:.9rem;margin-top:10px}
+
+main h1{font-size:1.9rem;line-height:1.22;letter-spacing:-.02em;margin:0 0 .6em}
+main h2{font-size:1.4rem;margin:2.4em 0 .7em;padding-top:.5em;border-top:1px solid var(--line);letter-spacing:-.01em}
+main h3{font-size:1.12rem;margin:1.9em 0 .5em;color:var(--fg)}
+main h4{font-size:.98rem;margin:1.5em 0 .4em;color:var(--fg-dim)}
+main h2:first-of-type{border-top:none;padding-top:0}
+main p{margin:0 0 1.05em}
+main ul,main ol{margin:0 0 1.15em;padding-left:1.4em}
+main li{margin:.32em 0}
+main li>ul,main li>ol{margin:.35em 0}
+hr{border:none;border-top:1px solid var(--line);margin:2.6em 0}
+strong{color:var(--fg);font-weight:650}
+
+/* âncoras */
+.anchor{opacity:0;margin-left:.4em;font-weight:400;color:var(--fg-faint);text-decoration:none;font-size:.8em}
+h2:hover .anchor,h3:hover .anchor{opacity:1}
+
+/* citações / callouts */
+blockquote{
+  margin:1.4em 0;padding:14px 18px;background:var(--bg-soft);border-left:3px solid var(--accent-2);
+  border-radius:0 var(--radius) var(--radius) 0;color:var(--fg-dim);
+}
+blockquote p:last-child{margin-bottom:0}
+blockquote.dica{border-left-color:var(--accent)}
+blockquote.atencao{border-left-color:var(--warn)}
+blockquote.capo{border-left-color:var(--accent-2)}
+blockquote.prova{border-left-color:var(--danger)}
+
+/* tabelas */
+.tabela-wrap{overflow-x:auto;margin:1.4em 0;border:1px solid var(--line);border-radius:var(--radius)}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{padding:9px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--bg-soft);font-weight:650;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-dim);white-space:nowrap}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:color-mix(in srgb,var(--bg-soft) 60%,transparent)}
+
+/* código */
+code{font-family:var(--mono);font-size:.87em;background:var(--bg-soft);padding:.14em .42em;border-radius:5px;border:1px solid var(--line)}
+.bloco{position:relative;margin:1.3em 0}
+.bloco-topo{
+  display:flex;align-items:center;gap:10px;background:var(--bg-soft);border:1px solid var(--line);
+  border-bottom:none;border-radius:var(--radius) var(--radius) 0 0;padding:6px 12px;
+  font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;color:var(--fg-faint);font-family:var(--mono);
+}
+.bloco-topo .espaco{flex:1}
+.copiar{
+  background:transparent;border:1px solid var(--line);color:var(--fg-faint);border-radius:6px;
+  padding:2px 9px;font-size:.68rem;cursor:pointer;font-family:inherit;letter-spacing:.06em;text-transform:uppercase;transition:.15s;
+}
+.copiar:hover{color:var(--accent);border-color:var(--accent)}
+.copiar.ok{color:var(--accent);border-color:var(--accent)}
+.highlight{
+  margin:0;background:var(--bg-code)!important;border:1px solid var(--line);
+  border-radius:0 0 var(--radius) var(--radius);overflow-x:auto;
+}
+.bloco:not(:has(.bloco-topo)) .highlight{border-radius:var(--radius)}
+.highlight pre{margin:0;padding:15px 17px;font-family:var(--mono);font-size:.845rem;line-height:1.62;background:transparent!important}
+.highlight code{background:transparent;border:none;padding:0;font-size:inherit}
+html[data-tema="claro"] .highlight pre{color:#1a1d24}
+
+/* detalhes */
+details{background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px;margin:1.2em 0}
+details[open]{padding-bottom:6px}
+summary{cursor:pointer;font-weight:600;color:var(--fg-dim);font-size:.9rem;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▸ ";color:var(--accent)}
+details[open] summary::before{content:"▾ "}
+details[open] summary{margin-bottom:10px}
+
+img{max-width:100%;border-radius:var(--radius)}
+
+/* rodapé / navegação */
+.navpe{display:flex;gap:14px;margin-top:60px;padding-top:26px;border-top:1px solid var(--line)}
+.navpe a{
+  flex:1;padding:14px 18px;background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);
+  color:var(--fg-dim);transition:.15s;
+}
+.navpe a:hover{border-color:var(--accent);color:var(--fg);text-decoration:none}
+.navpe .rot{display:block;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-faint);margin-bottom:4px}
+.navpe .tit{font-weight:600;font-size:.9rem}
+.navpe .dir{text-align:right}
+.rodape{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:var(--fg-faint);font-size:.8rem}
+
+/* progresso */
+#progresso{position:fixed;top:0;left:0;height:2px;background:var(--accent);z-index:60;width:0}
+
+/* índice (home) */
+.hero{padding:56px 0 34px;border-bottom:1px solid var(--line);margin-bottom:38px}
+.hero h1{font-size:2.6rem;margin:0 0 12px;letter-spacing:-.03em;line-height:1.1}
+.hero p{color:var(--fg-dim);max-width:640px;font-size:1.02rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin:34px 0}
+.stat{background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px}
+.stat .n{font-size:1.7rem;font-weight:700;letter-spacing:-.02em;color:var(--accent)}
+.stat .l{font-size:.75rem;letter-spacing:.07em;text-transform:uppercase;color:var(--fg-faint);margin-top:2px}
+.grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;margin:20px 0 44px}
+.cartao{
+  display:block;background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);
+  padding:17px 19px;color:var(--fg);transition:.16s;position:relative;overflow:hidden;
+}
+.cartao::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--line);transition:.16s}
+.cartao.u1::before{background:var(--u1)} .cartao.u2::before{background:var(--u2)} .cartao.u3::before{background:var(--u3)}
+.cartao:hover{transform:translateY(-2px);border-color:var(--fg-faint);text-decoration:none}
+.cartao .meta{display:flex;justify-content:space-between;align-items:center;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-faint);margin-bottom:8px}
+.cartao .t{font-weight:650;line-height:1.35;font-size:.97rem}
+.cartao .av{display:inline-block;margin-top:9px;font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;color:var(--warn);border:1px solid color-mix(in srgb,var(--warn) 40%,transparent);border-radius:999px;padding:2px 9px}
+.oculto{display:none!important}
+@media print{
+  .topo,.lateral,.toc,.navpe,#progresso{display:none!important}
+  .wrap{display:block;max-width:none;padding:0}
+  body{background:#fff;color:#000;font-size:11pt}
+  .highlight{border:1px solid #ccc;background:#fafafa!important}
+  a{color:#000}
+}
+
+pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #49483e }
+.highlight { background: #232629; color: #CCC }
+.highlight .c { color: #777; font-style: italic } /* Comment */
+.highlight .err { color: #A61717; background-color: #E3D2D2 } /* Error */
+.highlight .esc { color: #CCC } /* Escape */
+.highlight .g { color: #CCC } /* Generic */
+.highlight .k { color: #7686BB; font-weight: bold } /* Keyword */
+.highlight .l { color: #CCC } /* Literal */
+.highlight .n { color: #CCC } /* Name */
+.highlight .o { color: #CCC } /* Operator */
+.highlight .x { color: #CCC } /* Other */
+.highlight .p { color: #CCC } /* Punctuation */
+.highlight .ch { color: #777; font-style: italic } /* Comment.Hashbang */
+.highlight .cm { color: #777; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #777; font-style: italic } /* Comment.Preproc */
+.highlight .cpf { color: #777; font-style: italic } /* Comment.PreprocFile */
+.highlight .c1 { color: #777; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #777; font-style: italic } /* Comment.Special */
+.highlight .gd { color: #CCC } /* Generic.Deleted */
+.highlight .ge { color: #CCC } /* Generic.Emph */
+.highlight .ges { color: #CCC } /* Generic.EmphStrong */
+.highlight .gr { color: #CCC } /* Generic.Error */
+.highlight .gh { color: #CCC } /* Generic.Heading */
+.highlight .gi { color: #CCC } /* Generic.Inserted */
+.highlight .go { color: #CCC } /* Generic.Output */
+.highlight .gp { color: #FFF } /* Generic.Prompt */
+.highlight .gs { color: #CCC } /* Generic.Strong */
+.highlight .gu { color: #CCC } /* Generic.Subheading */
+.highlight .gt { color: #CCC } /* Generic.Traceback */
+.highlight .kc { color: #7686BB; font-weight: bold } /* Keyword.Constant */
+.highlight .kd { color: #7686BB; font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { color: #7686BB; font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { color: #7686BB; font-weight: bold } /* Keyword.Pseudo */
+.highlight .kr { color: #7686BB; font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #7686BB; font-weight: bold } /* Keyword.Type */
+.highlight .ld { color: #CCC } /* Literal.Date */
+.highlight .m { color: #4FB8CC } /* Literal.Number */
+.highlight .s { color: #51CC99 } /* Literal.String */
+.highlight .na { color: #CCC } /* Name.Attribute */
+.highlight .nb { color: #CCC } /* Name.Builtin */
+.highlight .nc { color: #CCC } /* Name.Class */
+.highlight .no { color: #CCC } /* Name.Constant */
+.highlight .nd { color: #CCC } /* Name.Decorator */
+.highlight .ni { color: #CCC } /* Name.Entity */
+.highlight .ne { color: #CCC } /* Name.Exception */
+.highlight .nf { color: #6A6AFF } /* Name.Function */
+.highlight .nl { color: #CCC } /* Name.Label */
+.highlight .nn { color: #CCC } /* Name.Namespace */
+.highlight .nx { color: #E2828E } /* Name.Other */
+.highlight .py { color: #CCC } /* Name.Property */
+.highlight .nt { color: #CCC } /* Name.Tag */
+.highlight .nv { color: #7AB4DB; font-weight: bold } /* Name.Variable */
+.highlight .ow { color: #CCC } /* Operator.Word */
+.highlight .pm { color: #CCC } /* Punctuation.Marker */
+.highlight .w { color: #BBB } /* Text.Whitespace */
+.highlight .mb { color: #4FB8CC } /* Literal.Number.Bin */
+.highlight .mf { color: #4FB8CC } /* Literal.Number.Float */
+.highlight .mh { color: #4FB8CC } /* Literal.Number.Hex */
+.highlight .mi { color: #4FB8CC } /* Literal.Number.Integer */
+.highlight .mo { color: #4FB8CC } /* Literal.Number.Oct */
+.highlight .sa { color: #51CC99 } /* Literal.String.Affix */
+.highlight .sb { color: #51CC99 } /* Literal.String.Backtick */
+.highlight .sc { color: #51CC99 } /* Literal.String.Char */
+.highlight .dl { color: #51CC99 } /* Literal.String.Delimiter */
+.highlight .sd { color: #51CC99 } /* Literal.String.Doc */
+.highlight .s2 { color: #51CC99 } /* Literal.String.Double */
+.highlight .se { color: #51CC99 } /* Literal.String.Escape */
+.highlight .sh { color: #51CC99 } /* Literal.String.Heredoc */
+.highlight .si { color: #51CC99 } /* Literal.String.Interpol */
+.highlight .sx { color: #51CC99 } /* Literal.String.Other */
+.highlight .sr { color: #51CC99 } /* Literal.String.Regex */
+.highlight .s1 { color: #51CC99 } /* Literal.String.Single */
+.highlight .ss { color: #51CC99 } /* Literal.String.Symbol */
+.highlight .bp { color: #CCC } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #6A6AFF } /* Name.Function.Magic */
+.highlight .vc { color: #7AB4DB; font-weight: bold } /* Name.Variable.Class */
+.highlight .vg { color: #BE646C; font-weight: bold } /* Name.Variable.Global */
+.highlight .vi { color: #7AB4DB; font-weight: bold } /* Name.Variable.Instance */
+.highlight .vm { color: #7AB4DB; font-weight: bold } /* Name.Variable.Magic */
+.highlight .il { color: #4FB8CC } /* Literal.Number.Integer.Long */
+</style>
+</head>
+<body>
+<div id="progresso"></div>
+<header class="topo"><div class="topo-in">
+  <span class="marca"><b>FACET-SNP-310</b> &nbsp;Frameworks Modernos</span>
+  <span class="espaco"></span>
+  
+  <a class="btn" href="indice.html">Índice</a>
+  <button class="btn" id="tema" type="button">Tema</button>
+</div></header>
+<div class="wrap">
+  <nav class="lateral"><h4>Aulas</h4><ol><li class="grupo">Unidade 1</li><li><a class="" href="aula-01.html"><span class="num">01</span><span>Apresentação da Disciplina e Revisão JavaScript</span></a></li><li><a class="ativo" href="aula-02.html"><span class="num">02</span><span>Introdução ao Vue: instância, ciclo de vida e diretivas</span></a></li><li><a class="" href="aula-03.html"><span class="num">03</span><span>Vue: listas, computed e ciclo de vida</span></a></li><li><a class="" href="aula-04.html"><span class="num">04</span><span>Introdução a Vuetify e Vue Router</span></a></li><li class="grupo">Unidade 2</li><li><a class="" href="aula-05.html"><span class="num">05</span><span>Componentes, Vue Router e Vuetify avançado</span></a></li><li><a class="" href="aula-06.html"><span class="num">06</span><span>Axios e Pinia</span></a></li><li class="grupo">Unidade 3</li><li><a class="" href="aula-07.html"><span class="num">07</span><span>Introdução ao Firebase, Node.js e Express</span></a></li><li><a class="" href="aula-08.html"><span class="num">08</span><span>Definindo endpoints e middlewares</span></a></li><li><a class="" href="aula-09.html"><span class="num">09</span><span>Integrando com SGBD MySQL</span></a></li><li><a class="" href="aula-10.html"><span class="num">10</span><span>Requisições autenticadas com Firebase</span></a></li><li><a class="" href="aula-11.html"><span class="num">11</span><span>Integrando front-end com back-end: CRUD</span></a></li><li><a class="" href="aula-12.html"><span class="num">12</span><span>CRUD com banco em nuvem (Supabase)</span></a></li><li><a class="" href="aula-13.html"><span class="num">13</span><span>Desenvolvimento do Back-end</span></a></li><li><a class="" href="aula-14.html"><span class="num">14</span><span>Documentação com Swagger</span></a></li><li><a class="" href="aula-15.html"><span class="num">15</span><span>Deploy, apresentação e finalização</span></a></li></ol></nav>
+  <main class=""><div class="cabecalho"><div class="tags"><span class="tag u1">Unidade 1</span><span class="tag">17/08/2026</span><span class="tag">3 aulas de 50 min + 1 h EAD</span></div><h1>Aula 02 — Introdução ao Vue: instância, ciclo de vida e diretivas</h1><div class="sub">FACET-SNP-310 · Frameworks Modernos para Desenvolvimento de Sistemas · UNEMAT/Cáceres · Prof. Ivan Luiz Pedroso Pires</div></div>
+<blockquote>
+<p><strong>FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas</strong> · Unidade 1
+UNEMAT/Cáceres — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
+<strong>Data:</strong> 17/08/2026 · <strong>Carga:</strong> 3 aulas de 50 min (síncrona) + 1 h (assíncrona)</p>
+</blockquote>
+<p>Na Aula 01 revisamos JavaScript moderno e comparamos DOM manual com o estilo declarativo. Hoje esse estilo declarativo ganha nome: <strong>Vue 3</strong>.</p>
+<h2 id="objetivos-de-aprendizagem">🎯 Objetivos de aprendizagem<a class="anchor" href="#objetivos-de-aprendizagem" title="Permanent link">¶</a></h2>
+<p>Ao final desta aula você será capaz de:</p>
+<ul>
+<li>Explicar o que é o Vue 3, o que significa "framework progressivo" e a diferença entre Options API e Composition API.</li>
+<li>Criar uma instância Vue via CDN com <code>createApp</code> e entender o ciclo montar/renderizar.</li>
+<li>Criar um projeto Vue com Vite usando <code>npm create vue@latest</code> e explicar cada arquivo gerado.</li>
+<li>Distinguir <code>ref()</code> de <code>reactive()</code> e explicar por que <code>.value</code> existe.</li>
+<li>Usar as diretivas <code>v-bind</code>, <code>v-on</code>, <code>v-model</code>, <code>v-if</code>/<code>v-else-if</code>/<code>v-else</code>, <code>v-show</code>, <code>v-for</code> (com <code>:key</code>) e <code>v-text</code>/<code>v-html</code> corretamente, cada uma com seus casos de uso e armadilhas.</li>
+<li>Descrever as fases do ciclo de vida de um componente e usar os hooks <code>onMounted</code> e <code>onUnmounted</code>.</li>
+<li>Construir a primeira versão navegável do UniEventos: lista, busca, filtro e inscrição.</li>
+</ul>
+<h2 id="pre-requisitos-desta-aula">📋 Pré-requisitos desta aula<a class="anchor" href="#pre-requisitos-desta-aula" title="Permanent link">¶</a></h2>
+<ul>
+<li>Ambiente instalado na Aula 01: Node 22 LTS, VS Code com Vue - Official/ESLint/Prettier, Git.</li>
+<li>Conforto com <code>let</code>/<code>const</code>, arrow functions, desestruturação, <code>map</code>/<code>filter</code>, <code>import</code>/<code>export</code> (Aula 01, Seção 3).</li>
+<li>Repositório do projeto autoral criado com <code>README.md</code>.</li>
+</ul>
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+Verifique agora, antes de começar: <code>node -v</code> precisa mostrar uma versão <code>22.18.0</code> ou superior (ou <code>24.12.0</code>+). O <code>create-vue</code> desta aula exige isso.</p>
+</blockquote>
+<h2 id="roteiro">🗺️ Roteiro<a class="anchor" href="#roteiro" title="Permanent link">¶</a></h2>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Bloco</th>
+<th>Tempo</th>
+<th>Atividade</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>50 min</td>
+<td>O que é Vue, Options API vs Composition API, primeiro contato via CDN</td>
+</tr>
+<tr>
+<td>2</td>
+<td>50 min</td>
+<td>Projeto Vite real, reatividade (<code>ref</code>/<code>reactive</code>), diretivas de vinculação e eventos</td>
+</tr>
+<tr>
+<td>3</td>
+<td>50 min</td>
+<td>Diretivas condicionais/lista, ciclo de vida, mão na massa no UniEventos</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="1-o-que-e-o-vue-3">1. O que é o Vue 3<a class="anchor" href="#1-o-que-e-o-vue-3" title="Permanent link">¶</a></h2>
+<p>Vue é um <strong>framework progressivo</strong> para construir interfaces de usuário. "Progressivo" significa que você pode adotá-lo aos poucos: usar só para uma parte reativa de uma página HTML existente (como faremos daqui a pouco, via CDN) ou para uma aplicação inteira, com build, roteamento e gerenciamento de estado (como faremos a partir de hoje mesmo, com Vite).</p>
+<p>O ecossistema Vue que usaremos no semestre:</p>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Peça</th>
+<th>Papel</th>
+<th>Quando entra</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Vue 3</strong> (core)</td>
+<td>Reatividade + renderização de componentes</td>
+<td>Hoje</td>
+</tr>
+<tr>
+<td><strong>Vite</strong></td>
+<td>Servidor de desenvolvimento e bundler</td>
+<td>Hoje</td>
+</tr>
+<tr>
+<td><strong>Vue Router</strong></td>
+<td>Navegação entre "páginas" da SPA</td>
+<td>Aula 04</td>
+</tr>
+<tr>
+<td><strong>Pinia</strong></td>
+<td>Estado compartilhado entre componentes</td>
+<td>Aula 06</td>
+</tr>
+<tr>
+<td><strong>Vuetify</strong></td>
+<td>Biblioteca de componentes visuais prontos (Material Design)</td>
+<td>Aula 04</td>
+</tr>
+<tr>
+<td><strong>Axios</strong></td>
+<td>Cliente HTTP para consumir APIs</td>
+<td>Aula 06</td>
+</tr>
+</tbody>
+</table></div>
+<p>Vamos usar a versão <strong>3.5.41</strong> do Vue, instalada via <strong>Vite 8.2.1</strong> com o plugin <strong>@vitejs/plugin-vue 6.0.8</strong> — as mesmas versões testadas e listadas no início do curso.</p>
+<h3 id="11-options-api-vs-composition-api">1.1 Options API vs. Composition API<a class="anchor" href="#11-options-api-vs-composition-api" title="Permanent link">¶</a></h3>
+<p>O Vue 3 oferece duas formas de escrever a lógica de um componente. Elas produzem o mesmo resultado; mudam a organização do código.</p>
+<p><strong>Options API</strong> — organiza o componente em "opções" fixas: <code>data()</code> (estado), <code>methods</code> (funções), <code>computed</code> (Aula 03), <code>mounted()</code> (ciclo de vida) etc. É o estilo herdado do Vue 2, ainda muito usado e citado no plano de curso.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// Options API — cada preocupação vai em uma &quot;caixa&quot; pré-definida</span>
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">data</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">contador</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">methods</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">incrementar</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">this</span><span class="p">.</span><span class="nx">contador</span><span class="o">++</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">mounted</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;componente montado, contador =&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">contador</span><span class="p">)</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>Composition API</strong> — organiza o componente por funções que você importa e compõe livremente (<code>ref</code>, <code>reactive</code>, <code>onMounted</code>...), agrupando por <em>funcionalidade</em> em vez de por <em>tipo de opção</em>. É o padrão do Vue 3 moderno e o que o <code>create-vue</code> gera por padrão, dentro da sintaxe açucarada <code>&lt;script setup&gt;</code>.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="c1">// Composition API com &lt;script setup&gt; — tudo neste bloco já é</span>
+<span class="c1">// automaticamente exposto ao &lt;template&gt;, sem &quot;return&quot; manual</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="p">,</span><span class="w"> </span><span class="nx">onMounted</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">contador</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="mf">0</span><span class="p">)</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">incrementar</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">contador</span><span class="p">.</span><span class="nx">value</span><span class="o">++</span>
+<span class="p">}</span>
+
+<span class="nx">onMounted</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;componente montado, contador =&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">contador</span><span class="p">.</span><span class="nx">value</span><span class="p">)</span>
+<span class="p">})</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<blockquote class="prova">
+<p><strong>📌 Na prova</strong>
+<strong>Esta disciplina usa Composition API com <code>&lt;script setup&gt;</code></strong> do início ao fim, porque é o padrão gerado pelo <code>create-vue</code> e o que você vai encontrar em qualquer projeto Vue 3 novo. Nos primeiros exemplos de hoje mostramos o equivalente em Options API lado a lado — o plano de curso cita explicitamente "instância vue, data e methods" — mas a partir da Aula 03 falamos só Composition API.</p>
+</blockquote>
+<h2 id="2-primeiro-contato-vue-via-cdn">2. Primeiro contato: Vue via CDN<a class="anchor" href="#2-primeiro-contato-vue-via-cdn" title="Permanent link">¶</a></h2>
+<p>Antes de qualquer ferramenta de build, vamos ver o Vue rodando com o mínimo possível: um único arquivo HTML.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="cm">&lt;!-- cdn/index.html --&gt;</span>
+<span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="p">&lt;</span><span class="nt">html</span> <span class="na">lang</span><span class="o">=</span><span class="s">&quot;pt-BR&quot;</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">&quot;UTF-8&quot;</span> <span class="p">/&gt;</span>
+  <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>Primeiro contato com Vue<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;app&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>{{ titulo }}<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Você clicou {{ contador }} vez(es).<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">button</span> <span class="na">v-on:click</span><span class="o">=</span><span class="s">&quot;incrementar&quot;</span><span class="p">&gt;</span>Clicar<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+
+  <span class="p">&lt;</span><span class="nt">script</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;https://unpkg.com/vue@3.5.41/dist/vue.global.js&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createApp</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">Vue</span>
+
+<span class="w">    </span><span class="nx">createApp</span><span class="p">({</span>
+<span class="w">      </span><span class="nx">data</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Olá, Vue!&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="nx">contador</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nx">methods</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">incrementar</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="k">this</span><span class="p">.</span><span class="nx">contador</span><span class="o">++</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">    </span><span class="p">}).</span><span class="nx">mount</span><span class="p">(</span><span class="s1">&#39;#app&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<p>Abra este arquivo direto no navegador (funciona com <code>file://</code>, sem precisar de servidor, porque não há módulos ES aqui). Três ideias novas:</p>
+<ol>
+<li><strong><code>createApp({...})</code></strong> recebe um objeto de configuração — no estilo Options API — e devolve uma instância da aplicação Vue.</li>
+<li><strong><code>.mount('#app')</code></strong> diz ao Vue: "assuma o controle deste elemento do DOM e tudo dentro dele". A partir daqui, o Vue passa a gerenciar esse pedaço de página.</li>
+<li><strong><code>{{ titulo }}</code></strong> é <strong>interpolação de texto</strong>: insere o valor da variável reativa <code>titulo</code> no HTML. Sempre que <code>titulo</code> muda, o texto na tela muda sozinho — sem <code>innerHTML</code>, sem <code>addEventListener</code> manual.</li>
+</ol>
+<blockquote class="capo">
+<p><strong>🔎 Por baixo do capô</strong>
+<code>{{ }}</code> só funciona dentro do elemento montado (<code>#app</code> e seus descendentes). Fora dele, o Vue nem olha para o HTML — por isso o <code>&lt;h1&gt;</code> do exemplo fica dentro de <code>&lt;div id="app"&gt;</code>.</p>
+</blockquote>
+<p>O mesmo exemplo, agora em <code>&lt;script setup&gt;</code> (o estilo que usaremos a partir de agora), ainda via CDN mas em módulo ES:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="cm">&lt;!-- cdn/index-composition.html --&gt;</span>
+<span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="p">&lt;</span><span class="nt">html</span> <span class="na">lang</span><span class="o">=</span><span class="s">&quot;pt-BR&quot;</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">&quot;UTF-8&quot;</span> <span class="p">/&gt;</span>
+  <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>Primeiro contato — Composition API<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;app&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+
+  <span class="p">&lt;</span><span class="nt">script</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;module&quot;</span><span class="p">&gt;</span>
+<span class="w">    </span><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createApp</span><span class="p">,</span><span class="w"> </span><span class="nx">ref</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;https://unpkg.com/vue@3.5.41/dist/vue.esm-browser.js&#39;</span>
+
+<span class="w">    </span><span class="nx">createApp</span><span class="p">({</span>
+<span class="w">      </span><span class="nx">setup</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">titulo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="s1">&#39;Olá, Vue!&#39;</span><span class="p">)</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">contador</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="mf">0</span><span class="p">)</span>
+
+<span class="w">        </span><span class="kd">function</span><span class="w"> </span><span class="nx">incrementar</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nx">contador</span><span class="p">.</span><span class="nx">value</span><span class="o">++</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">titulo</span><span class="p">,</span><span class="w"> </span><span class="nx">contador</span><span class="p">,</span><span class="w"> </span><span class="nx">incrementar</span><span class="w"> </span><span class="p">}</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nx">template</span><span class="o">:</span><span class="w"> </span><span class="sb">`</span>
+<span class="sb">        &lt;h1&gt;{{ titulo }}&lt;/h1&gt;</span>
+<span class="sb">        &lt;p&gt;Você clicou {{ contador }} vez(es).&lt;/p&gt;</span>
+<span class="sb">        &lt;button v-on:click=&quot;incrementar&quot;&gt;Clicar&lt;/button&gt;</span>
+<span class="sb">      `</span><span class="p">,</span>
+<span class="w">    </span><span class="p">}).</span><span class="nx">mount</span><span class="p">(</span><span class="s1">&#39;#app&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<p>Note que aqui, sem <code>&lt;script setup&gt;</code> (que só existe dentro de arquivos <code>.vue</code> compilados pelo Vite), precisamos declarar <code>setup()</code> manualmente e <strong>retornar</strong> o que o template usa. É exatamente esse <code>return</code> que o <code>&lt;script setup&gt;</code> elimina automaticamente — daí o nome "açúcar sintático".</p>
+<h2 id="3-migrando-para-um-projeto-vite-de-verdade">3. Migrando para um projeto Vite de verdade<a class="anchor" href="#3-migrando-para-um-projeto-vite-de-verdade" title="Permanent link">¶</a></h2>
+<p>CDN é ótimo para aprender o conceito, mas nenhuma aplicação real do semestre vai ser um único HTML. A partir de agora usamos <strong>Vite</strong> com <strong>Single File Components</strong> (<code>.vue</code>).</p>
+<h3 id="31-criando-o-projeto">3.1 Criando o projeto<a class="anchor" href="#31-criando-o-projeto" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>npm<span class="w"> </span>create<span class="w"> </span>vue@latest
+</code></pre></div></div>
+
+<p>O <code>create-vue</code> (versão 3.23.0) pergunta interativamente o nome do projeto e quais recursos incluir. Para o UniEventos que construiremos em sala, as respostas são:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>✔ Project name: … unieventos-web
+✔ Add TypeScript? … No
+✔ Add JSX Support? … No
+✔ Add Vue Router for Single Page Application development? … Yes
+✔ Add Pinia for state management? … Yes
+✔ Add Vitest for Unit testing? … No
+✔ Add an End-to-End Testing Solution? › No
+✔ Add ESLint for code quality? … Yes
+✔ Add Prettier for code formatting? … Yes
+</code></pre></div></div>
+
+<p>Ou, sem o modo interativo, direto com flags:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>npx<span class="w"> </span>create-vue@latest<span class="w"> </span>unieventos-web<span class="w"> </span>--router<span class="w"> </span>--pinia<span class="w"> </span>--eslint<span class="w"> </span>--prettier
+<span class="nb">cd</span><span class="w"> </span>unieventos-web
+npm<span class="w"> </span>install
+npm<span class="w"> </span>run<span class="w"> </span>dev
+</code></pre></div></div>
+
+<blockquote class="dica">
+<p><strong>💡 Dica</strong>
+Já habilitamos <code>--router</code> e <code>--pinia</code> mesmo sem usá-los ainda — eles só entram em cena nas Aulas 04 e 06, mas evita reconfigurar o projeto depois. Os arquivos que eles geram (<code>src/router/index.js</code>, <code>src/stores/counter.js</code>) ficam parados até lá.</p>
+</blockquote>
+<h3 id="32-estrutura-gerada">3.2 Estrutura gerada<a class="anchor" href="#32-estrutura-gerada" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>unieventos-web/
+├─ .vscode/
+├─ public/favicon.ico
+├─ src/
+│  ├─ App.vue
+│  ├─ main.js
+│  ├─ router/index.js
+│  └─ stores/counter.js
+├─ index.html
+├─ jsconfig.json
+├─ package.json
+└─ vite.config.js
+</code></pre></div></div>
+
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Arquivo</th>
+<th>Papel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>index.html</code></td>
+<td>HTML raiz — único ponto de entrada real da SPA, contém <code>&lt;div id="app"&gt;</code></td>
+</tr>
+<tr>
+<td><code>src/main.js</code></td>
+<td>Ponto de entrada JS: cria a aplicação, registra plugins, monta no DOM</td>
+</tr>
+<tr>
+<td><code>src/App.vue</code></td>
+<td>Componente raiz — tudo que renderizamos começa aqui</td>
+</tr>
+<tr>
+<td><code>src/router/index.js</code></td>
+<td>Configuração de rotas (usada a partir da Aula 04)</td>
+</tr>
+<tr>
+<td><code>src/stores/counter.js</code></td>
+<td>Exemplo de store Pinia gerado pelo scaffold (usado a partir da Aula 06)</td>
+</tr>
+<tr>
+<td><code>vite.config.js</code></td>
+<td>Configuração do Vite: plugins, aliases de importação</td>
+</tr>
+<tr>
+<td><code>package.json</code></td>
+<td>Dependências e scripts (<code>npm run dev</code>, <code>npm run build</code>)</td>
+</tr>
+<tr>
+<td><code>jsconfig.json</code></td>
+<td>Ajuda o VS Code a resolver imports como <code>@/components/...</code></td>
+</tr>
+</tbody>
+</table></div>
+<p><code>src/main.js</code> gerado:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/main.js</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createApp</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createPinia</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;pinia&#39;</span>
+
+<span class="k">import</span><span class="w"> </span><span class="nx">App</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./App.vue&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">router</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./router&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">app</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">createApp</span><span class="p">(</span><span class="nx">App</span><span class="p">)</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">createPinia</span><span class="p">())</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">router</span><span class="p">)</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">mount</span><span class="p">(</span><span class="s1">&#39;#app&#39;</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Compare com o <code>createApp(...).mount('#app')</code> do exemplo CDN: é a mesma API. A diferença é que aqui <code>App</code> vem de um <strong>componente <code>.vue</code> importado</strong>, e <code>app.use(...)</code> registra <strong>plugins</strong> (Pinia, Router) que ainda não vamos usar hoje.</p>
+<p>Rode o projeto:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>npm<span class="w"> </span>run<span class="w"> </span>dev
+</code></pre></div></div>
+
+<p>O Vite sobe um servidor local (normalmente <code>http://localhost:5173</code>) com <strong>hot module replacement</strong>: você edita um arquivo <code>.vue</code> e a tela atualiza sozinha, sem recarregar a página inteira.</p>
+<h3 id="33-anatomia-de-um-single-file-component-sfc">3.3 Anatomia de um Single File Component (SFC)<a class="anchor" href="#33-anatomia-de-um-single-file-component-sfc" title="Permanent link">¶</a></h3>
+<p>Abra <code>src/App.vue</code> gerado pelo scaffold — ele vem com bastante conteúdo de boas-vindas. Vamos substituí-lo por algo mínimo para entender a estrutura:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="cm">&lt;!-- src/App.vue --&gt;</span>
+<span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">titulo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="s1">&#39;UniEventos&#39;</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">contador</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="mf">0</span><span class="p">)</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">incrementar</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">contador</span><span class="p">.</span><span class="nx">value</span><span class="o">++</span>
+<span class="p">}</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">main</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span><span class="cp">{{</span><span class="w"> </span><span class="nx">titulo</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Cliques: <span class="cp">{{</span><span class="w"> </span><span class="nx">contador</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">button</span> <span class="p">@</span><span class="na">click</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">incrementar</span><span class="s">&quot;</span><span class="p">&gt;</span>Clicar<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">main</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">style</span> <span class="na">scoped</span><span class="p">&gt;</span>
+<span class="nt">main</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">font-family</span><span class="p">:</span><span class="w"> </span><span class="kc">sans-serif</span><span class="p">;</span>
+<span class="w">  </span><span class="k">padding</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="kt">rem</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nt">h1</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">color</span><span class="p">:</span><span class="w"> </span><span class="mh">#2c3e50</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="p">&lt;/</span><span class="nt">style</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<p>Um <code>.vue</code> tem até três blocos:</p>
+<ul>
+<li><strong><code>&lt;script setup&gt;</code></strong> — lógica do componente em Composition API. Tudo declarado aqui (variáveis, funções) fica automaticamente disponível no <code>&lt;template&gt;</code>, sem <code>return</code> explícito — é isso que o <code>setup: '&lt;script setup&gt;'</code> do compilador do Vite faz por você.</li>
+<li><strong><code>&lt;template&gt;</code></strong> — o HTML do componente, com as diretivas do Vue.</li>
+<li><strong><code>&lt;style scoped&gt;</code></strong> — CSS que se aplica <strong>somente</strong> a este componente (o Vue adiciona um atributo único a cada elemento na hora do build, isolando o CSS). Sem <code>scoped</code>, o estilo vaza para a aplicação inteira.</li>
+</ul>
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+<code>&lt;script setup&gt;</code> só existe dentro de arquivos <code>.vue</code> processados pelo Vite — não existe fora desse contexto. Por isso o exemplo CDN da Seção 2 usou <code>setup() { return {...} }</code> explícito.</p>
+</blockquote>
+<h2 id="4-reatividade-ref-e-reactive">4. Reatividade: <code>ref()</code> e <code>reactive()</code><a class="anchor" href="#4-reatividade-ref-e-reactive" title="Permanent link">¶</a></h2>
+<h3 id="41-por-que-value">4.1 Por que <code>.value</code><a class="anchor" href="#41-por-que-value" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+
+<span class="c1">// ref() envolve um valor primitivo (ou qualquer valor) em um objeto reativo</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">contadorVagas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="mf">40</span><span class="p">)</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">reduzirVaga</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// DENTRO do &lt;script&gt;, é preciso acessar/alterar via .value</span>
+<span class="w">  </span><span class="nx">contadorVagas</span><span class="p">.</span><span class="nx">value</span><span class="o">--</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">contadorVagas</span><span class="p">.</span><span class="nx">value</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- NO &lt;template&gt;, o Vue &quot;desembrulha&quot; automaticamente — sem .value --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Vagas: <span class="cp">{{</span><span class="w"> </span><span class="nx">contadorVagas</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">button</span> <span class="p">@</span><span class="na">click</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">reduzirVaga</span><span class="s">&quot;</span><span class="p">&gt;</span>Inscrever<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<blockquote class="capo">
+<p><strong>🔎 Por baixo do capô</strong>
+Um valor primitivo em JavaScript (<code>number</code>, <code>string</code>, <code>boolean</code>) não tem como "avisar" ninguém quando muda — não há como interceptar <code>contador = contador + 1</code> para uma variável solta. <code>ref()</code> resolve isso guardando o valor dentro de um objeto (<code>{ value: 40 }</code>) e tornando esse objeto reativo. É por isso que, no script, você sempre acessa <code>.value</code>. No <code>&lt;template&gt;</code>, o compilador do Vue já sabe que uma variável vinda de <code>ref()</code> precisa ser desembrulhada e faz isso por você automaticamente.</p>
+</blockquote>
+<h3 id="42-reactive-para-objetos-e-arrays">4.2 <code>reactive()</code> — para objetos e arrays<a class="anchor" href="#42-reactive-para-objetos-e-arrays" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">reactive</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+
+<span class="c1">// reactive() torna um OBJETO inteiro reativo, sem precisar de .value</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">evento</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">reactive</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Semana da Computação&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">40</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">inscritos</span><span class="o">:</span><span class="w"> </span><span class="mf">12</span><span class="p">,</span>
+<span class="p">})</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">inscrever</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// acesso direto às propriedades, sem .value</span>
+<span class="w">  </span><span class="nx">evento</span><span class="p">.</span><span class="nx">inscritos</span><span class="o">++</span>
+<span class="p">}</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span><span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="w"> </span><span class="cp">}}</span>: <span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">inscritos</span><span class="w"> </span><span class="cp">}}</span>/<span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">vagas</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">button</span> <span class="p">@</span><span class="na">click</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">inscrever</span><span class="s">&quot;</span><span class="p">&gt;</span>Inscrever<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<blockquote class="capo">
+<p><strong>🔎 Por baixo do capô</strong>
+<code>reactive()</code> usa um <strong><code>Proxy</code></strong> do JavaScript (recurso nativo do ES2015) para interceptar leituras e escritas nas propriedades do objeto. Toda vez que você lê <code>evento.titulo</code>, o Proxy registra "alguém depende disso"; toda vez que você escreve <code>evento.inscritos = ...</code>, o Proxy avisa "isso mudou, quem depende precisa atualizar". Vamos detalhar esse mecanismo na Aula 03, no box de padrão de projeto <strong>Proxy</strong>.</p>
+</blockquote>
+<h3 id="43-quando-usar-cada-um">4.3 Quando usar cada um<a class="anchor" href="#43-quando-usar-cada-um" title="Permanent link">¶</a></h3>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Situação</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Valor único (número, string, boolean)</td>
+<td><code>ref()</code></td>
+</tr>
+<tr>
+<td>Objeto ou array com várias propriedades relacionadas</td>
+<td><code>reactive()</code> (ou <code>ref()</code> também funciona para objetos — é uma escolha de estilo)</td>
+</tr>
+<tr>
+<td>Precisa <strong>substituir o valor inteiro</strong> depois (ex.: <code>eventos = novaLista</code>)</td>
+<td><code>ref()</code> — <code>reactive()</code> não permite reatribuir a variável inteira sem perder a reatividade</td>
+</tr>
+</tbody>
+</table></div>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+
+<span class="c1">// Para uma LISTA que será recarregada inteira (ex.: vinda de uma API),</span>
+<span class="c1">// ref() é mais seguro: dá para trocar o array inteiro sem perder reatividade.</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">eventos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">([])</span>
+
+<span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">carregarEventos</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Semana da Computação&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">2</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Oficina de Vue.js&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+Se você usasse <code>reactive([])</code> e depois tentasse <code>eventos = [...]</code> (reatribuir a variável), perderia a conexão reativa — o <code>template</code> continuaria olhando para o array antigo. Com <code>reactive</code>, mude o conteúdo (<code>eventos.push(...)</code>, <code>eventos.splice(...)</code>), nunca a referência.</p>
+</blockquote>
+<p><strong>Equivalência com Options API</strong> — o <code>data()</code> que você viu na Seção 1.1 usa reatividade automática em tudo que ele retorna, sem você escolher entre <code>ref</code> e <code>reactive</code>:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// Options API — Vue decide a reatividade por trás das cortinas</span>
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">data</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">contadorVagas</span><span class="o">:</span><span class="w"> </span><span class="mf">40</span><span class="p">,</span><span class="w"> </span><span class="c1">// equivale a um ref</span>
+<span class="w">      </span><span class="nx">evento</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Semana da Computação&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">inscritos</span><span class="o">:</span><span class="w"> </span><span class="mf">12</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="c1">// equivale a um reactive</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">methods</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">inscrever</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">this</span><span class="p">.</span><span class="nx">evento</span><span class="p">.</span><span class="nx">inscritos</span><span class="o">++</span><span class="w"> </span><span class="c1">// this.&lt;propriedade&gt;, sem .value</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="5-diretivas">5. Diretivas<a class="anchor" href="#5-diretivas" title="Permanent link">¶</a></h2>
+<p>Diretivas são atributos especiais do Vue, prefixados com <code>v-</code>, que ligam o <code>template</code> ao estado reativo. Vamos ver cada uma com exemplo próprio.</p>
+<h3 id="51-v-bind-vincular-atributos-html">5.1 <code>v-bind</code> — vincular atributos HTML<a class="anchor" href="#51-v-bind-vincular-atributos-html" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">evento</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Oficina de Vue.js&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">imagemUrl</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/img/oficina-vue.jpg&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">linkInativo</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="p">})</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- forma completa --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">img</span> <span class="na">v-bind</span><span class="p">:</span><span class="na">src</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="p">.</span><span class="nx">imagemUrl</span><span class="s">&quot;</span> <span class="na">v-bind</span><span class="p">:</span><span class="na">alt</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="s">&quot;</span> <span class="p">/&gt;</span>
+
+  <span class="cm">&lt;!-- atalho &quot;:&quot; — é o que se usa no dia a dia --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">img</span> <span class="p">:</span><span class="na">src</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="p">.</span><span class="nx">imagemUrl</span><span class="s">&quot;</span> <span class="p">:</span><span class="na">alt</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="s">&quot;</span> <span class="p">/&gt;</span>
+
+  <span class="cm">&lt;!-- vinculando um atributo booleano --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">button</span> <span class="p">:</span><span class="na">disabled</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="p">.</span><span class="nx">linkInativo</span><span class="s">&quot;</span><span class="p">&gt;</span>Ver detalhes<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<p><code>v-bind</code> conecta um <strong>atributo do HTML</strong> a uma <strong>expressão JavaScript reativa</strong>. Sem ele, <code>src="evento.imagemUrl"</code> seria só o texto literal <code>"evento.imagemUrl"</code> — não avaliaria a expressão.</p>
+<h3 id="52-v-on-escutar-eventos">5.2 <code>v-on</code> — escutar eventos<a class="anchor" href="#52-v-on-escutar-eventos" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">contador</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="mf">0</span><span class="p">)</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">incrementar</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">contador</span><span class="p">.</span><span class="nx">value</span><span class="o">++</span>
+<span class="p">}</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">tratarEnvio</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;formulário enviado, sem recarregar a página&#39;</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- forma completa --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">button</span> <span class="na">v-on</span><span class="p">:</span><span class="na">click</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">incrementar</span><span class="s">&quot;</span><span class="p">&gt;</span>+1<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+
+  <span class="cm">&lt;!-- atalho &quot;@&quot; — o que se usa no dia a dia --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">button</span> <span class="p">@</span><span class="na">click</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">incrementar</span><span class="s">&quot;</span><span class="p">&gt;</span>+1<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+
+  <span class="cm">&lt;!-- modificador .prevent: chama event.preventDefault() automaticamente --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">form</span> <span class="p">@</span><span class="na">submit</span><span class="p">.</span><span class="na">prevent</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">tratarEnvio</span><span class="s">&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">button</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;submit&quot;</span><span class="p">&gt;</span>Enviar<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">form</span><span class="p">&gt;</span>
+
+  <span class="cm">&lt;!-- modificador .stop: chama event.stopPropagation() --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="p">@</span><span class="na">click</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;clique no pai&#39;</span><span class="p">)</span><span class="s">&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">button</span> <span class="p">@</span><span class="na">click</span><span class="p">.</span><span class="na">stop</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;clique só no botão&#39;</span><span class="p">)</span><span class="s">&quot;</span><span class="p">&gt;</span>Não propaga<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+
+  <span class="cm">&lt;!-- modificador .once: o handler roda só na primeira vez --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">button</span> <span class="p">@</span><span class="na">click</span><span class="p">.</span><span class="na">once</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;só uma vez&#39;</span><span class="p">)</span><span class="s">&quot;</span><span class="p">&gt;</span>Clique único<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+
+  <span class="cm">&lt;!-- modificador de tecla: só dispara com Enter --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">input</span> <span class="p">@</span><span class="na">keyup</span><span class="p">.</span><span class="na">enter</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">incrementar</span><span class="s">&quot;</span> <span class="na">placeholder</span><span class="o">=</span><span class="s">&quot;Pressione Enter&quot;</span> <span class="p">/&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<h3 id="53-v-model-vinculacao-bidirecional-em-formularios">5.3 <code>v-model</code> — vinculação bidirecional em formulários<a class="anchor" href="#53-v-model-vinculacao-bidirecional-em-formularios" title="Permanent link">¶</a></h3>
+<p><code>v-model</code> é açúcar sintático que combina <code>v-bind</code> (mostra o valor) com <code>v-on</code> (atualiza o valor a cada mudança), poupando você de escrever os dois manualmente.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">busca</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">observacoes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">aceitaTermos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">categoriasEscolhidas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">([])</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">categoriaSelecionada</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="s1">&#39;palestra&#39;</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">email</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- input de texto --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">input</span> <span class="na">v-model</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">busca</span><span class="s">&quot;</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;text&quot;</span> <span class="na">placeholder</span><span class="o">=</span><span class="s">&quot;Buscar evento...&quot;</span> <span class="p">/&gt;</span>
+  <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Buscando por: <span class="cp">{{</span><span class="w"> </span><span class="nx">busca</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+
+  <span class="cm">&lt;!-- textarea --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">textarea</span> <span class="na">v-model</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">observacoes</span><span class="s">&quot;</span> <span class="na">placeholder</span><span class="o">=</span><span class="s">&quot;Observações&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">textarea</span><span class="p">&gt;</span>
+
+  <span class="cm">&lt;!-- checkbox único: liga a uma variável boolean --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">label</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">input</span> <span class="na">v-model</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">aceitaTermos</span><span class="s">&quot;</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;checkbox&quot;</span> <span class="p">/&gt;</span>
+    Aceito os termos
+  <span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+
+  <span class="cm">&lt;!-- vários checkboxes: liga a um array — cada &quot;value&quot; marcado entra no array --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">label</span><span class="p">&gt;&lt;</span><span class="nt">input</span> <span class="na">v-model</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">categoriasEscolhidas</span><span class="s">&quot;</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;checkbox&quot;</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;palestra&quot;</span> <span class="p">/&gt;</span> Palestra<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">label</span><span class="p">&gt;&lt;</span><span class="nt">input</span> <span class="na">v-model</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">categoriasEscolhidas</span><span class="s">&quot;</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;checkbox&quot;</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;minicurso&quot;</span> <span class="p">/&gt;</span> Minicurso<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Selecionadas: <span class="cp">{{</span><span class="w"> </span><span class="nx">categoriasEscolhidas</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+
+  <span class="cm">&lt;!-- radio: só um valor por grupo de &quot;name&quot; implícito pelo v-model --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">label</span><span class="p">&gt;&lt;</span><span class="nt">input</span> <span class="na">v-model</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">categoriaSelecionada</span><span class="s">&quot;</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;radio&quot;</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;palestra&quot;</span> <span class="p">/&gt;</span> Palestra<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">label</span><span class="p">&gt;&lt;</span><span class="nt">input</span> <span class="na">v-model</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">categoriaSelecionada</span><span class="s">&quot;</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;radio&quot;</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;workshop&quot;</span> <span class="p">/&gt;</span> Workshop<span class="p">&lt;/</span><span class="nt">label</span><span class="p">&gt;</span>
+
+  <span class="cm">&lt;!-- select --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">select</span> <span class="na">v-model</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">categoriaSelecionada</span><span class="s">&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">option</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;palestra&quot;</span><span class="p">&gt;</span>Palestra<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">option</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;minicurso&quot;</span><span class="p">&gt;</span>Minicurso<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">option</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;workshop&quot;</span><span class="p">&gt;</span>Workshop<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">select</span><span class="p">&gt;</span>
+
+  <span class="cm">&lt;!-- modificadores --&gt;</span>
+  <span class="cm">&lt;!-- .trim: remove espaços das pontas automaticamente --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">input</span> <span class="na">v-model</span><span class="p">.</span><span class="na">trim</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">email</span><span class="s">&quot;</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;email&quot;</span> <span class="na">placeholder</span><span class="o">=</span><span class="s">&quot;seu@email.com&quot;</span> <span class="p">/&gt;</span>
+
+  <span class="cm">&lt;!-- .number: converte o valor digitado para Number --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">input</span> <span class="na">v-model</span><span class="p">.</span><span class="na">number</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">categoriaSelecionada</span><span class="s">&quot;</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;number&quot;</span> <span class="p">/&gt;</span>
+
+  <span class="cm">&lt;!-- .lazy: sincroniza no evento &quot;change&quot; (ao sair do campo), não a cada tecla --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">input</span> <span class="na">v-model</span><span class="p">.</span><span class="na">lazy</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">busca</span><span class="s">&quot;</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;text&quot;</span> <span class="p">/&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<blockquote class="dica">
+<p><strong>💡 Dica</strong>
+<code>v-model</code> é o par perfeito para o formulário de inscrição do UniEventos que vamos montar hoje: o valor do campo de busca já fica disponível como variável reativa, sem escrever um único <code>addEventListener</code>.</p>
+</blockquote>
+<h3 id="54-v-if-v-else-if-v-else">5.4 <code>v-if</code>, <code>v-else-if</code>, <code>v-else</code><a class="anchor" href="#54-v-if-v-else-if-v-else" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">vagasRestantes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="mf">0</span><span class="p">)</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">p</span> <span class="na">v-if</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">vagasRestantes</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">10</span><span class="s">&quot;</span><span class="p">&gt;</span>Vagas disponíveis<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">p</span> <span class="na">v-else-if</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">vagasRestantes</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0</span><span class="s">&quot;</span><span class="p">&gt;</span>Últimas vagas!<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">p</span> <span class="na">v-else</span><span class="p">&gt;</span>Evento lotado<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<p><code>v-if</code> (e seus complementos) <strong>adiciona ou remove o elemento do DOM</strong> conforme a condição — quando falso, o elemento simplesmente não existe na página.</p>
+<h3 id="55-v-show-a-alternativa-que-so-esconde">5.5 <code>v-show</code> — a alternativa que só esconde<a class="anchor" href="#55-v-show-a-alternativa-que-so-esconde" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">mostrarDetalhes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">button</span> <span class="p">@</span><span class="na">click</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">mostrarDetalhes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">!</span><span class="nx">mostrarDetalhes</span><span class="s">&quot;</span><span class="p">&gt;</span>Alternar detalhes<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+
+  <span class="cm">&lt;!-- o elemento SEMPRE existe no DOM; v-show só alterna display: none --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">v-show</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">mostrarDetalhes</span><span class="s">&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Estes são os detalhes completos do evento.<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th><code>v-if</code></th>
+<th><code>v-show</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Como funciona</td>
+<td>Remove/insere o elemento no DOM</td>
+<td>Alterna <code>display: none</code> via CSS</td>
+</tr>
+<tr>
+<td>Custo de alternar</td>
+<td>Mais caro (recria o elemento)</td>
+<td>Mais barato (só troca CSS)</td>
+</tr>
+<tr>
+<td>Custo inicial se falso</td>
+<td>Mais barato (nem renderiza)</td>
+<td>Mais caro (sempre renderiza)</td>
+</tr>
+<tr>
+<td>Quando usar</td>
+<td>Condição muda raramente</td>
+<td>Condição alterna com frequência (ex.: abrir/fechar painel)</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="56-v-for-e-a-importancia-da-key">5.6 <code>v-for</code> e a importância da <code>:key</code><a class="anchor" href="#56-v-for-e-a-importancia-da-key" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">eventos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">([</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Semana da Computação&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;palestra&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">2</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Oficina de Vue.js&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;minicurso&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">3</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Hackathon FACET&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;workshop&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="p">])</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">ul</span><span class="p">&gt;</span>
+    <span class="cm">&lt;!-- CORRETO: key única e estável (o id do dado, nunca o índice) --&gt;</span>
+    <span class="p">&lt;</span><span class="nt">li</span> <span class="na">v-for</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">eventos</span><span class="s">&quot;</span> <span class="p">:</span><span class="na">key</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="p">.</span><span class="nx">id</span><span class="s">&quot;</span><span class="p">&gt;</span>
+      <span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="w"> </span><span class="cp">}}</span> — <span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">categoria</span><span class="w"> </span><span class="cp">}}</span>
+    <span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
+
+  <span class="cm">&lt;!-- v-for também expõe o índice, como segundo parâmetro --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">ol</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">li</span> <span class="na">v-for</span><span class="o">=</span><span class="s">&quot;</span><span class="p">(</span><span class="nx">evento</span><span class="p">,</span><span class="w"> </span><span class="nx">indice</span><span class="p">)</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">eventos</span><span class="s">&quot;</span> <span class="p">:</span><span class="na">key</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="p">.</span><span class="nx">id</span><span class="s">&quot;</span><span class="p">&gt;</span>
+      <span class="cp">{{</span><span class="w"> </span><span class="nx">indice</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="w"> </span><span class="cp">}}</span>. <span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="w"> </span><span class="cp">}}</span>
+    <span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">ol</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<p><strong>O bug do índice como <code>:key</code>:</strong></p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">eventos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">([</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Semana da Computação&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">2</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Oficina de Vue.js&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">3</span><span class="p">,</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Hackathon FACET&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="p">])</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">removerPrimeiro</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">value</span><span class="p">.</span><span class="nx">shift</span><span class="p">()</span><span class="w"> </span><span class="c1">// remove o item do início</span>
+<span class="p">}</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- ERRADO: usar o índice como key --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">v-for</span><span class="o">=</span><span class="s">&quot;</span><span class="p">(</span><span class="nx">evento</span><span class="p">,</span><span class="w"> </span><span class="nx">indice</span><span class="p">)</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">eventos</span><span class="s">&quot;</span> <span class="p">:</span><span class="na">key</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">indice</span><span class="s">&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">input</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;checkbox&quot;</span> <span class="p">/&gt;</span> <span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="w"> </span><span class="cp">}}</span>
+  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+
+  <span class="p">&lt;</span><span class="nt">button</span> <span class="p">@</span><span class="na">click</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">removerPrimeiro</span><span class="s">&quot;</span><span class="p">&gt;</span>Remover o primeiro<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<p>Se cada <code>&lt;input type="checkbox"&gt;</code> tiver estado próprio (marcado por quem interage) e você remover o primeiro item da lista, o Vue reaproveitará os elementos DOM <strong>pelo índice</strong>: o segundo item (índice <code>0</code> agora) herda o checkbox que estava marcado no antigo primeiro item, mesmo sendo um dado diferente. O texto atualiza corretamente, mas o <strong>estado interno do elemento (checkbox marcado, valor de input, foco) fica errado</strong>, porque o Vue pensa que é "o mesmo elemento" da posição <code>0</code>.</p>
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+Use sempre um identificador <strong>estável e único do dado</strong> (<code>evento.id</code>) como <code>:key</code>, nunca o índice do <code>v-for</code>. O índice muda quando a lista é reordenada, filtrada ou tem itens removidos — e o Vue usa a <code>key</code> exatamente para saber "isso é o mesmo item de antes ou é outro?".</p>
+</blockquote>
+<h3 id="57-v-text-e-v-html">5.7 <code>v-text</code> e <code>v-html</code><a class="anchor" href="#57-v-text-e-v-html" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">descricaoSimples</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="s1">&#39;Evento sobre Vue.js&#39;</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">descricaoComHtml</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="s1">&#39;&lt;strong&gt;Evento&lt;/strong&gt; sobre Vue.js&#39;</span><span class="p">)</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- v-text é equivalente a {{ }}, mas substitui TODO o conteúdo do elemento --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">p</span> <span class="na">v-text</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">descricaoSimples</span><span class="s">&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+
+  <span class="cm">&lt;!-- interpolação normal: sempre trata o conteúdo como TEXTO puro (escapa HTML) --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span><span class="cp">{{</span><span class="w"> </span><span class="nx">descricaoComHtml</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- renderiza literalmente: &lt;strong&gt;Evento&lt;/strong&gt; sobre Vue.js --&gt;</span>
+
+  <span class="cm">&lt;!-- v-html: injeta HTML de verdade, interpretado pelo navegador --&gt;</span>
+  <span class="p">&lt;</span><span class="nt">p</span> <span class="na">v-html</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">descricaoComHtml</span><span class="s">&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- renderiza: Evento (em negrito) sobre Vue.js --&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção — risco de XSS</strong>
+<code>v-html</code> injeta HTML bruto na página, sem escapar. Se o conteúdo vier de um usuário (comentário, campo de formulário, dado de API não confiável) e contiver <code>&lt;script&gt;</code> ou atributos como <code>onerror=</code>, isso <strong>executa no navegador de quem visualiza a página</strong> — um ataque de Cross-Site Scripting (XSS). Use <code>v-html</code> só com conteúdo que você controla (texto formatado vindo do seu próprio backend, sanitizado). Para exibir texto de usuário, use interpolação <code>{{ }}</code> normal, que sempre escapa.</p>
+</blockquote>
+<h2 id="6-ciclo-de-vida-do-componente">6. Ciclo de vida do componente<a class="anchor" href="#6-ciclo-de-vida-do-componente" title="Permanent link">¶</a></h2>
+<p>Todo componente Vue passa por fases previsíveis, do momento em que é criado até ser destruído.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>criação do componente
+        │
+        ▼
+  onBeforeMount()   ← ainda não existe no DOM real
+        │
+        ▼
+   [Vue monta o componente no DOM]
+        │
+        ▼
+    onMounted()      ← já existe no DOM, pode acessar elementos, disparar fetch
+        │
+        ▼
+  (o componente vive aqui — reage a mudanças de estado)
+        │
+        ├──► dado reativo muda
+        │         │
+        │         ▼
+        │   onBeforeUpdate()  ← estado já mudou, DOM ainda não
+        │         │
+        │         ▼
+        │   [Vue re-renderiza o DOM]
+        │         │
+        │         ▼
+        │      onUpdated()    ← DOM já reflete o novo estado
+        │         │
+        │         └──► volta a &quot;viver&quot; aqui
+        │
+        ▼
+  onBeforeUnmount()  ← componente prestes a ser removido
+        │
+        ▼
+   [Vue remove o componente do DOM]
+        │
+        ▼
+    onUnmounted()     ← já foi removido; hora de limpar recursos
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="cm">&lt;!-- src/components/DemoCicloDeVida.vue --&gt;</span>
+<span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="p">,</span><span class="w"> </span><span class="nx">onBeforeMount</span><span class="p">,</span><span class="w"> </span><span class="nx">onMounted</span><span class="p">,</span><span class="w"> </span><span class="nx">onBeforeUpdate</span><span class="p">,</span><span class="w"> </span><span class="nx">onUpdated</span><span class="p">,</span><span class="w"> </span><span class="nx">onBeforeUnmount</span><span class="p">,</span><span class="w"> </span><span class="nx">onUnmounted</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">segundos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="mf">0</span><span class="p">)</span>
+<span class="kd">let</span><span class="w"> </span><span class="nx">intervaloId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span>
+
+<span class="nx">onBeforeMount</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;[ciclo] onBeforeMount — ainda não está no DOM&#39;</span><span class="p">)</span>
+<span class="p">})</span>
+
+<span class="nx">onMounted</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;[ciclo] onMounted — já está no DOM, iniciando o relógio&#39;</span><span class="p">)</span>
+
+<span class="w">  </span><span class="c1">// setInterval é um recurso &quot;externo&quot; ao Vue — precisa ser limpo manualmente</span>
+<span class="w">  </span><span class="nx">intervaloId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">setInterval</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">segundos</span><span class="p">.</span><span class="nx">value</span><span class="o">++</span>
+<span class="w">  </span><span class="p">},</span><span class="w"> </span><span class="mf">1000</span><span class="p">)</span>
+<span class="p">})</span>
+
+<span class="nx">onBeforeUpdate</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;[ciclo] onBeforeUpdate — segundos mudou para&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">segundos</span><span class="p">.</span><span class="nx">value</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;mas o DOM ainda não&#39;</span><span class="p">)</span>
+<span class="p">})</span>
+
+<span class="nx">onUpdated</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;[ciclo] onUpdated — DOM já mostra&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">segundos</span><span class="p">.</span><span class="nx">value</span><span class="p">)</span>
+<span class="p">})</span>
+
+<span class="nx">onBeforeUnmount</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;[ciclo] onBeforeUnmount — componente prestes a sumir&#39;</span><span class="p">)</span>
+<span class="p">})</span>
+
+<span class="nx">onUnmounted</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;[ciclo] onUnmounted — limpando o setInterval&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="c1">// ESSENCIAL: sem isso, o timer continua rodando mesmo após o</span>
+<span class="w">  </span><span class="c1">// componente sumir da tela — um vazamento de memória clássico.</span>
+<span class="w">  </span><span class="nx">clearInterval</span><span class="p">(</span><span class="nx">intervaloId</span><span class="p">)</span>
+<span class="p">})</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Segundos desde a montagem: <span class="cp">{{</span><span class="w"> </span><span class="nx">segundos</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<p><strong>Equivalência com Options API:</strong></p>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Composition API</th>
+<th>Options API</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>onBeforeMount</code></td>
+<td><code>beforeMount()</code></td>
+</tr>
+<tr>
+<td><code>onMounted</code></td>
+<td><code>mounted()</code></td>
+</tr>
+<tr>
+<td><code>onBeforeUpdate</code></td>
+<td><code>beforeUpdate()</code></td>
+</tr>
+<tr>
+<td><code>onUpdated</code></td>
+<td><code>updated()</code></td>
+</tr>
+<tr>
+<td><code>onBeforeUnmount</code></td>
+<td><code>beforeUnmount()</code></td>
+</tr>
+<tr>
+<td><code>onUnmounted</code></td>
+<td><code>unmounted()</code></td>
+</tr>
+</tbody>
+</table></div>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// Options API — os mesmos hooks, como métodos especiais do objeto</span>
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">data</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">segundos</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">intervaloId</span><span class="o">:</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">mounted</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;mounted&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">intervaloId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">setInterval</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">segundos</span><span class="o">++</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="mf">1000</span><span class="p">)</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">unmounted</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">clearInterval</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">intervaloId</span><span class="p">)</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote class="prova">
+<p><strong>📌 Na prova</strong>
+<code>onMounted</code> é, de longe, o hook mais usado na prática — é onde disparamos requisições <code>fetch</code> (Aula 03) porque é o primeiro momento em que temos garantia de que o DOM existe. <code>onUnmounted</code> é onde limpamos qualquer recurso externo (<code>setInterval</code>, <code>addEventListener</code> em <code>window</code>, conexões abertas) para não vazar memória quando o componente sai de cena.</p>
+</blockquote>
+<h2 id="padrao-de-projeto-em-uso">🧩 Padrão de projeto em uso<a class="anchor" href="#padrao-de-projeto-em-uso" title="Permanent link">¶</a></h2>
+<blockquote>
+<h3 id="padrao-de-projeto-em-uso-observer-comportamental">🧩 Padrão de projeto em uso — Observer (comportamental)<a class="anchor" href="#padrao-de-projeto-em-uso-observer-comportamental" title="Permanent link">¶</a></h3>
+<p>O padrão <strong>Observer</strong> define uma relação um-para-muitos entre um objeto (o <em>subject</em>, que muda de estado) e vários <em>observers</em>, que são notificados automaticamente sempre que o subject muda — sem que o subject precise conhecer os observers individualmente.</p>
+<p>Um Observer "na mão", em JavaScript puro:</p>
+<p>```js
+// Um EventTarget simplificado — a base do Observer em JS puro
+class ContadorObservavel {
+  constructor() {
+    this.valor = 0
+    this.observadores = []
+  }</p>
+<p>observar(funcaoCallback) {
+    this.observadores.push(funcaoCallback)
+  }</p>
+<p>incrementar() {
+    this.valor++
+    // notifica TODOS os observadores registrados
+    this.observadores.forEach((callback) =&gt; callback(this.valor))
+  }
+}</p>
+<p>const contador = new ContadorObservavel()
+contador.observar((valor) =&gt; console.log('UI A atualizada:', valor))
+contador.observar((valor) =&gt; console.log('UI B atualizada:', valor))
+contador.incrementar() // dispara os dois observadores
+```</p>
+<p><strong>É exatamente isso que o sistema de reatividade do Vue faz por baixo dos panos.</strong> Quando você escreve <code>{{ contador }}</code> no template, o Vue registra esse trecho do DOM como um "observador" da variável <code>contador</code>. Quando você escreve <code>contador.value++</code>, o Vue percorre a lista de observadores daquela variável (os pedaços de template que a usam) e re-renderiza só eles — sem você escrever <code>observar()</code> ou <code>notificar()</code> manualmente. <code>ref</code> e <code>reactive</code> são, na essência, subjects observáveis; cada trecho do template que os lê vira, automaticamente, um observer. Vamos abrir esse mecanismo com mais detalhe na Aula 03, quando falarmos do padrão <strong>Proxy</strong>.</p>
+</blockquote>
+<h2 id="mao-na-massa-primeira-versao-do-unieventos">💻 Mão na massa — primeira versão do UniEventos<a class="anchor" href="#mao-na-massa-primeira-versao-do-unieventos" title="Permanent link">¶</a></h2>
+<p>Vamos construir, dentro do projeto <code>unieventos-web</code> criado na Seção 3, a primeira tela funcional: lista de eventos com busca, filtro por categoria e inscrição.</p>
+<p><strong>Passo 1 — dados de exemplo.</strong> Crie um arquivo separado só com os dados, para manter o componente organizado (o mesmo raciocínio do módulo <code>eventos.js</code> da Aula 01).</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/data/eventos.js</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">eventosIniciais</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Semana da Computação&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;palestra&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">dataHora</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2026-09-10T19:00:00&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">local</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Auditório Central&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">40</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">inscritos</span><span class="o">:</span><span class="w"> </span><span class="mf">12</span><span class="p">,</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">2</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Oficina de Vue.js&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;minicurso&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">dataHora</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2026-08-20T14:00:00&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">local</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Laboratório 3&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">25</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">inscritos</span><span class="o">:</span><span class="w"> </span><span class="mf">25</span><span class="p">,</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">3</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Hackathon FACET&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;workshop&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">dataHora</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2026-10-05T08:00:00&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">local</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Bloco B&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">60</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">inscritos</span><span class="o">:</span><span class="w"> </span><span class="mf">18</span><span class="p">,</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">4</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Introdução a IA&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;palestra&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">dataHora</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2026-08-18T19:30:00&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">local</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Auditório Central&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">80</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">inscritos</span><span class="o">:</span><span class="w"> </span><span class="mf">55</span><span class="p">,</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">]</span>
+</code></pre></div></div>
+
+<p><strong>Passo 2 — o componente principal.</strong> Ainda usamos <code>filter</code> "na mão" dentro de uma função (vamos trocar por <code>computed</code>, que faz cache, na Aula 03 — por hoje o objetivo é praticar diretivas).</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="cm">&lt;!-- src/App.vue --&gt;</span>
+<span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">eventosIniciais</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./data/eventos.js&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">eventos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="nx">eventosIniciais</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">busca</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">categoriaFiltro</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+<span class="c1">// Função comum (não computed ainda) — recalculada manualmente a cada uso.</span>
+<span class="c1">// Repare que ela SEMPRE cria um array novo com filter, sem mutar `eventos`.</span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">obterEventosFiltrados</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">value</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">filter</span><span class="p">((</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">().</span><span class="nx">includes</span><span class="p">(</span><span class="nx">busca</span><span class="p">.</span><span class="nx">value</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">()))</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">filter</span><span class="p">((</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">categoriaFiltro</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">categoria</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">categoriaFiltro</span><span class="p">.</span><span class="nx">value</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">inscrever</span><span class="p">(</span><span class="nx">eventoId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">evento</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">value</span><span class="p">.</span><span class="nx">find</span><span class="p">((</span><span class="nx">item</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">item</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">eventoId</span><span class="p">)</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="k">return</span>
+
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">evento</span><span class="p">.</span><span class="nx">inscritos</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">vagas</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">alert</span><span class="p">(</span><span class="s1">&#39;Este evento está lotado.&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="k">return</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">evento</span><span class="p">.</span><span class="nx">inscritos</span><span class="o">++</span>
+<span class="p">}</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">vagasRestantes</span><span class="p">(</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">vagas</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">inscritos</span>
+<span class="p">}</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">main</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;pagina&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>UniEventos<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Encontre e inscreva-se em eventos acadêmicos.<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;filtros&quot;</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">input</span>
+        <span class="na">v-model</span><span class="p">.</span><span class="na">trim</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">busca</span><span class="s">&quot;</span>
+        <span class="na">type</span><span class="o">=</span><span class="s">&quot;text&quot;</span>
+        <span class="na">placeholder</span><span class="o">=</span><span class="s">&quot;Buscar por título...&quot;</span>
+      <span class="p">/&gt;</span>
+
+      <span class="p">&lt;</span><span class="nt">select</span> <span class="na">v-model</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">categoriaFiltro</span><span class="s">&quot;</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">option</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">&gt;</span>Todas as categorias<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">option</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;palestra&quot;</span><span class="p">&gt;</span>Palestra<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">option</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;minicurso&quot;</span><span class="p">&gt;</span>Minicurso<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">option</span> <span class="na">value</span><span class="o">=</span><span class="s">&quot;workshop&quot;</span><span class="p">&gt;</span>Workshop<span class="p">&lt;/</span><span class="nt">option</span><span class="p">&gt;</span>
+      <span class="p">&lt;/</span><span class="nt">select</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">ul</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;lista-eventos&quot;</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">li</span>
+        <span class="na">v-for</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">obterEventosFiltrados</span><span class="p">()</span><span class="s">&quot;</span>
+        <span class="p">:</span><span class="na">key</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="p">.</span><span class="nx">id</span><span class="s">&quot;</span>
+        <span class="na">class</span><span class="o">=</span><span class="s">&quot;card-evento&quot;</span>
+      <span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">h2</span><span class="p">&gt;</span><span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">h2</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Categoria: <span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">categoria</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Local: <span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">local</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">p</span> <span class="na">v-if</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">vagasRestantes</span><span class="p">(</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0</span><span class="s">&quot;</span><span class="p">&gt;</span>
+          <span class="cp">{{</span><span class="w"> </span><span class="nx">vagasRestantes</span><span class="p">(</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="cp">}}</span> vaga(s) restante(s)
+        <span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">p</span> <span class="na">v-else</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;lotado&quot;</span><span class="p">&gt;</span>Evento lotado<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+
+        <span class="p">&lt;</span><span class="nt">button</span>
+          <span class="p">:</span><span class="na">disabled</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">vagasRestantes</span><span class="p">(</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="s">&quot;</span>
+          <span class="p">@</span><span class="na">click</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">inscrever</span><span class="p">(</span><span class="nx">evento</span><span class="p">.</span><span class="nx">id</span><span class="p">)</span><span class="s">&quot;</span>
+        <span class="p">&gt;</span>
+          Inscrever-se
+        <span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+      <span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">p</span> <span class="na">v-if</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">obterEventosFiltrados</span><span class="p">().</span><span class="nx">length</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="s">&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;vazio&quot;</span><span class="p">&gt;</span>
+      Nenhum evento encontrado com estes filtros.
+    <span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">main</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">style</span> <span class="na">scoped</span><span class="p">&gt;</span>
+<span class="p">.</span><span class="nc">pagina</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">max-width</span><span class="p">:</span><span class="w"> </span><span class="mi">720</span><span class="kt">px</span><span class="p">;</span>
+<span class="w">  </span><span class="k">margin</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="kc">auto</span><span class="p">;</span>
+<span class="w">  </span><span class="k">padding</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="kt">rem</span><span class="p">;</span>
+<span class="w">  </span><span class="k">font-family</span><span class="p">:</span><span class="w"> </span><span class="kc">sans-serif</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">filtros</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">display</span><span class="p">:</span><span class="w"> </span><span class="kc">flex</span><span class="p">;</span>
+<span class="w">  </span><span class="k">gap</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="kt">rem</span><span class="p">;</span>
+<span class="w">  </span><span class="k">margin-bottom</span><span class="p">:</span><span class="w"> </span><span class="mf">1.5</span><span class="kt">rem</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">lista-eventos</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">list-style</span><span class="p">:</span><span class="w"> </span><span class="kc">none</span><span class="p">;</span>
+<span class="w">  </span><span class="k">padding</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">  </span><span class="k">display</span><span class="p">:</span><span class="w"> </span><span class="k">grid</span><span class="p">;</span>
+<span class="w">  </span><span class="k">gap</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="kt">rem</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">card-evento</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">border</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="kt">px</span><span class="w"> </span><span class="kc">solid</span><span class="w"> </span><span class="mh">#ddd</span><span class="p">;</span>
+<span class="w">  </span><span class="k">border-radius</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="kt">px</span><span class="p">;</span>
+<span class="w">  </span><span class="k">padding</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="kt">rem</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">lotado</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">color</span><span class="p">:</span><span class="w"> </span><span class="mh">#c0392b</span><span class="p">;</span>
+<span class="w">  </span><span class="k">font-weight</span><span class="p">:</span><span class="w"> </span><span class="kc">bold</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">.</span><span class="nc">vazio</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">text-align</span><span class="p">:</span><span class="w"> </span><span class="kc">center</span><span class="p">;</span>
+<span class="w">  </span><span class="k">color</span><span class="p">:</span><span class="w"> </span><span class="mh">#666</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="p">&lt;/</span><span class="nt">style</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+Repare que <code>obterEventosFiltrados()</code> é chamada <strong>três vezes</strong> no template (na <code>v-for</code>, e de novo para checar se está vazio). Cada chamada refaz o <code>filter</code> duas vezes do zero — funciona, mas é desperdício de processamento e, pior, dificulta manter os resultados sincronizados. Vamos resolver isso com <code>computed()</code> já na próxima aula.</p>
+</blockquote>
+<h2 id="laboratorio">🧪 Laboratório<a class="anchor" href="#laboratorio" title="Permanent link">¶</a></h2>
+<p><strong>1. Contador de inscritos totais</strong> — adicione, logo abaixo do <code>&lt;h1&gt;</code>, um parágrafo mostrando quantas pessoas estão inscritas somando todos os eventos, usando <code>reduce</code> (Aula 01).</p>
+<p>Resultado esperado: um número que aumenta a cada clique em "Inscrever-se".</p>
+<details>
+<summary>Dica</summary>
+<p><code>eventos.value.reduce((total, evento) =&gt; total + evento.inscritos, 0)</code> dentro de uma função chamada no template, ou direto em uma expressão de interpolação.</p>
+</details>
+<p><strong>2. Botão de limpar filtros</strong> — adicione um botão que zera <code>busca</code> e <code>categoriaFiltro</code> de uma vez.</p>
+<p>Resultado esperado: clicar no botão limpa o campo de texto e volta o select para "Todas as categorias".</p>
+<details>
+<summary>Dica</summary>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="kd">function</span><span class="w"> </span><span class="nx">limparFiltros</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">busca</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&#39;</span>
+<span class="w">  </span><span class="nx">categoriaFiltro</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&#39;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+</details>
+<p><strong>3. Destacar evento quase lotado com <code>v-show</code></strong> — mostre um aviso <code>"Últimas vagas!"</code> com <code>v-show</code> (não <code>v-if</code>) quando <code>vagasRestantes(evento) &lt;= 5 &amp;&amp; vagasRestantes(evento) &gt; 0</code>.</p>
+<p>Resultado esperado: o aviso aparece/some conforme inscrições, sem recriar o elemento no DOM (confira no DevTools, aba Elements).</p>
+<details>
+<summary>Dica</summary>
+<p><code>&lt;span v-show="vagasRestantes(evento) &lt;= 5 &amp;&amp; vagasRestantes(evento) &gt; 0"&gt;Últimas vagas!&lt;/span&gt;</code></p>
+</details>
+<p><strong>4. Modificador <code>.once</code> em uma mensagem de boas-vindas</strong> — adicione um botão "Ver dica" que mostra um alerta apenas na primeira vez que for clicado, usando <code>@click.once</code>.</p>
+<p>Resultado esperado: cliques seguintes não fazem nada.</p>
+<details>
+<summary>Dica</summary>
+<p><code>&lt;button @click.once="alert('Dica: use os filtros para encontrar eventos mais rápido!')"&gt;Ver dica&lt;/button&gt;</code></p>
+</details>
+<p><strong>5. Corrigir uma <code>:key</code> proposital</strong> — troque temporariamente <code>:key="evento.id"</code> por <code>:key="indiceDoLoop"</code> (usando a forma <code>v-for="(evento, indiceDoLoop) in ..."</code>), adicione um <code>&lt;input type="checkbox"&gt;</code> dentro de cada card, marque alguns, filtre por categoria e observe o comportamento estranho dos checkboxes. Depois desfaça a mudança.</p>
+<p>Resultado esperado: você reproduz em sala o bug descrito na Seção 5.6 antes de corrigi-lo.</p>
+<details>
+<summary>Dica</summary>
+<p>O bug aparece quando a lista filtrada muda de tamanho/ordem — os checkboxes "grudam" na posição, não no evento.</p>
+</details>
+<h2 id="erros-comuns-e-como-resolver">🐛 Erros comuns e como resolver<a class="anchor" href="#erros-comuns-e-como-resolver" title="Permanent link">¶</a></h2>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Sintoma</th>
+<th>Causa</th>
+<th>Solução</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tela em branco, console mostra erro sobre <code>.vue</code></td>
+<td>Arquivo <code>.vue</code> com erro de sintaxe, ou <code>&lt;script setup&gt;</code> mal fechado</td>
+<td>Confira se os três blocos (<code>script</code>, <code>template</code>, <code>style</code>) estão bem formados e balanceados</td>
+</tr>
+<tr>
+<td>Alterei <code>contador</code> no script mas a tela não atualiza</td>
+<td>Esqueceu o <code>.value</code> ao alterar um <code>ref</code></td>
+<td>Sempre <code>variavel.value = novoValor</code> dentro do <code>&lt;script setup&gt;</code></td>
+</tr>
+<tr>
+<td><code>v-model</code> não atualiza nada</td>
+<td>Esqueceu de declarar a variável com <code>ref()</code>, ou digitou o nome errado no template</td>
+<td>Confira se a variável usada no <code>v-model</code> existe e foi criada com <code>ref()</code></td>
+</tr>
+<tr>
+<td>Checkbox/input "gruda" em posição errada após filtrar/remover</td>
+<td><code>:key</code> usando o índice do <code>v-for</code></td>
+<td>Use um identificador estável do dado, como <code>evento.id</code></td>
+</tr>
+<tr>
+<td><code>v-html</code> mostra texto cru com as tags <code>&lt;...&gt;</code> aparecendo</td>
+<td>Trocou <code>v-html</code> por interpolação <code>{{ }}</code> sem querer</td>
+<td><code>{{ }}</code> sempre escapa HTML; use <code>v-html</code> só quando o objetivo é renderizar HTML de verdade</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="atividade-assincrona-1-h">🏠 Atividade assíncrona (1 h)<a class="anchor" href="#atividade-assincrona-1-h" title="Permanent link">¶</a></h2>
+<p>No repositório do seu projeto autoral:</p>
+<ol>
+<li>Rode <code>npm create vue@latest</code> (ou <code>npx create-vue@latest &lt;seu-tema&gt;-web --router --pinia --eslint --prettier</code>) dentro da pasta do seu projeto.</li>
+<li>Crie um arquivo <code>src/data/&lt;entidade principal&gt;.js</code> com um array de pelo menos 4 itens de exemplo do seu domínio (equivalente ao <code>eventos.js</code> de hoje).</li>
+<li>Em <code>src/App.vue</code>, monte uma primeira listagem usando <code>v-for</code> com <code>:key</code> correto, um campo de busca com <code>v-model</code> e pelo menos um filtro (<code>v-model</code> em <code>&lt;select&gt;</code>).</li>
+<li>Adicione uma ação (ex.: "reservar", "favoritar", "adicionar ao carrinho" — o verbo do seu domínio) usando <code>v-on</code>/<code>@click</code>.</li>
+<li>Faça commit e push.</li>
+</ol>
+<p><strong>Critério de pronto:</strong> <code>npm run dev</code> abre a aplicação, a lista aparece, busca e filtro funcionam, <code>:key</code> usa um identificador estável.</p>
+<h2 id="checkpoint-do-projeto-autoral">✅ Checkpoint do projeto autoral<a class="anchor" href="#checkpoint-do-projeto-autoral" title="Permanent link">¶</a></h2>
+<ul>
+<li>[ ] Projeto Vite criado com <code>create-vue</code> (flags <code>--router --pinia</code>) no repositório do tema autoral.</li>
+<li>[ ] <code>src/data/*.js</code> com dados de exemplo do domínio escolhido.</li>
+<li>[ ] Listagem funcionando com <code>v-for</code> e <code>:key</code> estável (nunca o índice).</li>
+<li>[ ] Busca com <code>v-model</code> e pelo menos um filtro funcionando.</li>
+<li>[ ] Uma ação de interação implementada com <code>v-on</code>/<code>@click</code>.</li>
+<li>[ ] Commit enviado ao GitHub.</li>
+</ul>
+<h2 id="para-aprofundar">📚 Para aprofundar<a class="anchor" href="#para-aprofundar" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="https://vuejs.org/guide/introduction.html">Documentação oficial do Vue 3 — Introdução</a></li>
+<li><a href="https://vuejs.org/guide/essentials/reactivity-fundamentals.html">Vue 3 — Reactivity Fundamentals</a></li>
+<li><a href="https://vuejs.org/guide/essentials/template-syntax.html">Vue 3 — Template Syntax (diretivas)</a></li>
+<li><a href="https://vuejs.org/guide/essentials/lifecycle.html">Vue 3 — Lifecycle Hooks</a></li>
+<li><a href="https://vuejs.org/guide/essentials/list.html">Vue 3 — List Rendering (<code>v-for</code> e <code>:key</code>)</a></li>
+<li><a href="https://vitejs.dev/">Documentação do Vite</a></li>
+</ul>
+<hr />
+<p><strong>Próxima aula (03, 24/08/2026):</strong> aprofundamos <code>v-for</code>, resolvemos o antipadrão <code>v-for</code> + <code>v-if</code> juntos, introduzimos <code>computed()</code> (com cache de verdade) e usamos <code>onMounted()</code> para carregar dados de uma fonte assíncrona, com estados de carregando/erro/vazio.</p><nav class="navpe"><a data-nav="anterior" href="aula-01.html"><span class="rot">← Aula 01</span><span class="tit">Apresentação da Disciplina e Revisão JavaScript</span></a><a class="dir" data-nav="proxima" href="aula-03.html"><span class="rot">Aula 03 →</span><span class="tit">Vue: listas, computed e ciclo de vida</span></a></nav>
+    <div class="rodape">
+      UNEMAT — Universidade do Estado de Mato Grosso · Campus Cáceres · FACET<br>
+      FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas · 2026.2<br>
+      Prof. Ivan Luiz Pedroso Pires
+    </div>
+  </main>
+  <aside class="toc"><h4>Nesta aula</h4><a class="" href="#objetivos-de-aprendizagem">🎯 Objetivos de aprendizagem</a><a class="" href="#pre-requisitos-desta-aula">📋 Pré-requisitos desta aula</a><a class="" href="#roteiro">🗺️ Roteiro</a><a class="" href="#1-o-que-e-o-vue-3">1. O que é o Vue 3</a><a class="n3" href="#11-options-api-vs-composition-api">1.1 Options API vs. Composition API</a><a class="" href="#2-primeiro-contato-vue-via-cdn">2. Primeiro contato: Vue via CDN</a><a class="" href="#3-migrando-para-um-projeto-vite-de-verdade">3. Migrando para um projeto Vite de verdade</a><a class="n3" href="#31-criando-o-projeto">3.1 Criando o projeto</a><a class="n3" href="#32-estrutura-gerada">3.2 Estrutura gerada</a><a class="n3" href="#33-anatomia-de-um-single-file-component-sfc">3.3 Anatomia de um Single File Component (SFC)</a><a class="" href="#4-reatividade-ref-e-reactive">4. Reatividade: ref() e reactive()</a><a class="n3" href="#41-por-que-value">4.1 Por que .value</a><a class="n3" href="#42-reactive-para-objetos-e-arrays">4.2 reactive() — para objetos e arrays</a><a class="n3" href="#43-quando-usar-cada-um">4.3 Quando usar cada um</a><a class="" href="#5-diretivas">5. Diretivas</a><a class="n3" href="#51-v-bind-vincular-atributos-html">5.1 v-bind — vincular atributos HTML</a><a class="n3" href="#52-v-on-escutar-eventos">5.2 v-on — escutar eventos</a><a class="n3" href="#53-v-model-vinculacao-bidirecional-em-formularios">5.3 v-model — vinculação bidirecional em formulários</a><a class="n3" href="#54-v-if-v-else-if-v-else">5.4 v-if, v-else-if, v-else</a><a class="n3" href="#55-v-show-a-alternativa-que-so-esconde">5.5 v-show — a alternativa que só esconde</a><a class="n3" href="#56-v-for-e-a-importancia-da-key">5.6 v-for e a importância da :key</a><a class="n3" href="#57-v-text-e-v-html">5.7 v-text e v-html</a><a class="" href="#6-ciclo-de-vida-do-componente">6. Ciclo de vida do componente</a><a class="" href="#padrao-de-projeto-em-uso">🧩 Padrão de projeto em uso</a><a class="n3" href="#padrao-de-projeto-em-uso-observer-comportamental">🧩 Padrão de projeto em uso — Observer (comportamental)</a><a class="" href="#mao-na-massa-primeira-versao-do-unieventos">💻 Mão na massa — primeira versão do UniEventos</a><a class="" href="#laboratorio">🧪 Laboratório</a><a class="" href="#erros-comuns-e-como-resolver">🐛 Erros comuns e como resolver</a><a class="" href="#atividade-assincrona-1-h">🏠 Atividade assíncrona (1 h)</a><a class="" href="#checkpoint-do-projeto-autoral">✅ Checkpoint do projeto autoral</a><a class="" href="#para-aprofundar">📚 Para aprofundar</a></aside>
+</div>
+<script>
+(function(){
+  var raiz=document.documentElement;
+  var salvo=null;
+  try{salvo=window.localStorage&&localStorage.getItem('fds-tema')}catch(e){}
+  if(salvo){raiz.setAttribute('data-tema',salvo)}
+  var bt=document.getElementById('tema');
+  if(bt){bt.addEventListener('click',function(){
+    var novo=raiz.getAttribute('data-tema')==='claro'?'escuro':'claro';
+    raiz.setAttribute('data-tema',novo);
+    try{localStorage.setItem('fds-tema',novo)}catch(e){}
+    bt.textContent=novo==='claro'?'● Escuro':'○ Claro';
+  });
+  bt.textContent=raiz.getAttribute('data-tema')==='claro'?'● Escuro':'○ Claro';}
+
+  // copiar código
+  document.querySelectorAll('.copiar').forEach(function(b){
+    b.addEventListener('click',function(){
+      var pre=b.closest('.bloco').querySelector('pre');
+      var txt=pre.innerText;
+      var ok=function(){b.textContent='Copiado';b.classList.add('ok');
+        setTimeout(function(){b.textContent='Copiar';b.classList.remove('ok')},1600)};
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(ok)}
+      else{var t=document.createElement('textarea');t.value=txt;document.body.appendChild(t);
+           t.select();document.execCommand('copy');t.remove();ok()}
+    });
+  });
+
+  // barra de progresso
+  var pr=document.getElementById('progresso');
+  if(pr){window.addEventListener('scroll',function(){
+    var h=document.documentElement.scrollHeight-window.innerHeight;
+    pr.style.width=(h>0?(window.scrollY/h)*100:0)+'%';
+  },{passive:true})}
+
+  // sumário ativo
+  var alvos=[].slice.call(document.querySelectorAll('main h2[id],main h3[id]'));
+  var links={};
+  document.querySelectorAll('.toc a').forEach(function(a){links[a.getAttribute('href').slice(1)]=a});
+  if(alvos.length&&'IntersectionObserver' in window){
+    var obs=new IntersectionObserver(function(ents){
+      ents.forEach(function(e){
+        var a=links[e.target.id];
+        if(!a)return;
+        if(e.isIntersecting){
+          Object.keys(links).forEach(function(k){links[k].classList.remove('ativo')});
+          a.classList.add('ativo');
+        }
+      });
+    },{rootMargin:'-76px 0px -75% 0px'});
+    alvos.forEach(function(t){obs.observe(t)});
+  }
+
+  // busca no índice
+  var busca=document.getElementById('busca');
+  if(busca){
+    busca.addEventListener('input',function(){
+      var q=busca.value.toLowerCase().trim();
+      document.querySelectorAll('[data-busca]').forEach(function(el){
+        el.classList.toggle('oculto', q!=='' && el.getAttribute('data-busca').indexOf(q)===-1);
+      });
+    });
+  }
+
+  // atalhos de teclado
+  document.addEventListener('keydown',function(e){
+    if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+    var ant=document.querySelector('[data-nav="anterior"]');
+    var pro=document.querySelector('[data-nav="proxima"]');
+    if(e.key==='j'&&pro)pro.click();
+    if(e.key==='k'&&ant)ant.click();
+    if(e.key==='/'&&busca){e.preventDefault();busca.focus()}
+  });
+})();
+</script>
+</body>
+</html>

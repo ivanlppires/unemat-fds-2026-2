@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-tema="escuro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aula 10 — Requisições autenticadas com Firebase · FACET-SNP-310</title>
+<meta name="description" content="Unidade 3 · 26/10/2026 · Requisições autenticadas com Firebase">
+<style>
+:root{
+  --bg:#0f1117; --bg-soft:#161922; --bg-code:#11131a; --line:#272b38;
+  --fg:#e6e8ee; --fg-dim:#a6adbb; --fg-faint:#6f7686;
+  --accent:#5eead4; --accent-2:#818cf8; --warn:#fbbf24; --danger:#fb7185;
+  --u1:#5eead4; --u2:#818cf8; --u3:#f0abfc;
+  --radius:12px; --max:860px;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+}
+html[data-tema="claro"]{
+  --bg:#ffffff; --bg-soft:#f6f7f9; --bg-code:#f2f3f6; --line:#e2e5ea;
+  --fg:#1a1d24; --fg-dim:#4b5262; --fg-faint:#8a92a3;
+  --accent:#0d9488; --accent-2:#4f46e5; --warn:#b45309; --danger:#be123c;
+  --u1:#0d9488; --u2:#4f46e5; --u3:#a21caf;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:76px}
+body{
+  margin:0; background:var(--bg); color:var(--fg); font-family:var(--font);
+  font-size:16.5px; line-height:1.72; -webkit-font-smoothing:antialiased;
+}
+a{color:var(--accent); text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ---------- barra superior ---------- */
+.topo{
+  position:sticky; top:0; z-index:50; background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:blur(12px); border-bottom:1px solid var(--line);
+}
+.topo-in{max-width:1400px;margin:0 auto;display:flex;align-items:center;gap:14px;padding:10px 18px}
+.marca{font-weight:700;font-size:.82rem;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-dim);white-space:nowrap}
+.marca b{color:var(--accent)}
+.topo .espaco{flex:1}
+.btn{
+  background:var(--bg-soft); color:var(--fg-dim); border:1px solid var(--line);
+  border-radius:8px; padding:6px 12px; font-size:.82rem; cursor:pointer; font-family:inherit;
+  transition:.15s;
+}
+.btn:hover{color:var(--fg); border-color:var(--accent)}
+#busca{
+  background:var(--bg-soft); border:1px solid var(--line); border-radius:8px; color:var(--fg);
+  padding:6px 12px; font-size:.85rem; font-family:inherit; width:200px;
+}
+#busca:focus{outline:none;border-color:var(--accent)}
+
+/* ---------- layout ---------- */
+.wrap{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:260px minmax(0,1fr) 240px;gap:34px;padding:0 18px}
+@media(max-width:1150px){.wrap{grid-template-columns:240px minmax(0,1fr)} .toc{display:none}}
+@media(max-width:860px){.wrap{grid-template-columns:minmax(0,1fr)} .lateral{display:none}}
+
+.lateral,.toc{position:sticky;top:76px;align-self:start;max-height:calc(100vh - 90px);overflow-y:auto;padding:22px 0 60px;font-size:.85rem}
+.lateral::-webkit-scrollbar,.toc::-webkit-scrollbar{width:6px}
+.lateral::-webkit-scrollbar-thumb,.toc::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+.lateral h4,.toc h4{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-faint);margin:0 0 12px}
+.lateral ol{list-style:none;margin:0;padding:0}
+.lateral li a{
+  display:flex;gap:9px;align-items:baseline;padding:6px 10px;border-radius:7px;
+  color:var(--fg-dim);border-left:2px solid transparent;line-height:1.35;
+}
+.lateral li a:hover{background:var(--bg-soft);color:var(--fg);text-decoration:none}
+.lateral li a.ativo{background:var(--bg-soft);color:var(--fg);border-left-color:var(--accent);font-weight:600}
+.lateral .num{font-variant-numeric:tabular-nums;color:var(--fg-faint);font-size:.78rem;min-width:16px}
+.lateral .grupo{margin:18px 0 6px;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-faint);padding-left:10px}
+.toc a{display:block;padding:4px 0 4px 12px;color:var(--fg-dim);border-left:2px solid var(--line);line-height:1.35;font-size:.8rem}
+.toc a:hover{color:var(--fg);text-decoration:none}
+.toc a.ativo{color:var(--accent);border-left-color:var(--accent)}
+.toc a.n3{padding-left:24px;font-size:.76rem;opacity:.8}
+
+/* ---------- conteúdo ---------- */
+main{padding:34px 0 100px;min-width:0}
+.cabecalho{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:34px}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.tag{font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;font-weight:700;padding:4px 10px;border-radius:999px;border:1px solid var(--line);color:var(--fg-dim)}
+.tag.u1{color:var(--u1);border-color:color-mix(in srgb,var(--u1) 40%,transparent)}
+.tag.u2{color:var(--u2);border-color:color-mix(in srgb,var(--u2) 40%,transparent)}
+.tag.u3{color:var(--u3);border-color:color-mix(in srgb,var(--u3) 40%,transparent)}
+.tag.av{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 45%,transparent)}
+.cabecalho h1{margin:0;font-size:2.05rem;line-height:1.2;letter-spacing:-.02em}
+.cabecalho .sub{color:var(--fg-faint);font-size:.9rem;margin-top:10px}
+
+main h1{font-size:1.9rem;line-height:1.22;letter-spacing:-.02em;margin:0 0 .6em}
+main h2{font-size:1.4rem;margin:2.4em 0 .7em;padding-top:.5em;border-top:1px solid var(--line);letter-spacing:-.01em}
+main h3{font-size:1.12rem;margin:1.9em 0 .5em;color:var(--fg)}
+main h4{font-size:.98rem;margin:1.5em 0 .4em;color:var(--fg-dim)}
+main h2:first-of-type{border-top:none;padding-top:0}
+main p{margin:0 0 1.05em}
+main ul,main ol{margin:0 0 1.15em;padding-left:1.4em}
+main li{margin:.32em 0}
+main li>ul,main li>ol{margin:.35em 0}
+hr{border:none;border-top:1px solid var(--line);margin:2.6em 0}
+strong{color:var(--fg);font-weight:650}
+
+/* âncoras */
+.anchor{opacity:0;margin-left:.4em;font-weight:400;color:var(--fg-faint);text-decoration:none;font-size:.8em}
+h2:hover .anchor,h3:hover .anchor{opacity:1}
+
+/* citações / callouts */
+blockquote{
+  margin:1.4em 0;padding:14px 18px;background:var(--bg-soft);border-left:3px solid var(--accent-2);
+  border-radius:0 var(--radius) var(--radius) 0;color:var(--fg-dim);
+}
+blockquote p:last-child{margin-bottom:0}
+blockquote.dica{border-left-color:var(--accent)}
+blockquote.atencao{border-left-color:var(--warn)}
+blockquote.capo{border-left-color:var(--accent-2)}
+blockquote.prova{border-left-color:var(--danger)}
+
+/* tabelas */
+.tabela-wrap{overflow-x:auto;margin:1.4em 0;border:1px solid var(--line);border-radius:var(--radius)}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{padding:9px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--bg-soft);font-weight:650;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-dim);white-space:nowrap}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:color-mix(in srgb,var(--bg-soft) 60%,transparent)}
+
+/* código */
+code{font-family:var(--mono);font-size:.87em;background:var(--bg-soft);padding:.14em .42em;border-radius:5px;border:1px solid var(--line)}
+.bloco{position:relative;margin:1.3em 0}
+.bloco-topo{
+  display:flex;align-items:center;gap:10px;background:var(--bg-soft);border:1px solid var(--line);
+  border-bottom:none;border-radius:var(--radius) var(--radius) 0 0;padding:6px 12px;
+  font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;color:var(--fg-faint);font-family:var(--mono);
+}
+.bloco-topo .espaco{flex:1}
+.copiar{
+  background:transparent;border:1px solid var(--line);color:var(--fg-faint);border-radius:6px;
+  padding:2px 9px;font-size:.68rem;cursor:pointer;font-family:inherit;letter-spacing:.06em;text-transform:uppercase;transition:.15s;
+}
+.copiar:hover{color:var(--accent);border-color:var(--accent)}
+.copiar.ok{color:var(--accent);border-color:var(--accent)}
+.highlight{
+  margin:0;background:var(--bg-code)!important;border:1px solid var(--line);
+  border-radius:0 0 var(--radius) var(--radius);overflow-x:auto;
+}
+.bloco:not(:has(.bloco-topo)) .highlight{border-radius:var(--radius)}
+.highlight pre{margin:0;padding:15px 17px;font-family:var(--mono);font-size:.845rem;line-height:1.62;background:transparent!important}
+.highlight code{background:transparent;border:none;padding:0;font-size:inherit}
+html[data-tema="claro"] .highlight pre{color:#1a1d24}
+
+/* detalhes */
+details{background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px;margin:1.2em 0}
+details[open]{padding-bottom:6px}
+summary{cursor:pointer;font-weight:600;color:var(--fg-dim);font-size:.9rem;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▸ ";color:var(--accent)}
+details[open] summary::before{content:"▾ "}
+details[open] summary{margin-bottom:10px}
+
+img{max-width:100%;border-radius:var(--radius)}
+
+/* rodapé / navegação */
+.navpe{display:flex;gap:14px;margin-top:60px;padding-top:26px;border-top:1px solid var(--line)}
+.navpe a{
+  flex:1;padding:14px 18px;background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);
+  color:var(--fg-dim);transition:.15s;
+}
+.navpe a:hover{border-color:var(--accent);color:var(--fg);text-decoration:none}
+.navpe .rot{display:block;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-faint);margin-bottom:4px}
+.navpe .tit{font-weight:600;font-size:.9rem}
+.navpe .dir{text-align:right}
+.rodape{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:var(--fg-faint);font-size:.8rem}
+
+/* progresso */
+#progresso{position:fixed;top:0;left:0;height:2px;background:var(--accent);z-index:60;width:0}
+
+/* índice (home) */
+.hero{padding:56px 0 34px;border-bottom:1px solid var(--line);margin-bottom:38px}
+.hero h1{font-size:2.6rem;margin:0 0 12px;letter-spacing:-.03em;line-height:1.1}
+.hero p{color:var(--fg-dim);max-width:640px;font-size:1.02rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin:34px 0}
+.stat{background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px}
+.stat .n{font-size:1.7rem;font-weight:700;letter-spacing:-.02em;color:var(--accent)}
+.stat .l{font-size:.75rem;letter-spacing:.07em;text-transform:uppercase;color:var(--fg-faint);margin-top:2px}
+.grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;margin:20px 0 44px}
+.cartao{
+  display:block;background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);
+  padding:17px 19px;color:var(--fg);transition:.16s;position:relative;overflow:hidden;
+}
+.cartao::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--line);transition:.16s}
+.cartao.u1::before{background:var(--u1)} .cartao.u2::before{background:var(--u2)} .cartao.u3::before{background:var(--u3)}
+.cartao:hover{transform:translateY(-2px);border-color:var(--fg-faint);text-decoration:none}
+.cartao .meta{display:flex;justify-content:space-between;align-items:center;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-faint);margin-bottom:8px}
+.cartao .t{font-weight:650;line-height:1.35;font-size:.97rem}
+.cartao .av{display:inline-block;margin-top:9px;font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;color:var(--warn);border:1px solid color-mix(in srgb,var(--warn) 40%,transparent);border-radius:999px;padding:2px 9px}
+.oculto{display:none!important}
+@media print{
+  .topo,.lateral,.toc,.navpe,#progresso{display:none!important}
+  .wrap{display:block;max-width:none;padding:0}
+  body{background:#fff;color:#000;font-size:11pt}
+  .highlight{border:1px solid #ccc;background:#fafafa!important}
+  a{color:#000}
+}
+
+pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #49483e }
+.highlight { background: #232629; color: #CCC }
+.highlight .c { color: #777; font-style: italic } /* Comment */
+.highlight .err { color: #A61717; background-color: #E3D2D2 } /* Error */
+.highlight .esc { color: #CCC } /* Escape */
+.highlight .g { color: #CCC } /* Generic */
+.highlight .k { color: #7686BB; font-weight: bold } /* Keyword */
+.highlight .l { color: #CCC } /* Literal */
+.highlight .n { color: #CCC } /* Name */
+.highlight .o { color: #CCC } /* Operator */
+.highlight .x { color: #CCC } /* Other */
+.highlight .p { color: #CCC } /* Punctuation */
+.highlight .ch { color: #777; font-style: italic } /* Comment.Hashbang */
+.highlight .cm { color: #777; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #777; font-style: italic } /* Comment.Preproc */
+.highlight .cpf { color: #777; font-style: italic } /* Comment.PreprocFile */
+.highlight .c1 { color: #777; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #777; font-style: italic } /* Comment.Special */
+.highlight .gd { color: #CCC } /* Generic.Deleted */
+.highlight .ge { color: #CCC } /* Generic.Emph */
+.highlight .ges { color: #CCC } /* Generic.EmphStrong */
+.highlight .gr { color: #CCC } /* Generic.Error */
+.highlight .gh { color: #CCC } /* Generic.Heading */
+.highlight .gi { color: #CCC } /* Generic.Inserted */
+.highlight .go { color: #CCC } /* Generic.Output */
+.highlight .gp { color: #FFF } /* Generic.Prompt */
+.highlight .gs { color: #CCC } /* Generic.Strong */
+.highlight .gu { color: #CCC } /* Generic.Subheading */
+.highlight .gt { color: #CCC } /* Generic.Traceback */
+.highlight .kc { color: #7686BB; font-weight: bold } /* Keyword.Constant */
+.highlight .kd { color: #7686BB; font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { color: #7686BB; font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { color: #7686BB; font-weight: bold } /* Keyword.Pseudo */
+.highlight .kr { color: #7686BB; font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #7686BB; font-weight: bold } /* Keyword.Type */
+.highlight .ld { color: #CCC } /* Literal.Date */
+.highlight .m { color: #4FB8CC } /* Literal.Number */
+.highlight .s { color: #51CC99 } /* Literal.String */
+.highlight .na { color: #CCC } /* Name.Attribute */
+.highlight .nb { color: #CCC } /* Name.Builtin */
+.highlight .nc { color: #CCC } /* Name.Class */
+.highlight .no { color: #CCC } /* Name.Constant */
+.highlight .nd { color: #CCC } /* Name.Decorator */
+.highlight .ni { color: #CCC } /* Name.Entity */
+.highlight .ne { color: #CCC } /* Name.Exception */
+.highlight .nf { color: #6A6AFF } /* Name.Function */
+.highlight .nl { color: #CCC } /* Name.Label */
+.highlight .nn { color: #CCC } /* Name.Namespace */
+.highlight .nx { color: #E2828E } /* Name.Other */
+.highlight .py { color: #CCC } /* Name.Property */
+.highlight .nt { color: #CCC } /* Name.Tag */
+.highlight .nv { color: #7AB4DB; font-weight: bold } /* Name.Variable */
+.highlight .ow { color: #CCC } /* Operator.Word */
+.highlight .pm { color: #CCC } /* Punctuation.Marker */
+.highlight .w { color: #BBB } /* Text.Whitespace */
+.highlight .mb { color: #4FB8CC } /* Literal.Number.Bin */
+.highlight .mf { color: #4FB8CC } /* Literal.Number.Float */
+.highlight .mh { color: #4FB8CC } /* Literal.Number.Hex */
+.highlight .mi { color: #4FB8CC } /* Literal.Number.Integer */
+.highlight .mo { color: #4FB8CC } /* Literal.Number.Oct */
+.highlight .sa { color: #51CC99 } /* Literal.String.Affix */
+.highlight .sb { color: #51CC99 } /* Literal.String.Backtick */
+.highlight .sc { color: #51CC99 } /* Literal.String.Char */
+.highlight .dl { color: #51CC99 } /* Literal.String.Delimiter */
+.highlight .sd { color: #51CC99 } /* Literal.String.Doc */
+.highlight .s2 { color: #51CC99 } /* Literal.String.Double */
+.highlight .se { color: #51CC99 } /* Literal.String.Escape */
+.highlight .sh { color: #51CC99 } /* Literal.String.Heredoc */
+.highlight .si { color: #51CC99 } /* Literal.String.Interpol */
+.highlight .sx { color: #51CC99 } /* Literal.String.Other */
+.highlight .sr { color: #51CC99 } /* Literal.String.Regex */
+.highlight .s1 { color: #51CC99 } /* Literal.String.Single */
+.highlight .ss { color: #51CC99 } /* Literal.String.Symbol */
+.highlight .bp { color: #CCC } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #6A6AFF } /* Name.Function.Magic */
+.highlight .vc { color: #7AB4DB; font-weight: bold } /* Name.Variable.Class */
+.highlight .vg { color: #BE646C; font-weight: bold } /* Name.Variable.Global */
+.highlight .vi { color: #7AB4DB; font-weight: bold } /* Name.Variable.Instance */
+.highlight .vm { color: #7AB4DB; font-weight: bold } /* Name.Variable.Magic */
+.highlight .il { color: #4FB8CC } /* Literal.Number.Integer.Long */
+</style>
+</head>
+<body>
+<div id="progresso"></div>
+<header class="topo"><div class="topo-in">
+  <span class="marca"><b>FACET-SNP-310</b> &nbsp;Frameworks Modernos</span>
+  <span class="espaco"></span>
+  
+  <a class="btn" href="indice.html">Índice</a>
+  <button class="btn" id="tema" type="button">Tema</button>
+</div></header>
+<div class="wrap">
+  <nav class="lateral"><h4>Aulas</h4><ol><li class="grupo">Unidade 1</li><li><a class="" href="aula-01.html"><span class="num">01</span><span>Apresentação da Disciplina e Revisão JavaScript</span></a></li><li><a class="" href="aula-02.html"><span class="num">02</span><span>Introdução ao Vue: instância, ciclo de vida e diretivas</span></a></li><li><a class="" href="aula-03.html"><span class="num">03</span><span>Vue: listas, computed e ciclo de vida</span></a></li><li><a class="" href="aula-04.html"><span class="num">04</span><span>Introdução a Vuetify e Vue Router</span></a></li><li class="grupo">Unidade 2</li><li><a class="" href="aula-05.html"><span class="num">05</span><span>Componentes, Vue Router e Vuetify avançado</span></a></li><li><a class="" href="aula-06.html"><span class="num">06</span><span>Axios e Pinia</span></a></li><li class="grupo">Unidade 3</li><li><a class="" href="aula-07.html"><span class="num">07</span><span>Introdução ao Firebase, Node.js e Express</span></a></li><li><a class="" href="aula-08.html"><span class="num">08</span><span>Definindo endpoints e middlewares</span></a></li><li><a class="" href="aula-09.html"><span class="num">09</span><span>Integrando com SGBD MySQL</span></a></li><li><a class="ativo" href="aula-10.html"><span class="num">10</span><span>Requisições autenticadas com Firebase</span></a></li><li><a class="" href="aula-11.html"><span class="num">11</span><span>Integrando front-end com back-end: CRUD</span></a></li><li><a class="" href="aula-12.html"><span class="num">12</span><span>CRUD com banco em nuvem (Supabase)</span></a></li><li><a class="" href="aula-13.html"><span class="num">13</span><span>Desenvolvimento do Back-end</span></a></li><li><a class="" href="aula-14.html"><span class="num">14</span><span>Documentação com Swagger</span></a></li><li><a class="" href="aula-15.html"><span class="num">15</span><span>Deploy, apresentação e finalização</span></a></li></ol></nav>
+  <main class=""><div class="cabecalho"><div class="tags"><span class="tag u3">Unidade 3</span><span class="tag">26/10/2026</span><span class="tag">3 aulas de 50 min + 1 h EAD</span></div><h1>Aula 10 — Requisições autenticadas com Firebase</h1><div class="sub">FACET-SNP-310 · Frameworks Modernos para Desenvolvimento de Sistemas · UNEMAT/Cáceres · Prof. Ivan Luiz Pedroso Pires</div></div>
+<blockquote>
+<p><strong>FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas</strong> · Unidade 3
+UNEMAT/Cáceres — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
+<strong>Data:</strong> 26/10/2026 · <strong>Carga:</strong> 3 aulas de 50 min (síncrona) + 1 h (assíncrona)</p>
+</blockquote>
+<p>Na Aula 09 o UniEventos passou a persistir eventos no MySQL, com a API <code>unieventos-api</code> seguindo a arquitetura controller → service → repository. Qualquer pessoa com acesso à API conseguia criar, editar ou excluir um evento — não havia noção de "quem" fazia a requisição. Hoje isso muda: vamos exigir identidade.</p>
+<h2 id="objetivos-de-aprendizagem">🎯 Objetivos de aprendizagem<a class="anchor" href="#objetivos-de-aprendizagem" title="Permanent link">¶</a></h2>
+<p>Ao final desta aula você será capaz de:</p>
+<ul>
+<li>Explicar a diferença entre autenticação e autorização, e por que senha em texto puro no banco é um erro grave.</li>
+<li>Descrever a estrutura de um JWT (header, payload, assinatura) e explicar por que ele é assinado, não criptografado.</li>
+<li>Implementar cadastro, login, logout e login com Google usando o SDK modular do Firebase Auth.</li>
+<li>Construir uma store Pinia de autenticação que resolve corretamente o problema do F5 (recarregar a página autenticado).</li>
+<li>Proteger rotas do Vue Router com <code>beforeEach</code> aguardando a inicialização da autenticação.</li>
+<li>Enviar o token do usuário em cada requisição Axios via interceptor e validá-lo no back-end com <code>firebase-admin</code>.</li>
+<li>Diferenciar dois níveis de proteção (rota no front = UX; middleware no back = segurança) e implementar autorização por papel com custom claims.</li>
+</ul>
+<h2 id="pre-requisitos-desta-aula">📋 Pré-requisitos desta aula<a class="anchor" href="#pre-requisitos-desta-aula" title="Permanent link">¶</a></h2>
+<p>Checklist antes de começar:</p>
+<ul>
+<li>[ ] <code>unieventos-web</code> rodando com Vue Router e Pinia configurados (Aulas 04–06).</li>
+<li>[ ] <code>unieventos-api</code> rodando com Express 5, endpoints de eventos e persistência MySQL (Aulas 07–09).</li>
+<li>[ ] Projeto Firebase criado (Aula 07) — anote o <code>projectId</code>.</li>
+<li>[ ] Node.js 22.22.2 e npm 10.9.7 instalados (<code>node -v</code>, <code>npm -v</code>).</li>
+<li>[ ] Acesso ao <a href="https://console.firebase.google.com">console do Firebase</a> com o projeto do UniEventos.</li>
+</ul>
+<h2 id="roteiro">🗺️ Roteiro<a class="anchor" href="#roteiro" title="Permanent link">¶</a></h2>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Bloco</th>
+<th>Tempo</th>
+<th>Atividade</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>50 min</td>
+<td>Autenticação × autorização; anatomia de um JWT; habilitar provedores no console; Firebase Auth no front (cadastro, login, logout)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>50 min</td>
+<td>Store de autenticação em Pinia; guard de rota; interceptor Axios enviando o token</td>
+</tr>
+<tr>
+<td>3</td>
+<td>50 min</td>
+<td>Verificação do token no back-end com <code>firebase-admin</code>; middleware <code>autenticar</code>/<code>autorizar</code>; custom claims; testes com e sem token</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="1-autenticacao-nao-e-autorizacao">1. Autenticação não é autorização<a class="anchor" href="#1-autenticacao-nao-e-autorizacao" title="Permanent link">¶</a></h2>
+<p>São duas perguntas diferentes, e misturar as duas é a origem de muito bug de segurança:</p>
+<ul>
+<li><strong>Autenticação</strong> responde "quem é você?". O sistema confirma sua identidade — normalmente com e-mail e senha, ou delegando a um provedor como Google.</li>
+<li><strong>Autorização</strong> responde "o que você pode fazer?". Depois de saber quem você é, o sistema decide se você pode ler, criar, editar ou excluir um recurso.</li>
+</ul>
+<p>Um usuário autenticado pode não estar autorizado a excluir um evento — só o administrador está. Um visitante não autenticado pode estar autorizado a <em>ler</em> a lista de eventos, que é pública. As duas coisas são independentes e o back-end precisa checar as duas, sempre, endpoint por endpoint.</p>
+<h3 id="por-que-nao-guardar-senha-no-seu-proprio-banco-se-puder-evitar">Por que não guardar senha no seu próprio banco (se puder evitar)<a class="anchor" href="#por-que-nao-guardar-senha-no-seu-proprio-banco-se-puder-evitar" title="Permanent link">¶</a></h3>
+<p>Até aqui o UniEventos não tinha usuários — só eventos. Se fôssemos implementar login "na mão", a tentação seria criar uma tabela <code>usuarios</code> com uma coluna <code>senha</code>. Isso é perigoso por dois motivos:</p>
+<ol>
+<li><strong>Nunca se guarda a senha em texto puro.</strong> Se o banco vazar, todas as senhas vazam — e como a maioria das pessoas reutiliza senha entre sites, o estrago vai muito além do seu sistema.</li>
+<li><strong>Hash não é criptografia.</strong> Criptografia é reversível (existe uma chave para desfazer). Hash é uma função de mão única: você transforma a senha em uma sequência de caracteres da qual, na prática, não dá para voltar. No login, você faz o hash da senha digitada e compara com o hash guardado — nunca descriptografa nada. Bibliotecas como <code>bcrypt</code> fazem isso com "salt" (um valor aleatório por usuário) para que duas pessoas com a mesma senha não gerem o mesmo hash, e com um custo computacional propositalmente alto, para dificultar ataques de força bruta.</li>
+</ol>
+<p>Fazer isso corretamente — hash com salt, custo ajustável, fluxo de "esqueci minha senha", verificação de e-mail, proteção contra força bruta, login social — é trabalho considerável e cheio de detalhes fáceis de errar. Por isso, na disciplina (e em grande parte dos projetos reais de pequeno e médio porte) <strong>delegamos a identidade a um provedor especializado</strong>: o Firebase Authentication. Ele guarda a senha (com hash correto, num banco que não é o seu), emite um token assinado provando quem é o usuário, e você só precisa validar esse token.</p>
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+Delegar autenticação não elimina a responsabilidade de proteger seus endpoints. O Firebase resolve "provar quem é o usuário". Decidir "o que esse usuário pode fazer no meu sistema" continua sendo trabalho do seu back-end.</p>
+</blockquote>
+<h2 id="2-anatomia-de-um-jwt">2. Anatomia de um JWT<a class="anchor" href="#2-anatomia-de-um-jwt" title="Permanent link">¶</a></h2>
+<p>O Firebase (e a grande maioria dos sistemas de autenticação modernos) usa <strong>JSON Web Token (JWT)</strong> como formato do token de identidade. Um JWT é uma string com três partes separadas por ponto:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>eyJhbGciOiJSUzI1NiIsImtpZCI6ImFiYzEyMyJ9.eyJuYW1lIjoiTWFyaWEgU2lsdmEiLCJlbWFpbCI6Im1hcmlhQGV4ZW1wbG8uY29tIiwiYWRtaW4iOnRydWUsImlhdCI6MTc2MTQ4MDAwMCwiZXhwIjoxNzYxNDgzNjAwfQ.QqE8f3s1Zx7pR2nL9mK4vT6wY0aB1cD8eF3gH5iJ7kL
+</code></pre></div></div>
+
+<p><strong>header</strong> . <strong>payload</strong> . <strong>assinatura</strong></p>
+<p>Cada parte é um objeto codificado em Base64URL. Decodificando as duas primeiras (a assinatura não se decodifica — ela não é Base64 de um JSON, é um bloco de bytes criptográfico):</p>
+<p><strong>Header</strong> — diz qual algoritmo assinou o token:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;alg&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;RS256&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;kid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;abc123&quot;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>Payload</strong> — as "claims" (afirmações) sobre o usuário. É aqui que vive a informação:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Maria Silva&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;email&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;maria@exemplo.com&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;admin&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;iat&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1761480000</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;exp&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1761483600</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><code>iat</code> (issued at) e <code>exp</code> (expiration) são timestamps Unix. <code>admin</code> é um exemplo de <strong>custom claim</strong> — vamos usar exatamente isso na seção 6 para autorização.</p>
+<blockquote class="capo">
+<p><strong>🔎 Por baixo do capô</strong>
+Um JWT <strong>é assinado, não é criptografado</strong>. Qualquer pessoa pode pegar esse token e decodificar o header e o payload num site como jwt.io ou com <code>atob()</code> no console do navegador — não há segredo nenhum escondido ali, e por isso <strong>nunca coloque dados sensíveis no payload</strong> (senha, número de cartão, CPF). A assinatura (terceira parte) é o que garante que ninguém alterou o conteúdo sem ter a chave privada do emissor. Se você mudar um único caractere do payload — por exemplo, trocar <code>"admin": false</code> para <code>"admin": true</code> — a assinatura deixa de bater, e quem valida o token (no nosso caso, o <code>firebase-admin</code> no back-end) rejeita o token inteiro.</p>
+</blockquote>
+<h3 id="access-token-refresh-token">Access token × refresh token<a class="anchor" href="#access-token-refresh-token" title="Permanent link">¶</a></h3>
+<p>O Firebase trabalha com dois tokens:</p>
+<ul>
+<li><strong>ID token (access token):</strong> de curta duração (1 hora), é o que você envia em cada requisição para provar identidade. É o JWT que acabamos de decodificar.</li>
+<li><strong>Refresh token:</strong> de longa duração, fica guardado pelo SDK do Firebase e é usado <em>automaticamente</em>, nos bastidores, para pedir um novo ID token quando o atual expira — sem exigir que o usuário faça login de novo.</li>
+</ul>
+<p>Essa separação existe porque um token de vida curta limita o estrago se ele vazar (ex.: em um log, em uma extensão maliciosa do navegador), enquanto o refresh token, mais sensível, fica protegido e raramente trafega.</p>
+<blockquote class="prova">
+<p><strong>📌 Na prova</strong>
+JWT tem três partes (header.payload.assinatura), é codificado em Base64URL (não criptografado) e assinado (não pode ser alterado sem invalidar a assinatura). ID token expira em 1h; o SDK renova sozinho usando o refresh token.</p>
+</blockquote>
+<h2 id="3-habilitando-autenticacao-no-console-do-firebase">3. Habilitando autenticação no console do Firebase<a class="anchor" href="#3-habilitando-autenticacao-no-console-do-firebase" title="Permanent link">¶</a></h2>
+<p>No <a href="https://console.firebase.google.com">console do Firebase</a>, projeto do UniEventos:</p>
+<ol>
+<li>Menu lateral → <strong>Build → Authentication → Get started</strong>.</li>
+<li>Aba <strong>Sign-in method</strong> → <strong>Add new provider</strong>.</li>
+<li>Habilite <strong>Email/Password</strong> (o toggle simples, sem "passwordless").</li>
+<li>Habilite também <strong>Google</strong> — escolha um e-mail de suporte do projeto e salve.</li>
+</ol>
+<p>Isso é configuração de infraestrutura, feita uma vez. O código vem agora.</p>
+<h2 id="4-firebase-auth-no-front-sdk-modular">4. Firebase Auth no front — SDK modular<a class="anchor" href="#4-firebase-auth-no-front-sdk-modular" title="Permanent link">¶</a></h2>
+<p>O pacote já está instalado desde a Aula 07 (<code>firebase@12.17.1</code>). Se o seu projeto ainda não tem, instale:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>npm<span class="w"> </span>install<span class="w"> </span>firebase@12.17.1
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/services/firebase.js</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">initializeApp</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;firebase/app&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">getAuth</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;firebase/auth&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">getFirestore</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;firebase/firestore&#39;</span>
+
+<span class="c1">// Cole aqui o objeto de configuração exibido em</span>
+<span class="c1">// Configurações do projeto → Geral → Seus apps → Config SDK.</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">firebaseConfig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">apiKey</span><span class="o">:</span><span class="w"> </span><span class="k">import</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">VITE_FIREBASE_API_KEY</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">authDomain</span><span class="o">:</span><span class="w"> </span><span class="k">import</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">VITE_FIREBASE_AUTH_DOMAIN</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">projectId</span><span class="o">:</span><span class="w"> </span><span class="k">import</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">VITE_FIREBASE_PROJECT_ID</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">storageBucket</span><span class="o">:</span><span class="w"> </span><span class="k">import</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">VITE_FIREBASE_STORAGE_BUCKET</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">messagingSenderId</span><span class="o">:</span><span class="w"> </span><span class="k">import</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">VITE_FIREBASE_MESSAGING_SENDER_ID</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">appId</span><span class="o">:</span><span class="w"> </span><span class="k">import</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">VITE_FIREBASE_APP_ID</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">app</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">initializeApp</span><span class="p">(</span><span class="nx">firebaseConfig</span><span class="p">)</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">auth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getAuth</span><span class="p">(</span><span class="nx">app</span><span class="p">)</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">db</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getFirestore</span><span class="p">(</span><span class="nx">app</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1"># .env (na raiz de unieventos-web, sem aspas, sem espaço ao redor do =)</span>
+<span class="nv">VITE_FIREBASE_API_KEY</span><span class="o">=</span>AIzaSy...
+<span class="nv">VITE_FIREBASE_AUTH_DOMAIN</span><span class="o">=</span>unieventos-xxxxx.firebaseapp.com
+<span class="nv">VITE_FIREBASE_PROJECT_ID</span><span class="o">=</span>unieventos-xxxxx
+<span class="nv">VITE_FIREBASE_STORAGE_BUCKET</span><span class="o">=</span>unieventos-xxxxx.appspot.com
+<span class="nv">VITE_FIREBASE_MESSAGING_SENDER_ID</span><span class="o">=</span><span class="m">123456789</span>
+<span class="nv">VITE_FIREBASE_APP_ID</span><span class="o">=</span><span class="m">1</span>:123456789:web:abcdef
+</code></pre></div></div>
+
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+<code>firebase.auth()</code> com namespace <strong>não existe mais</strong>. A única forma correta no SDK 12 é a API modular: importar funções soltas (<code>getAuth</code>, <code>signInWithEmailAndPassword</code>, <code>onAuthStateChanged</code> etc.) de <code>'firebase/auth'</code> e passar a instância <code>auth</code> como primeiro argumento. Se você encontrar tutorial usando <code>firebase.auth().signInWithEmailAndPassword(...)</code>, está desatualizado — não copie.</p>
+</blockquote>
+<p>Um serviço dedicado para as operações de autenticação, separado do <code>firebase.js</code> de inicialização:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/services/authService.js</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">createUserWithEmailAndPassword</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">signInWithEmailAndPassword</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">signOut</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">onAuthStateChanged</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">updateProfile</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">sendPasswordResetEmail</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">GoogleAuthProvider</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">signInWithPopup</span><span class="p">,</span>
+<span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;firebase/auth&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">auth</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./firebase&#39;</span>
+
+<span class="c1">// Traduz os códigos de erro mais comuns do Firebase Auth para mensagens</span>
+<span class="c1">// em português — o usuário final não precisa saber o que é &quot;auth/weak-password&quot;.</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">MENSAGENS_ERRO</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="s1">&#39;auth/invalid-credential&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;E-mail ou senha incorretos.&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="s1">&#39;auth/invalid-email&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;E-mail em formato inválido.&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="s1">&#39;auth/email-already-in-use&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Este e-mail já está cadastrado.&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="s1">&#39;auth/weak-password&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;A senha precisa ter pelo menos 6 caracteres.&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="s1">&#39;auth/network-request-failed&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Falha de conexão. Verifique sua internet.&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="s1">&#39;auth/too-many-requests&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Muitas tentativas seguidas. Aguarde um instante.&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="s1">&#39;auth/popup-closed-by-user&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Janela de login fechada antes de concluir.&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">traduzirErro</span><span class="p">(</span><span class="nx">erro</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">mensagem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">MENSAGENS_ERRO</span><span class="p">[</span><span class="nx">erro</span><span class="p">.</span><span class="nx">code</span><span class="p">]</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">mensagem</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="s1">&#39;Não foi possível concluir a operação. Tente novamente.&#39;</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">cadastrar</span><span class="p">(</span><span class="nx">nome</span><span class="p">,</span><span class="w"> </span><span class="nx">email</span><span class="p">,</span><span class="w"> </span><span class="nx">senha</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">credencial</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">createUserWithEmailAndPassword</span><span class="p">(</span><span class="nx">auth</span><span class="p">,</span><span class="w"> </span><span class="nx">email</span><span class="p">,</span><span class="w"> </span><span class="nx">senha</span><span class="p">)</span>
+<span class="w">    </span><span class="c1">// O Firebase não pede nome no cadastro por e-mail/senha — setamos depois.</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">updateProfile</span><span class="p">(</span><span class="nx">credencial</span><span class="p">.</span><span class="nx">user</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">displayName</span><span class="o">:</span><span class="w"> </span><span class="nx">nome</span><span class="w"> </span><span class="p">})</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">credencial</span><span class="p">.</span><span class="nx">user</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">erro</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="nx">traduzirErro</span><span class="p">(</span><span class="nx">erro</span><span class="p">))</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">entrar</span><span class="p">(</span><span class="nx">email</span><span class="p">,</span><span class="w"> </span><span class="nx">senha</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">credencial</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">signInWithEmailAndPassword</span><span class="p">(</span><span class="nx">auth</span><span class="p">,</span><span class="w"> </span><span class="nx">email</span><span class="p">,</span><span class="w"> </span><span class="nx">senha</span><span class="p">)</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">credencial</span><span class="p">.</span><span class="nx">user</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">erro</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="nx">traduzirErro</span><span class="p">(</span><span class="nx">erro</span><span class="p">))</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">entrarComGoogle</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">provedor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">GoogleAuthProvider</span><span class="p">()</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">credencial</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">signInWithPopup</span><span class="p">(</span><span class="nx">auth</span><span class="p">,</span><span class="w"> </span><span class="nx">provedor</span><span class="p">)</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">credencial</span><span class="p">.</span><span class="nx">user</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">erro</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="nx">traduzirErro</span><span class="p">(</span><span class="nx">erro</span><span class="p">))</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">sair</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">signOut</span><span class="p">(</span><span class="nx">auth</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">solicitarRedefinicaoSenha</span><span class="p">(</span><span class="nx">email</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">sendPasswordResetEmail</span><span class="p">(</span><span class="nx">auth</span><span class="p">,</span><span class="w"> </span><span class="nx">email</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">erro</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="nx">traduzirErro</span><span class="p">(</span><span class="nx">erro</span><span class="p">))</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// Registra um observador do estado de login. Retorna a função de</span>
+<span class="c1">// cancelamento — quem chamar deve guardá-la e invocar ao desmontar.</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">observarAutenticacao</span><span class="p">(</span><span class="nx">callback</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">onAuthStateChanged</span><span class="p">(</span><span class="nx">auth</span><span class="p">,</span><span class="w"> </span><span class="nx">callback</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote class="dica">
+<p><strong>💡 Dica</strong>
+<code>onAuthStateChanged</code> dispara sempre que o estado de login muda — login, logout, e também <strong>na primeira carga da página</strong>, depois que o SDK verifica o refresh token salvo no navegador. É esse terceiro caso que vamos explorar na store, a seguir.</p>
+</blockquote>
+<h2 id="5-store-de-autenticacao-resolvendo-o-problema-do-f5">5. Store de autenticação: resolvendo o problema do F5<a class="anchor" href="#5-store-de-autenticacao-resolvendo-o-problema-do-f5" title="Permanent link">¶</a></h2>
+<p>Se você guardar o usuário logado só em uma variável reativa comum, ao apertar F5 ela reseta para <code>null</code> — mesmo que o usuário continue logado no Firebase. O SDK vai confirmar isso, mas <strong>de forma assíncrona</strong>, alguns milissegundos depois do primeiro render. Se o seu guard de rota checar <code>usuario</code> antes desse retorno, ele vai redirecionar um usuário legitimamente logado para a tela de login. É um bug clássico.</p>
+<p>A solução: a store expõe uma Promise de inicialização, e o guard de rota <strong>aguarda</strong> essa Promise antes de decidir.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/stores/authStore.js</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">defineStore</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;pinia&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="p">,</span><span class="w"> </span><span class="nx">computed</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">observarAutenticacao</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@/services/authService&#39;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">useAuthStore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">defineStore</span><span class="p">(</span><span class="s1">&#39;auth&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">usuario</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="kc">null</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">carregando</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">inicializado</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+
+<span class="w">  </span><span class="c1">// Promise única, compartilhada por todos que chamarem inicializar().</span>
+<span class="w">  </span><span class="c1">// Evita registrar o observador do Firebase mais de uma vez.</span>
+<span class="w">  </span><span class="kd">let</span><span class="w"> </span><span class="nx">promessaInicializacao</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span>
+
+<span class="w">  </span><span class="kd">function</span><span class="w"> </span><span class="nx">inicializar</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">promessaInicializacao</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nx">promessaInicializacao</span>
+
+<span class="w">    </span><span class="nx">promessaInicializacao</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">observarAutenticacao</span><span class="p">((</span><span class="nx">usuarioFirebase</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">usuario</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">usuarioFirebase</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">inicializado</span><span class="p">.</span><span class="nx">value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nx">inicializado</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">          </span><span class="nx">resolve</span><span class="p">()</span><span class="w"> </span><span class="c1">// só resolve no PRIMEIRO disparo do observador</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">})</span>
+<span class="w">    </span><span class="p">})</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">promessaInicializacao</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">estaLogado</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">computed</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">usuario</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span>
+
+<span class="w">  </span><span class="c1">// Custom claim &quot;admin&quot; só aparece depois de setCustomUserClaims (seção 7)</span>
+<span class="w">  </span><span class="c1">// e de o usuário obter um novo ID token — ver observação na seção 7.</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">ehAdmin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">computed</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">usuario</span><span class="p">.</span><span class="nx">value</span><span class="o">?</span><span class="p">.</span><span class="nx">customClaims</span><span class="o">?</span><span class="p">.</span><span class="nx">admin</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="kc">true</span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">usuario</span><span class="p">,</span><span class="w"> </span><span class="nx">carregando</span><span class="p">,</span><span class="w"> </span><span class="nx">inicializado</span><span class="p">,</span><span class="w"> </span><span class="nx">inicializar</span><span class="p">,</span><span class="w"> </span><span class="nx">estaLogado</span><span class="p">,</span><span class="w"> </span><span class="nx">ehAdmin</span><span class="w"> </span><span class="p">}</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<blockquote class="capo">
+<p><strong>🔎 Por baixo do capô</strong>
+<code>onAuthStateChanged</code> dispara de novo toda vez que o token é renovado, mas resolvemos a Promise só na <strong>primeira</strong> vez (<code>if (!inicializado.value)</code>). Depois disso, os componentes que precisam de reatividade (menu, header) simplesmente leem <code>usuario</code> e <code>estaLogado</code>, que são refs/computed normais e continuam atualizando sozinhos.</p>
+</blockquote>
+<p><code>ehAdmin</code> como escrito acima lê <code>customClaims</code> diretamente do objeto <code>User</code> do Firebase, que <strong>não</strong> expõe essa propriedade por padrão — claims custom exigem decodificar o ID token (<code>getIdTokenResult</code>). Ajustamos isso corretamente na seção 7, depois de explicar custom claims no back-end; por ora, mantenha o getter, ele será completado adiante.</p>
+<h2 id="6-protegendo-rotas-no-vue-router">6. Protegendo rotas no Vue Router<a class="anchor" href="#6-protegendo-rotas-no-vue-router" title="Permanent link">¶</a></h2>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/router/index.js</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createRouter</span><span class="p">,</span><span class="w"> </span><span class="nx">createWebHistory</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue-router&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">useAuthStore</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@/stores/authStore&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">router</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">createRouter</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">history</span><span class="o">:</span><span class="w"> </span><span class="nx">createWebHistory</span><span class="p">(</span><span class="k">import</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">BASE_URL</span><span class="p">),</span>
+<span class="w">  </span><span class="nx">routes</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;home&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">import</span><span class="p">(</span><span class="s1">&#39;@/views/HomeView.vue&#39;</span><span class="p">),</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/login&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;login&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">import</span><span class="p">(</span><span class="s1">&#39;@/views/LoginView.vue&#39;</span><span class="p">),</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/cadastro&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;cadastro&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">import</span><span class="p">(</span><span class="s1">&#39;@/views/CadastroView.vue&#39;</span><span class="p">),</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/minhas-inscricoes&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;minhas-inscricoes&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">import</span><span class="p">(</span><span class="s1">&#39;@/views/MinhasInscricoesView.vue&#39;</span><span class="p">),</span>
+<span class="w">      </span><span class="nx">meta</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">requerAuth</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/admin/eventos&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;admin-eventos&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">component</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">import</span><span class="p">(</span><span class="s1">&#39;@/views/admin/EventosAdminView.vue&#39;</span><span class="p">),</span>
+<span class="w">      </span><span class="nx">meta</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">requerAuth</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nx">requerAdmin</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="p">})</span>
+
+<span class="nx">router</span><span class="p">.</span><span class="nx">beforeEach</span><span class="p">(</span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">to</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">authStore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useAuthStore</span><span class="p">()</span>
+
+<span class="w">  </span><span class="c1">// Aguarda o primeiro retorno do onAuthStateChanged antes de decidir</span>
+<span class="w">  </span><span class="c1">// qualquer coisa — sem isso, um F5 numa rota protegida redireciona</span>
+<span class="w">  </span><span class="c1">// para /login mesmo com o usuário já autenticado.</span>
+<span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">authStore</span><span class="p">.</span><span class="nx">inicializar</span><span class="p">()</span>
+
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">to</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">requerAuth</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="nx">authStore</span><span class="p">.</span><span class="nx">estaLogado</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;login&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">query</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">redirect</span><span class="o">:</span><span class="w"> </span><span class="nx">to</span><span class="p">.</span><span class="nx">fullPath</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">to</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">requerAdmin</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="nx">authStore</span><span class="p">.</span><span class="nx">ehAdmin</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;home&#39;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span>
+<span class="p">})</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">router</span>
+</code></pre></div></div>
+
+<p>Depois do login, a tela de login redireciona de volta para onde o usuário queria ir:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="cm">&lt;!-- src/views/LoginView.vue (trecho de script) --&gt;</span>
+<span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">useRoute</span><span class="p">,</span><span class="w"> </span><span class="nx">useRouter</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue-router&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">route</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useRoute</span><span class="p">()</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">router</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useRouter</span><span class="p">()</span>
+
+<span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">aoLogarComSucesso</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">destino</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">route</span><span class="p">.</span><span class="nx">query</span><span class="p">.</span><span class="nx">redirect</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;/&#39;</span>
+<span class="w">  </span><span class="nx">router</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">destino</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<p>Escondendo itens de menu conforme o estado de login:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="cm">&lt;!-- src/components/BarraNavegacao.vue --&gt;</span>
+<span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">useAuthStore</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@/stores/authStore&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">sair</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@/services/authService&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">useRouter</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue-router&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">authStore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useAuthStore</span><span class="p">()</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">router</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useRouter</span><span class="p">()</span>
+
+<span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">aoClicarSair</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">sair</span><span class="p">()</span>
+<span class="w">  </span><span class="nx">router</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="s1">&#39;/login&#39;</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">v-app-bar</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">v-app-bar-title</span><span class="p">&gt;</span>UniEventos<span class="p">&lt;/</span><span class="nt">v-app-bar-title</span><span class="p">&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">template</span> <span class="na">v-if</span><span class="o">=</span><span class="s">&quot;</span><span class="o">!</span><span class="nx">authStore</span><span class="p">.</span><span class="nx">estaLogado</span><span class="s">&quot;</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">v-btn</span> <span class="na">to</span><span class="o">=</span><span class="s">&quot;/login&quot;</span><span class="p">&gt;</span>Entrar<span class="p">&lt;/</span><span class="nt">v-btn</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">v-btn</span> <span class="na">to</span><span class="o">=</span><span class="s">&quot;/cadastro&quot;</span><span class="p">&gt;</span>Cadastrar<span class="p">&lt;/</span><span class="nt">v-btn</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">template</span> <span class="na">v-else</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">v-btn</span> <span class="na">v-if</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">authStore</span><span class="p">.</span><span class="nx">ehAdmin</span><span class="s">&quot;</span> <span class="na">to</span><span class="o">=</span><span class="s">&quot;/admin/eventos&quot;</span><span class="p">&gt;</span>Administração<span class="p">&lt;/</span><span class="nt">v-btn</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">v-btn</span> <span class="na">to</span><span class="o">=</span><span class="s">&quot;/minhas-inscricoes&quot;</span><span class="p">&gt;</span>Minhas inscrições<span class="p">&lt;/</span><span class="nt">v-btn</span><span class="p">&gt;</span>
+
+      <span class="p">&lt;</span><span class="nt">v-menu</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">template</span> <span class="err">#</span><span class="na">activator</span><span class="o">=</span><span class="s">&quot;{ props }&quot;</span><span class="p">&gt;</span>
+          <span class="p">&lt;</span><span class="nt">v-avatar</span> <span class="na">v-bind</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">props</span><span class="s">&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;mr-2&quot;</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;cursor: pointer&quot;</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">v-img</span>
+              <span class="na">v-if</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">authStore</span><span class="p">.</span><span class="nx">usuario</span><span class="o">?</span><span class="p">.</span><span class="nx">photoURL</span><span class="s">&quot;</span>
+              <span class="p">:</span><span class="na">src</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">authStore</span><span class="p">.</span><span class="nx">usuario</span><span class="p">.</span><span class="nx">photoURL</span><span class="s">&quot;</span>
+              <span class="p">:</span><span class="na">alt</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">authStore</span><span class="p">.</span><span class="nx">usuario</span><span class="p">.</span><span class="nx">displayName</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="s1">&#39;Avatar do usuário&#39;</span><span class="s">&quot;</span>
+            <span class="p">/&gt;</span>
+            <span class="p">&lt;</span><span class="nt">span</span> <span class="na">v-else</span><span class="p">&gt;</span><span class="cp">{{</span><span class="w"> </span><span class="nx">authStore</span><span class="p">.</span><span class="nx">usuario</span><span class="o">?</span><span class="p">.</span><span class="nx">email</span><span class="o">?</span><span class="p">.[</span><span class="mf">0</span><span class="p">]</span><span class="o">?</span><span class="p">.</span><span class="nx">toUpperCase</span><span class="p">()</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+          <span class="p">&lt;/</span><span class="nt">v-avatar</span><span class="p">&gt;</span>
+        <span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">v-list</span><span class="p">&gt;</span>
+          <span class="p">&lt;</span><span class="nt">v-list-item</span> <span class="p">:</span><span class="na">title</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">authStore</span><span class="p">.</span><span class="nx">usuario</span><span class="o">?</span><span class="p">.</span><span class="nx">displayName</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="nx">authStore</span><span class="p">.</span><span class="nx">usuario</span><span class="o">?</span><span class="p">.</span><span class="nx">email</span><span class="s">&quot;</span> <span class="p">/&gt;</span>
+          <span class="p">&lt;</span><span class="nt">v-list-item</span> <span class="na">title</span><span class="o">=</span><span class="s">&quot;Sair&quot;</span> <span class="p">@</span><span class="na">click</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">aoClicarSair</span><span class="s">&quot;</span> <span class="p">/&gt;</span>
+        <span class="p">&lt;/</span><span class="nt">v-list</span><span class="p">&gt;</span>
+      <span class="p">&lt;/</span><span class="nt">v-menu</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">v-app-bar</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+Um <code>beforeEach</code> no Router impede que a <em>interface</em> mostre a tela protegida — mas qualquer pessoa pode desligar o JavaScript, chamar a API diretamente com <code>curl</code> ou editar o guard no DevTools. <strong>Guard de rota é UX, não segurança.</strong> A única barreira real está no back-end, validando o token em cada requisição — é o que vem na seção 7.</p>
+</blockquote>
+<h2 id="padrao-de-projeto-em-uso-proxy-de-protecao-guard">🧩 Padrão de projeto em uso: Proxy de proteção + Guard<a class="anchor" href="#padrao-de-projeto-em-uso-proxy-de-protecao-guard" title="Permanent link">¶</a></h2>
+<p>O <strong>Proxy de proteção</strong> (variação estrutural do padrão Proxy) intercepta o acesso a um objeto real e decide se o acesso é permitido antes de repassar a chamada. É exatamente o papel do middleware <code>autenticar</code> que construímos na seção 7: ele fica <em>na frente</em> do controller real, verifica credenciais, e só deixa a chamada prosseguir se o token for válido — o controller nunca sabe que existe um "porteiro" antes dele.</p>
+<p>O <strong>Guard</strong> (aqui usado no sentido do Vue Router — um "guarda de rota" comportamental, correlato ao Proxy de proteção do lado do front) cumpre o mesmo papel do lado da navegação: intercepta a transição de rota e decide, antes de renderizar, se ela deve prosseguir, ser bloqueada ou redirecionada. Repare que os dois padrões resolvem o mesmo problema — controlar acesso — em duas camadas diferentes da aplicação, e nenhum substitui o outro.</p>
+<h2 id="7-enviando-o-token-em-cada-requisicao">7. Enviando o token em cada requisição<a class="anchor" href="#7-enviando-o-token-em-cada-requisicao" title="Permanent link">¶</a></h2>
+<p>O usuário logado no Firebase tem um método <code>getIdToken()</code> que devolve o JWT atual (renovando-o automaticamente se estiver perto de expirar). Plugamos isso no interceptor de requisição do Axios, criado na Aula 06:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/services/api.js</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">axios</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;axios&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">auth</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./firebase&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">router</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@/router&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">api</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">axios</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">baseURL</span><span class="o">:</span><span class="w"> </span><span class="k">import</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">VITE_API_URL</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="s1">&#39;http://localhost:3000/api&#39;</span><span class="p">,</span>
+<span class="p">})</span>
+
+<span class="nx">api</span><span class="p">.</span><span class="nx">interceptors</span><span class="p">.</span><span class="nx">request</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">config</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">usuarioAtual</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">auth</span><span class="p">.</span><span class="nx">currentUser</span>
+
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">usuarioAtual</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// getIdToken() usa o cache do SDK; só bate na rede do Firebase</span>
+<span class="w">    </span><span class="c1">// quando o token está perto de expirar (renovação automática).</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">usuarioAtual</span><span class="p">.</span><span class="nx">getIdToken</span><span class="p">()</span>
+<span class="w">    </span><span class="nx">config</span><span class="p">.</span><span class="nx">headers</span><span class="p">.</span><span class="nx">Authorization</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`Bearer </span><span class="si">${</span><span class="nx">token</span><span class="si">}</span><span class="sb">`</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">config</span>
+<span class="p">})</span>
+
+<span class="nx">api</span><span class="p">.</span><span class="nx">interceptors</span><span class="p">.</span><span class="nx">response</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span>
+<span class="w">  </span><span class="p">(</span><span class="nx">resposta</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">resposta</span><span class="p">,</span>
+<span class="w">  </span><span class="p">(</span><span class="nx">erro</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">erro</span><span class="p">.</span><span class="nx">response</span><span class="o">?</span><span class="p">.</span><span class="nx">status</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">401</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="c1">// Token ausente, inválido ou expirado sem chance de renovação</span>
+<span class="w">      </span><span class="c1">// automática (ex.: usuário revogado no console). Mandamos para</span>
+<span class="w">      </span><span class="c1">// o login preservando a rota atual.</span>
+<span class="w">      </span><span class="nx">router</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;login&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">query</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">redirect</span><span class="o">:</span><span class="w"> </span><span class="nx">router</span><span class="p">.</span><span class="nx">currentRoute</span><span class="p">.</span><span class="nx">value</span><span class="p">.</span><span class="nx">fullPath</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">})</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">Promise</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">erro</span><span class="p">)</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">)</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">api</span>
+</code></pre></div></div>
+
+<blockquote class="dica">
+<p><strong>💡 Dica</strong>
+Não é preciso gerenciar expiração de token manualmente. O SDK do Firebase renova o ID token sozinho (usando o refresh token) sempre que <code>getIdToken()</code> é chamado e o token atual está a menos de 5 minutos de expirar. O interceptor de requisição, ao chamar <code>getIdToken()</code> antes de cada chamada, já se beneficia disso de graça.</p>
+</blockquote>
+<h2 id="8-verificando-o-token-no-back-end-com-firebase-admin">8. Verificando o token no back-end com <code>firebase-admin</code><a class="anchor" href="#8-verificando-o-token-no-back-end-com-firebase-admin" title="Permanent link">¶</a></h2>
+<p>Do lado do cliente, qualquer um pode <em>afirmar</em> ser quem quiser — inclusive forjar um cabeçalho <code>Authorization</code>. A prova de identidade real só existe quando o back-end valida a assinatura do token contra as chaves públicas do Firebase. É isso que o pacote <code>firebase-admin</code> faz.</p>
+<h3 id="81-gerando-a-chave-de-conta-de-servico">8.1 Gerando a chave de conta de serviço<a class="anchor" href="#81-gerando-a-chave-de-conta-de-servico" title="Permanent link">¶</a></h3>
+<p>No console do Firebase: <strong>Configurações do projeto → Contas de serviço → Gerar nova chave privada</strong>. Isso baixa um <code>.json</code> com credenciais completas de administrador do projeto — trate como uma senha.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1"># unieventos-api/.gitignore</span>
+node_modules/
+.env
+serviceAccountKey.json
+</code></pre></div></div>
+
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+<code>serviceAccountKey.json</code> nunca vai para o Git. Se você já commitou por engano, o arquivo precisa ser considerado comprometido: revogue a chave no console (Contas de serviço → gerenciar chaves) e gere outra. Em produção (Render, Railway etc.) prefira uma variável de ambiente com o JSON inteiro codificado em base64, decodificada na inicialização — assim nenhum arquivo sensível precisa existir no disco do servidor.</p>
+</blockquote>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1"># instalação, versão travada conforme especificação da disciplina</span>
+npm<span class="w"> </span>install<span class="w"> </span>firebase-admin@14.2.0
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// unieventos-api/src/config/firebaseAdmin.js</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">initializeApp</span><span class="p">,</span><span class="w"> </span><span class="nx">cert</span><span class="p">,</span><span class="w"> </span><span class="nx">getApps</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;firebase-admin/app&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">getAuth</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;firebase-admin/auth&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">fs</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;node:fs&#39;</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">carregarCredencial</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// Em produção: variável de ambiente com o JSON em base64.</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">FIREBASE_SERVICE_ACCOUNT_BASE64</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">json</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">Buffer</span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">FIREBASE_SERVICE_ACCOUNT_BASE64</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;base64&#39;</span><span class="p">).</span><span class="nx">toString</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">json</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Em desenvolvimento: arquivo local, fora do Git.</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">conteudo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">URL</span><span class="p">(</span><span class="s1">&#39;../../serviceAccountKey.json&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">import</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">url</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">conteudo</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// getApps() evita inicializar duas vezes se este módulo for importado</span>
+<span class="c1">// em mais de um lugar (ex.: em testes).</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">getApps</span><span class="p">().</span><span class="nx">length</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">initializeApp</span><span class="p">({</span><span class="w"> </span><span class="nx">credential</span><span class="o">:</span><span class="w"> </span><span class="nx">cert</span><span class="p">(</span><span class="nx">carregarCredencial</span><span class="p">())</span><span class="w"> </span><span class="p">})</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">authAdmin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getAuth</span><span class="p">()</span>
+</code></pre></div></div>
+
+<h3 id="82-middleware-autenticar">8.2 Middleware <code>autenticar</code><a class="anchor" href="#82-middleware-autenticar" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// unieventos-api/src/middlewares/autenticar.js</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">authAdmin</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../config/firebaseAdmin.js&#39;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">autenticar</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">,</span><span class="w"> </span><span class="nx">next</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">cabecalho</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">headers</span><span class="p">.</span><span class="nx">authorization</span>
+
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">cabecalho</span><span class="o">?</span><span class="p">.</span><span class="nx">startsWith</span><span class="p">(</span><span class="s1">&#39;Bearer &#39;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">res</span><span class="p">.</span><span class="nx">status</span><span class="p">(</span><span class="mf">401</span><span class="p">).</span><span class="nx">json</span><span class="p">({</span><span class="w"> </span><span class="nx">erro</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Token de autenticação ausente.&#39;</span><span class="w"> </span><span class="p">})</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">cabecalho</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="s1">&#39;Bearer &#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">tokenDecodificado</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">authAdmin</span><span class="p">.</span><span class="nx">verifyIdToken</span><span class="p">(</span><span class="nx">token</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c1">// Popula req.usuario para os middlewares e controllers seguintes</span>
+<span class="w">    </span><span class="c1">// usarem — igual fizemos com req.body validado na Aula 08.</span>
+<span class="w">    </span><span class="nx">req</span><span class="p">.</span><span class="nx">usuario</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">uid</span><span class="o">:</span><span class="w"> </span><span class="nx">tokenDecodificado</span><span class="p">.</span><span class="nx">uid</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">email</span><span class="o">:</span><span class="w"> </span><span class="nx">tokenDecodificado</span><span class="p">.</span><span class="nx">email</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">admin</span><span class="o">:</span><span class="w"> </span><span class="nx">tokenDecodificado</span><span class="p">.</span><span class="nx">admin</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="c1">// custom claim, seção 8.4</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">next</span><span class="p">()</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">erro</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Cobre token expirado, assinatura inválida, token forjado etc.</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">res</span><span class="p">.</span><span class="nx">status</span><span class="p">(</span><span class="mf">401</span><span class="p">).</span><span class="nx">json</span><span class="p">({</span><span class="w"> </span><span class="nx">erro</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Token inválido ou expirado.&#39;</span><span class="w"> </span><span class="p">})</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Express 5 captura erros de handlers <code>async</code> automaticamente (Aula 08), mas aqui usamos <code>try/catch</code> de propósito: um token inválido não é um erro inesperado do servidor (500), é uma resposta de negócio esperada (401). Deixar o <code>errorHandler</code> central tratar isso como 500 estaria errado.</p>
+<h3 id="83-middleware-autorizar">8.3 Middleware <code>autorizar</code><a class="anchor" href="#83-middleware-autorizar" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// unieventos-api/src/middlewares/autorizar.js</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">autorizar</span><span class="p">(</span><span class="nx">papeis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">,</span><span class="w"> </span><span class="nx">next</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">req</span><span class="p">.</span><span class="nx">usuario</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="c1">// autenticar() deve sempre rodar antes de autorizar() na cadeia</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="nx">res</span><span class="p">.</span><span class="nx">status</span><span class="p">(</span><span class="mf">401</span><span class="p">).</span><span class="nx">json</span><span class="p">({</span><span class="w"> </span><span class="nx">erro</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Token de autenticação ausente.&#39;</span><span class="w"> </span><span class="p">})</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">temPermissao</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">papeis</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="s1">&#39;admin&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">usuario</span><span class="p">.</span><span class="nx">admin</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kc">true</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">temPermissao</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="nx">res</span><span class="p">.</span><span class="nx">status</span><span class="p">(</span><span class="mf">403</span><span class="p">).</span><span class="nx">json</span><span class="p">({</span><span class="w"> </span><span class="nx">erro</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Você não tem permissão para esta ação.&#39;</span><span class="w"> </span><span class="p">})</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">next</span><span class="p">()</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote class="capo">
+<p><strong>🔎 Por baixo do capô</strong>
+401 (<em>Unauthorized</em>) significa "eu não sei quem você é" — token ausente ou inválido. 403 (<em>Forbidden</em>) significa "eu sei quem você é, mas você não pode fazer isso" — token válido, mas sem a permissão necessária. Misturar os dois confunde quem está depurando o front.</p>
+</blockquote>
+<h3 id="84-custom-claims-marcando-um-usuario-como-admin">8.4 Custom claims: marcando um usuário como admin<a class="anchor" href="#84-custom-claims-marcando-um-usuario-como-admin" title="Permanent link">¶</a></h3>
+<p>Custom claims são pares chave-valor extras que o Firebase embute no payload do JWT, definidos pelo back-end (nunca pelo próprio usuário). Um script único, rodado manualmente, promove um usuário a administrador:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// unieventos-api/scripts/promoverAdmin.js</span>
+<span class="c1">// Uso: node scripts/promoverAdmin.js email@exemplo.com</span>
+<span class="k">import</span><span class="w"> </span><span class="s1">&#39;../src/config/firebaseAdmin.js&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">getAuth</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;firebase-admin/auth&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">email</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">[</span><span class="mf">2</span><span class="p">]</span>
+
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">email</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;Uso: node scripts/promoverAdmin.js &lt;email&gt;&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">process</span><span class="p">.</span><span class="nx">exit</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">auth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getAuth</span><span class="p">()</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">usuario</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">auth</span><span class="p">.</span><span class="nx">getUserByEmail</span><span class="p">(</span><span class="nx">email</span><span class="p">)</span>
+
+<span class="k">await</span><span class="w"> </span><span class="nx">auth</span><span class="p">.</span><span class="nx">setCustomUserClaims</span><span class="p">(</span><span class="nx">usuario</span><span class="p">.</span><span class="nx">uid</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">admin</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">})</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">email</span><span class="si">}</span><span class="sb"> agora é administrador.`</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>node<span class="w"> </span>scripts/promoverAdmin.js<span class="w"> </span>professor@unemat.br
+</code></pre></div></div>
+
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+Custom claims só aparecem em um <strong>novo</strong> ID token. Se o usuário já estava logado quando você rodou o script, ele precisa deslogar e logar de novo (ou o front precisa forçar <code>getIdToken(true)</code>, com <code>true</code> pedindo renovação forçada) para o token trazer <code>admin: true</code>. É um erro comum: "rodei o script e continua sem permissão" — o token antigo, em cache no navegador, simplesmente ainda não tem a claim.</p>
+</blockquote>
+<p>Com isso, completamos o <code>ehAdmin</code> da store (seção 5), que ficou pendente. A forma correta de ler a claim no front é via <code>getIdTokenResult()</code>, não pela propriedade <code>customClaims</code> (que não existe no objeto <code>User</code>):</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/stores/authStore.js — ajuste da action inicializar()</span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">inicializar</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">promessaInicializacao</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nx">promessaInicializacao</span>
+
+<span class="w">  </span><span class="nx">promessaInicializacao</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">observarAutenticacao</span><span class="p">(</span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">usuarioFirebase</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">usuarioFirebase</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">resultado</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">usuarioFirebase</span><span class="p">.</span><span class="nx">getIdTokenResult</span><span class="p">()</span>
+<span class="w">        </span><span class="nx">usuario</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">usuarioFirebase</span>
+<span class="w">        </span><span class="nx">ehAdminClaim</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">resultado</span><span class="p">.</span><span class="nx">claims</span><span class="p">.</span><span class="nx">admin</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">usuario</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span>
+<span class="w">        </span><span class="nx">ehAdminClaim</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">      </span><span class="p">}</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">inicializado</span><span class="p">.</span><span class="nx">value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">inicializado</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">        </span><span class="nx">resolve</span><span class="p">()</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">})</span>
+<span class="w">  </span><span class="p">})</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">promessaInicializacao</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// e trocar o computed ehAdmin por uma ref simples atualizada acima</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">ehAdminClaim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">ehAdmin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">computed</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">ehAdminClaim</span><span class="p">.</span><span class="nx">value</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="85-aplicando-nos-endpoints-de-eventos">8.5 Aplicando nos endpoints de eventos<a class="anchor" href="#85-aplicando-nos-endpoints-de-eventos" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// unieventos-api/src/routes/eventosRoutes.js</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Router</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;express&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">autenticar</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../middlewares/autenticar.js&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">autorizar</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../middlewares/autorizar.js&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">eventosController</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../controllers/eventosController.js&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">router</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">Router</span><span class="p">()</span>
+
+<span class="c1">// Leitura pública — qualquer visitante, sem token, vê os eventos</span>
+<span class="nx">router</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">eventosController</span><span class="p">.</span><span class="nx">listar</span><span class="p">)</span>
+<span class="nx">router</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/:id&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">eventosController</span><span class="p">.</span><span class="nx">buscarPorId</span><span class="p">)</span>
+
+<span class="c1">// Escrita exige apenas estar autenticado</span>
+<span class="nx">router</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">autenticar</span><span class="p">,</span><span class="w"> </span><span class="nx">eventosController</span><span class="p">.</span><span class="nx">criar</span><span class="p">)</span>
+<span class="nx">router</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s1">&#39;/:id&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">autenticar</span><span class="p">,</span><span class="w"> </span><span class="nx">eventosController</span><span class="p">.</span><span class="nx">atualizar</span><span class="p">)</span>
+
+<span class="c1">// Exclusão exige estar autenticado E ser admin</span>
+<span class="nx">router</span><span class="p">.</span><span class="ow">delete</span><span class="p">(</span><span class="s1">&#39;/:id&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">autenticar</span><span class="p">,</span><span class="w"> </span><span class="nx">autorizar</span><span class="p">([</span><span class="s1">&#39;admin&#39;</span><span class="p">]),</span><span class="w"> </span><span class="nx">eventosController</span><span class="p">.</span><span class="nx">remover</span><span class="p">)</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">router</span>
+</code></pre></div></div>
+
+<h2 id="mao-na-massa-telas-de-autenticacao-completas">💻 Mão na massa — telas de autenticação completas<a class="anchor" href="#mao-na-massa-telas-de-autenticacao-completas" title="Permanent link">¶</a></h2>
+<h3 id="passo-1-tela-de-cadastro">Passo 1 — Tela de cadastro<a class="anchor" href="#passo-1-tela-de-cadastro" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="cm">&lt;!-- src/views/CadastroView.vue --&gt;</span>
+<span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">useRouter</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue-router&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">cadastrar</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@/services/authService&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">router</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useRouter</span><span class="p">()</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">nome</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">email</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">senha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">confirmarSenha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">erro</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">carregando</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">regraObrigatorio</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">v</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="o">!!</span><span class="nx">v</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;Campo obrigatório&#39;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">regraEmail</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">v</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="o">/</span><span class="p">.</span><span class="o">+</span><span class="err">@</span><span class="p">.</span><span class="o">+</span><span class="err">\</span><span class="p">..</span><span class="o">+</span><span class="err">/.test(v) || &#39;E-mail inválido&#39;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">regraSenhaMinima</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">v</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">v</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mf">6</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;Mínimo de 6 caracteres&#39;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">regraSenhasIguais</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">v</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">v</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">senha</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;As senhas não coincidem&#39;</span>
+
+<span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">aoSubmeter</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">erro</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&#39;</span>
+<span class="w">  </span><span class="nx">carregando</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">cadastrar</span><span class="p">(</span><span class="nx">nome</span><span class="p">.</span><span class="nx">value</span><span class="p">,</span><span class="w"> </span><span class="nx">email</span><span class="p">.</span><span class="nx">value</span><span class="p">,</span><span class="w"> </span><span class="nx">senha</span><span class="p">.</span><span class="nx">value</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">router</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">erro</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">message</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">finally</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">carregando</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">v-container</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;d-flex align-center justify-center&quot;</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;min-height: 80vh&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">v-card</span> <span class="na">max-width</span><span class="o">=</span><span class="s">&quot;420&quot;</span> <span class="na">width</span><span class="o">=</span><span class="s">&quot;100%&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;pa-4&quot;</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">v-card-title</span><span class="p">&gt;</span>Criar conta<span class="p">&lt;/</span><span class="nt">v-card-title</span><span class="p">&gt;</span>
+
+      <span class="p">&lt;</span><span class="nt">v-form</span> <span class="p">@</span><span class="na">submit</span><span class="p">.</span><span class="na">prevent</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">aoSubmeter</span><span class="s">&quot;</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">v-card-text</span><span class="p">&gt;</span>
+          <span class="p">&lt;</span><span class="nt">v-alert</span> <span class="na">v-if</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">erro</span><span class="s">&quot;</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;error&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;mb-4&quot;</span> <span class="na">density</span><span class="o">=</span><span class="s">&quot;compact&quot;</span><span class="p">&gt;</span>
+            <span class="cp">{{</span><span class="w"> </span><span class="nx">erro</span><span class="w"> </span><span class="cp">}}</span>
+          <span class="p">&lt;/</span><span class="nt">v-alert</span><span class="p">&gt;</span>
+
+          <span class="p">&lt;</span><span class="nt">v-text-field</span>
+            <span class="na">v-model</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">nome</span><span class="s">&quot;</span>
+            <span class="na">label</span><span class="o">=</span><span class="s">&quot;Nome completo&quot;</span>
+            <span class="p">:</span><span class="na">rules</span><span class="o">=</span><span class="s">&quot;</span><span class="p">[</span><span class="nx">regraObrigatorio</span><span class="p">]</span><span class="s">&quot;</span>
+          <span class="p">/&gt;</span>
+          <span class="p">&lt;</span><span class="nt">v-text-field</span>
+            <span class="na">v-model</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">email</span><span class="s">&quot;</span>
+            <span class="na">label</span><span class="o">=</span><span class="s">&quot;E-mail&quot;</span>
+            <span class="na">type</span><span class="o">=</span><span class="s">&quot;email&quot;</span>
+            <span class="p">:</span><span class="na">rules</span><span class="o">=</span><span class="s">&quot;</span><span class="p">[</span><span class="nx">regraObrigatorio</span><span class="p">,</span><span class="w"> </span><span class="nx">regraEmail</span><span class="p">]</span><span class="s">&quot;</span>
+          <span class="p">/&gt;</span>
+          <span class="p">&lt;</span><span class="nt">v-text-field</span>
+            <span class="na">v-model</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">senha</span><span class="s">&quot;</span>
+            <span class="na">label</span><span class="o">=</span><span class="s">&quot;Senha&quot;</span>
+            <span class="na">type</span><span class="o">=</span><span class="s">&quot;password&quot;</span>
+            <span class="p">:</span><span class="na">rules</span><span class="o">=</span><span class="s">&quot;</span><span class="p">[</span><span class="nx">regraObrigatorio</span><span class="p">,</span><span class="w"> </span><span class="nx">regraSenhaMinima</span><span class="p">]</span><span class="s">&quot;</span>
+          <span class="p">/&gt;</span>
+          <span class="p">&lt;</span><span class="nt">v-text-field</span>
+            <span class="na">v-model</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">confirmarSenha</span><span class="s">&quot;</span>
+            <span class="na">label</span><span class="o">=</span><span class="s">&quot;Confirmar senha&quot;</span>
+            <span class="na">type</span><span class="o">=</span><span class="s">&quot;password&quot;</span>
+            <span class="p">:</span><span class="na">rules</span><span class="o">=</span><span class="s">&quot;</span><span class="p">[</span><span class="nx">regraObrigatorio</span><span class="p">,</span><span class="w"> </span><span class="nx">regraSenhasIguais</span><span class="p">]</span><span class="s">&quot;</span>
+          <span class="p">/&gt;</span>
+        <span class="p">&lt;/</span><span class="nt">v-card-text</span><span class="p">&gt;</span>
+
+        <span class="p">&lt;</span><span class="nt">v-card-actions</span><span class="p">&gt;</span>
+          <span class="p">&lt;</span><span class="nt">v-btn</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;submit&quot;</span> <span class="na">color</span><span class="o">=</span><span class="s">&quot;primary&quot;</span> <span class="na">block</span> <span class="p">:</span><span class="na">loading</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">carregando</span><span class="s">&quot;</span><span class="p">&gt;</span>
+            Cadastrar
+          <span class="p">&lt;/</span><span class="nt">v-btn</span><span class="p">&gt;</span>
+        <span class="p">&lt;/</span><span class="nt">v-card-actions</span><span class="p">&gt;</span>
+      <span class="p">&lt;/</span><span class="nt">v-form</span><span class="p">&gt;</span>
+
+      <span class="p">&lt;</span><span class="nt">v-card-text</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;text-center&quot;</span><span class="p">&gt;</span>
+        Já tem conta? <span class="p">&lt;</span><span class="nt">router-link</span> <span class="na">to</span><span class="o">=</span><span class="s">&quot;/login&quot;</span><span class="p">&gt;</span>Entrar<span class="p">&lt;/</span><span class="nt">router-link</span><span class="p">&gt;</span>
+      <span class="p">&lt;/</span><span class="nt">v-card-text</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">v-card</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">v-container</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<h3 id="passo-2-tela-de-login-com-google-e-redirecionamento">Passo 2 — Tela de login, com Google e redirecionamento<a class="anchor" href="#passo-2-tela-de-login-com-google-e-redirecionamento" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="cm">&lt;!-- src/views/LoginView.vue --&gt;</span>
+<span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">useRoute</span><span class="p">,</span><span class="w"> </span><span class="nx">useRouter</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue-router&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">entrar</span><span class="p">,</span><span class="w"> </span><span class="nx">entrarComGoogle</span><span class="p">,</span><span class="w"> </span><span class="nx">solicitarRedefinicaoSenha</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@/services/authService&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">route</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useRoute</span><span class="p">()</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">router</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useRouter</span><span class="p">()</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">email</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">senha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">erro</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">mensagemSucesso</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">carregando</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">irParaDestino</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">destino</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">typeof</span><span class="w"> </span><span class="nx">route</span><span class="p">.</span><span class="nx">query</span><span class="p">.</span><span class="nx">redirect</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;string&#39;</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">route</span><span class="p">.</span><span class="nx">query</span><span class="p">.</span><span class="nx">redirect</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/&#39;</span>
+<span class="w">  </span><span class="nx">router</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">destino</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">aoSubmeter</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">erro</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&#39;</span>
+<span class="w">  </span><span class="nx">carregando</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">entrar</span><span class="p">(</span><span class="nx">email</span><span class="p">.</span><span class="nx">value</span><span class="p">,</span><span class="w"> </span><span class="nx">senha</span><span class="p">.</span><span class="nx">value</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">irParaDestino</span><span class="p">()</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">erro</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">message</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">finally</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">carregando</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">aoClicarGoogle</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">erro</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&#39;</span>
+<span class="w">  </span><span class="nx">carregando</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">entrarComGoogle</span><span class="p">()</span>
+<span class="w">    </span><span class="nx">irParaDestino</span><span class="p">()</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">erro</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">message</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">finally</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">carregando</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">aoEsquecerSenha</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">erro</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&#39;</span>
+<span class="w">  </span><span class="nx">mensagemSucesso</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&#39;</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">email</span><span class="p">.</span><span class="nx">value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">erro</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;Informe o e-mail para receber o link de redefinição.&#39;</span>
+<span class="w">    </span><span class="k">return</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">solicitarRedefinicaoSenha</span><span class="p">(</span><span class="nx">email</span><span class="p">.</span><span class="nx">value</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">mensagemSucesso</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;Enviamos um link de redefinição para o seu e-mail.&#39;</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">erro</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">message</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">v-container</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;d-flex align-center justify-center&quot;</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;min-height: 80vh&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">v-card</span> <span class="na">max-width</span><span class="o">=</span><span class="s">&quot;420&quot;</span> <span class="na">width</span><span class="o">=</span><span class="s">&quot;100%&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;pa-4&quot;</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">v-card-title</span><span class="p">&gt;</span>Entrar<span class="p">&lt;/</span><span class="nt">v-card-title</span><span class="p">&gt;</span>
+
+      <span class="p">&lt;</span><span class="nt">v-form</span> <span class="p">@</span><span class="na">submit</span><span class="p">.</span><span class="na">prevent</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">aoSubmeter</span><span class="s">&quot;</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">v-card-text</span><span class="p">&gt;</span>
+          <span class="p">&lt;</span><span class="nt">v-alert</span> <span class="na">v-if</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">erro</span><span class="s">&quot;</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;error&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;mb-4&quot;</span> <span class="na">density</span><span class="o">=</span><span class="s">&quot;compact&quot;</span><span class="p">&gt;</span>
+            <span class="cp">{{</span><span class="w"> </span><span class="nx">erro</span><span class="w"> </span><span class="cp">}}</span>
+          <span class="p">&lt;/</span><span class="nt">v-alert</span><span class="p">&gt;</span>
+          <span class="p">&lt;</span><span class="nt">v-alert</span> <span class="na">v-if</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">mensagemSucesso</span><span class="s">&quot;</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;success&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;mb-4&quot;</span> <span class="na">density</span><span class="o">=</span><span class="s">&quot;compact&quot;</span><span class="p">&gt;</span>
+            <span class="cp">{{</span><span class="w"> </span><span class="nx">mensagemSucesso</span><span class="w"> </span><span class="cp">}}</span>
+          <span class="p">&lt;/</span><span class="nt">v-alert</span><span class="p">&gt;</span>
+
+          <span class="p">&lt;</span><span class="nt">v-text-field</span> <span class="na">v-model</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">email</span><span class="s">&quot;</span> <span class="na">label</span><span class="o">=</span><span class="s">&quot;E-mail&quot;</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;email&quot;</span> <span class="p">/&gt;</span>
+          <span class="p">&lt;</span><span class="nt">v-text-field</span> <span class="na">v-model</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">senha</span><span class="s">&quot;</span> <span class="na">label</span><span class="o">=</span><span class="s">&quot;Senha&quot;</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;password&quot;</span> <span class="p">/&gt;</span>
+
+          <span class="p">&lt;</span><span class="nt">v-btn</span> <span class="na">variant</span><span class="o">=</span><span class="s">&quot;text&quot;</span> <span class="na">size</span><span class="o">=</span><span class="s">&quot;small&quot;</span> <span class="p">@</span><span class="na">click</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">aoEsquecerSenha</span><span class="s">&quot;</span><span class="p">&gt;</span>
+            Esqueci minha senha
+          <span class="p">&lt;/</span><span class="nt">v-btn</span><span class="p">&gt;</span>
+        <span class="p">&lt;/</span><span class="nt">v-card-text</span><span class="p">&gt;</span>
+
+        <span class="p">&lt;</span><span class="nt">v-card-actions</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;flex-column&quot;</span><span class="p">&gt;</span>
+          <span class="p">&lt;</span><span class="nt">v-btn</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;submit&quot;</span> <span class="na">color</span><span class="o">=</span><span class="s">&quot;primary&quot;</span> <span class="na">block</span> <span class="p">:</span><span class="na">loading</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">carregando</span><span class="s">&quot;</span><span class="p">&gt;</span>
+            Entrar
+          <span class="p">&lt;/</span><span class="nt">v-btn</span><span class="p">&gt;</span>
+          <span class="p">&lt;</span><span class="nt">v-btn</span>
+            <span class="na">variant</span><span class="o">=</span><span class="s">&quot;outlined&quot;</span>
+            <span class="na">block</span>
+            <span class="na">class</span><span class="o">=</span><span class="s">&quot;mt-2&quot;</span>
+            <span class="na">prepend-icon</span><span class="o">=</span><span class="s">&quot;mdi-google&quot;</span>
+            <span class="p">:</span><span class="na">loading</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">carregando</span><span class="s">&quot;</span>
+            <span class="p">@</span><span class="na">click</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">aoClicarGoogle</span><span class="s">&quot;</span>
+          <span class="p">&gt;</span>
+            Entrar com Google
+          <span class="p">&lt;/</span><span class="nt">v-btn</span><span class="p">&gt;</span>
+        <span class="p">&lt;/</span><span class="nt">v-card-actions</span><span class="p">&gt;</span>
+      <span class="p">&lt;/</span><span class="nt">v-form</span><span class="p">&gt;</span>
+
+      <span class="p">&lt;</span><span class="nt">v-card-text</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;text-center&quot;</span><span class="p">&gt;</span>
+        Não tem conta? <span class="p">&lt;</span><span class="nt">router-link</span> <span class="na">to</span><span class="o">=</span><span class="s">&quot;/cadastro&quot;</span><span class="p">&gt;</span>Cadastrar<span class="p">&lt;/</span><span class="nt">router-link</span><span class="p">&gt;</span>
+      <span class="p">&lt;/</span><span class="nt">v-card-text</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">v-card</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">v-container</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<h3 id="passo-3-inicializando-a-store-no-mainjs">Passo 3 — Inicializando a store no <code>main.js</code><a class="anchor" href="#passo-3-inicializando-a-store-no-mainjs" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/main.js</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createApp</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createPinia</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;pinia&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">App</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./App.vue&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">router</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./router&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">useAuthStore</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@/stores/authStore&#39;</span>
+
+<span class="k">import</span><span class="w"> </span><span class="s1">&#39;@mdi/font/css/materialdesignicons.css&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="s1">&#39;vuetify/styles&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createVuetify</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vuetify&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">vuetify</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">createVuetify</span><span class="p">({</span><span class="w"> </span><span class="nx">theme</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">defaultTheme</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;light&#39;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">})</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">app</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">createApp</span><span class="p">(</span><span class="nx">App</span><span class="p">)</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">createPinia</span><span class="p">())</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">router</span><span class="p">)</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">vuetify</span><span class="p">)</span>
+
+<span class="c1">// Dispara a inicialização o quanto antes; o router aguarda a mesma</span>
+<span class="c1">// Promise no beforeEach, então não há corrida entre os dois.</span>
+<span class="nx">useAuthStore</span><span class="p">().</span><span class="nx">inicializar</span><span class="p">()</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">mount</span><span class="p">(</span><span class="s1">&#39;#app&#39;</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="passo-4-area-administrativa-protegida">Passo 4 — Área administrativa protegida<a class="anchor" href="#passo-4-area-administrativa-protegida" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="cm">&lt;!-- src/views/admin/EventosAdminView.vue --&gt;</span>
+<span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">onMounted</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">useAuthStore</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@/stores/authStore&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">authStore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useAuthStore</span><span class="p">()</span>
+
+<span class="nx">onMounted</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// Se chegou até aqui, o guard de rota já garantiu requerAuth + requerAdmin.</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Admin logado:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">authStore</span><span class="p">.</span><span class="nx">usuario</span><span class="p">.</span><span class="nx">email</span><span class="p">)</span>
+<span class="p">})</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">v-container</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">h1</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;text-h4 mb-4&quot;</span><span class="p">&gt;</span>Administração de eventos<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Bem-vindo(a), <span class="cp">{{</span><span class="w"> </span><span class="nx">authStore</span><span class="p">.</span><span class="nx">usuario</span><span class="o">?</span><span class="p">.</span><span class="nx">displayName</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="nx">authStore</span><span class="p">.</span><span class="nx">usuario</span><span class="o">?</span><span class="p">.</span><span class="nx">email</span><span class="w"> </span><span class="cp">}}</span>.<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+    <span class="cm">&lt;!-- CRUD completo de eventos vem na Aula 11 --&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">v-container</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<h3 id="passo-5-testando-a-api-manualmente">Passo 5 — Testando a API manualmente<a class="anchor" href="#passo-5-testando-a-api-manualmente" title="Permanent link">¶</a></h3>
+<p>Sem token — deve retornar 401:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-i<span class="w"> </span>http://localhost:3000/api/eventos<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;titulo&quot;:&quot;Semana da Computação&quot;}&#39;</span>
+</code></pre></div></div>
+
+<p>Com token inválido (qualquer string) — também 401:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-i<span class="w"> </span>http://localhost:3000/api/eventos<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer token-forjado-qualquer&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;titulo&quot;:&quot;Semana da Computação&quot;}&#39;</span>
+</code></pre></div></div>
+
+<p>Com token válido — copie o token real do DevTools (aba Network, requisição feita pelo front logado, cabeçalho <code>Authorization</code>) e cole aqui:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-i<span class="w"> </span>http://localhost:3000/api/eventos<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer COLE_O_TOKEN_AQUI&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;titulo&quot;:&quot;Semana da Computação&quot;,&quot;categoria&quot;:&quot;palestra&quot;,&quot;data_hora&quot;:&quot;2026-12-01T19:00:00&quot;,&quot;local&quot;:&quot;Auditório&quot;,&quot;vagas&quot;:80}&#39;</span>
+</code></pre></div></div>
+
+<p>Tentando excluir sem ser admin (usuário autenticado comum) — deve retornar 403:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-i<span class="w"> </span>http://localhost:3000/api/eventos/1<span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer TOKEN_DE_USUARIO_COMUM&quot;</span>
+</code></pre></div></div>
+
+<h2 id="laboratorio">🧪 Laboratório<a class="anchor" href="#laboratorio" title="Permanent link">¶</a></h2>
+<p><strong>1. Cadastro e login funcionando.</strong> Crie uma conta pelo formulário de cadastro do seu projeto autoral, faça logout e faça login de novo.</p>
+<details><summary>Dica</summary>Abra o DevTools → Application → verifique se há chaves salvas pelo Firebase no IndexedDB/LocalStorage após o login.</details>
+
+<p><strong>2. Login com Google.</strong> Habilite o provedor Google no console e teste <code>entrarComGoogle()</code>.</p>
+<details><summary>Dica</summary>Se o popup fechar sozinho sem erro visível, confira o console — geralmente é domínio não autorizado em Authentication → Settings → Authorized domains.</details>
+
+<p><strong>3. Rota protegida.</strong> Crie uma rota <code>meta: { requerAuth: true }</code> no seu projeto e confirme que, deslogado, você é redirecionado para <code>/login?redirect=...</code> e volta para a rota certa após logar.</p>
+<details><summary>Dica</summary>Teste apertando F5 na rota protegida já logado — não pode redirecionar para login.</details>
+
+<p><strong>4. Middleware <code>autenticar</code> na API.</strong> Proteja um endpoint de escrita do seu projeto autoral e teste os três cenários de <code>curl</code> da seção anterior.</p>
+<details><summary>Dica</summary>Um token expira em 1h — se testar depois de muito tempo, gere outro logando de novo no front.</details>
+
+<p><strong>5. Custom claim de admin.</strong> Rode o script <code>promoverAdmin.js</code> com seu próprio e-mail, deslogue e logue de novo, e confirme que <code>authStore.ehAdmin</code> fica <code>true</code> e que o menu de administração aparece.</p>
+<details><summary>Dica</summary>Se continuar `false`, o token em cache é o antigo — force `getIdTokenResult(true)` ou deslogue mesmo.</details>
+
+<h2 id="erros-comuns-e-como-resolver">🐛 Erros comuns e como resolver<a class="anchor" href="#erros-comuns-e-como-resolver" title="Permanent link">¶</a></h2>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Sintoma</th>
+<th>Causa</th>
+<th>Solução</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>401 mesmo logado no front</td>
+<td>Interceptor não aguardou <code>getIdToken()</code> (esqueceu <code>await</code>)</td>
+<td>Confirme que a função do interceptor é <code>async</code> e usa <code>await usuarioAtual.getIdToken()</code></td>
+</tr>
+<tr>
+<td>Guard redireciona para login mesmo autenticado, só no F5</td>
+<td><code>beforeEach</code> não aguardou <code>inicializar()</code></td>
+<td>Adicione <code>await authStore.inicializar()</code> como primeira linha do guard</td>
+</tr>
+<tr>
+<td>"auth/network-request-failed"</td>
+<td>Sem internet, ou domínio bloqueado por extensão/firewall</td>
+<td>Verificar conexão; testar em aba anônima sem extensões</td>
+</tr>
+<tr>
+<td>Token válido no Postman mas 401 na API</td>
+<td>Relógio do servidor fora de sincronia (token "ainda não válido" ou "expirado" por diferença de horário)</td>
+<td>Sincronizar o relógio do servidor (NTP); em nuvem isso raramente acontece, mas em VM local pode</td>
+</tr>
+<tr>
+<td>CORS bloqueia a requisição com <code>Authorization</code></td>
+<td><code>cors()</code> no Express sem liberar o header customizado</td>
+<td>Configurar <code>cors({ origin: 'http://localhost:5173', allowedHeaders: ['Content-Type', 'Authorization'] })</code></td>
+</tr>
+<tr>
+<td><code>admin</code> sempre <code>false</code> mesmo após <code>setCustomUserClaims</code></td>
+<td>Token antigo em cache, claim não propagada</td>
+<td>Deslogar e logar de novo, ou <code>getIdTokenResult(true)</code> para forçar renovação</td>
+</tr>
+<tr>
+<td><code>req.usuario</code> é <code>undefined</code> no controller</td>
+<td><code>autorizar</code> usado sem <code>autenticar</code> antes na cadeia de middlewares</td>
+<td>Sempre montar a rota como <code>autenticar, autorizar([...])</code>, nessa ordem</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="atividade-assincrona-1-h">🏠 Atividade assíncrona (1 h)<a class="anchor" href="#atividade-assincrona-1-h" title="Permanent link">¶</a></h2>
+<p>No seu projeto autoral: implemente cadastro, login, logout e proteção de pelo menos uma rota do front (<code>requerAuth: true</code>) e um endpoint de escrita da API (<code>autenticar</code>). Grave um GIF ou vídeo curto (menos de 1 minuto) mostrando: (1) tentativa de acessar a rota protegida deslogado sendo redirecionada, (2) login, (3) acesso liberado, (4) <code>curl</code> sem token retornando 401. Suba o material (código + evidência) no repositório do projeto e envie o link pelo SIGAA.</p>
+<p><strong>Critério de pronto:</strong> os quatro passos do vídeo aparecem, e o commit com a implementação está no repositório.</p>
+<h2 id="checkpoint-do-projeto-autoral">✅ Checkpoint do projeto autoral<a class="anchor" href="#checkpoint-do-projeto-autoral" title="Permanent link">¶</a></h2>
+<ul>
+<li>[ ] <code>src/services/firebase.js</code> inicializado com variáveis de ambiente (nada de chave hardcoded no código).</li>
+<li>[ ] Cadastro, login, logout e login com Google funcionando na interface.</li>
+<li>[ ] <code>stores/authStore.js</code> com <code>inicializar()</code>, <code>estaLogado</code> e <code>ehAdmin</code> implementados corretamente.</li>
+<li>[ ] Pelo menos uma rota protegida com <code>meta: { requerAuth: true }</code> funcionando após F5.</li>
+<li>[ ] Interceptor Axios enviando <code>Authorization: Bearer &lt;token&gt;</code> em toda requisição autenticada.</li>
+<li>[ ] API com <code>firebase-admin</code> configurado e <code>serviceAccountKey.json</code> fora do Git.</li>
+<li>[ ] Pelo menos um endpoint de escrita protegido por <code>autenticar</code>, e um por <code>autorizar(['admin'])</code>.</li>
+<li>[ ] Testes manuais com <code>curl</code> (sem token, token inválido, token válido) documentados.</li>
+</ul>
+<h2 id="para-aprofundar">📚 Para aprofundar<a class="anchor" href="#para-aprofundar" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="https://firebase.google.com/docs/auth/web/start">Firebase Auth — Web (modular)</a></li>
+<li><a href="https://firebase.google.com/docs/auth/admin/manage-users">Firebase Auth — gerenciar usuários com o Admin SDK</a></li>
+<li><a href="https://firebase.google.com/docs/auth/admin/custom-claims">Custom claims — documentação oficial</a></li>
+<li><a href="https://jwt.io">jwt.io — debugger de JWT</a></li>
+<li><a href="https://datatracker.ietf.org/doc/html/rfc7519">RFC 7519 — JSON Web Token</a></li>
+<li>Plano de curso, Unidade 3: Firebase, autenticação e banco de dados.</li>
+</ul>
+<p>Na Aula 11 fechamos o ciclo: CRUD completo de eventos, ponta a ponta, autenticado — Vue consumindo a API Express, que persiste no MySQL, tudo validado com o token do Firebase que construímos hoje.</p><nav class="navpe"><a data-nav="anterior" href="aula-09.html"><span class="rot">← Aula 09</span><span class="tit">Integrando com SGBD MySQL</span></a><a class="dir" data-nav="proxima" href="aula-11.html"><span class="rot">Aula 11 →</span><span class="tit">Integrando front-end com back-end: CRUD</span></a></nav>
+    <div class="rodape">
+      UNEMAT — Universidade do Estado de Mato Grosso · Campus Cáceres · FACET<br>
+      FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas · 2026.2<br>
+      Prof. Ivan Luiz Pedroso Pires
+    </div>
+  </main>
+  <aside class="toc"><h4>Nesta aula</h4><a class="" href="#objetivos-de-aprendizagem">🎯 Objetivos de aprendizagem</a><a class="" href="#pre-requisitos-desta-aula">📋 Pré-requisitos desta aula</a><a class="" href="#roteiro">🗺️ Roteiro</a><a class="" href="#1-autenticacao-nao-e-autorizacao">1. Autenticação não é autorização</a><a class="n3" href="#por-que-nao-guardar-senha-no-seu-proprio-banco-se-puder-evitar">Por que não guardar senha no seu próprio banco (se puder evitar)</a><a class="" href="#2-anatomia-de-um-jwt">2. Anatomia de um JWT</a><a class="n3" href="#access-token-refresh-token">Access token × refresh token</a><a class="" href="#3-habilitando-autenticacao-no-console-do-firebase">3. Habilitando autenticação no console do Firebase</a><a class="" href="#4-firebase-auth-no-front-sdk-modular">4. Firebase Auth no front — SDK modular</a><a class="" href="#5-store-de-autenticacao-resolvendo-o-problema-do-f5">5. Store de autenticação: resolvendo o problema do F5</a><a class="" href="#6-protegendo-rotas-no-vue-router">6. Protegendo rotas no Vue Router</a><a class="" href="#padrao-de-projeto-em-uso-proxy-de-protecao-guard">🧩 Padrão de projeto em uso: Proxy de proteção + Guard</a><a class="" href="#7-enviando-o-token-em-cada-requisicao">7. Enviando o token em cada requisição</a><a class="" href="#8-verificando-o-token-no-back-end-com-firebase-admin">8. Verificando o token no back-end com firebase-admin</a><a class="n3" href="#81-gerando-a-chave-de-conta-de-servico">8.1 Gerando a chave de conta de serviço</a><a class="n3" href="#82-middleware-autenticar">8.2 Middleware autenticar</a><a class="n3" href="#83-middleware-autorizar">8.3 Middleware autorizar</a><a class="n3" href="#84-custom-claims-marcando-um-usuario-como-admin">8.4 Custom claims: marcando um usuário como admin</a><a class="n3" href="#85-aplicando-nos-endpoints-de-eventos">8.5 Aplicando nos endpoints de eventos</a><a class="" href="#mao-na-massa-telas-de-autenticacao-completas">💻 Mão na massa — telas de autenticação completas</a><a class="n3" href="#passo-1-tela-de-cadastro">Passo 1 — Tela de cadastro</a><a class="n3" href="#passo-2-tela-de-login-com-google-e-redirecionamento">Passo 2 — Tela de login, com Google e redirecionamento</a><a class="n3" href="#passo-3-inicializando-a-store-no-mainjs">Passo 3 — Inicializando a store no main.js</a><a class="n3" href="#passo-4-area-administrativa-protegida">Passo 4 — Área administrativa protegida</a><a class="n3" href="#passo-5-testando-a-api-manualmente">Passo 5 — Testando a API manualmente</a><a class="" href="#laboratorio">🧪 Laboratório</a><a class="" href="#erros-comuns-e-como-resolver">🐛 Erros comuns e como resolver</a><a class="" href="#atividade-assincrona-1-h">🏠 Atividade assíncrona (1 h)</a><a class="" href="#checkpoint-do-projeto-autoral">✅ Checkpoint do projeto autoral</a><a class="" href="#para-aprofundar">📚 Para aprofundar</a></aside>
+</div>
+<script>
+(function(){
+  var raiz=document.documentElement;
+  var salvo=null;
+  try{salvo=window.localStorage&&localStorage.getItem('fds-tema')}catch(e){}
+  if(salvo){raiz.setAttribute('data-tema',salvo)}
+  var bt=document.getElementById('tema');
+  if(bt){bt.addEventListener('click',function(){
+    var novo=raiz.getAttribute('data-tema')==='claro'?'escuro':'claro';
+    raiz.setAttribute('data-tema',novo);
+    try{localStorage.setItem('fds-tema',novo)}catch(e){}
+    bt.textContent=novo==='claro'?'● Escuro':'○ Claro';
+  });
+  bt.textContent=raiz.getAttribute('data-tema')==='claro'?'● Escuro':'○ Claro';}
+
+  // copiar código
+  document.querySelectorAll('.copiar').forEach(function(b){
+    b.addEventListener('click',function(){
+      var pre=b.closest('.bloco').querySelector('pre');
+      var txt=pre.innerText;
+      var ok=function(){b.textContent='Copiado';b.classList.add('ok');
+        setTimeout(function(){b.textContent='Copiar';b.classList.remove('ok')},1600)};
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(ok)}
+      else{var t=document.createElement('textarea');t.value=txt;document.body.appendChild(t);
+           t.select();document.execCommand('copy');t.remove();ok()}
+    });
+  });
+
+  // barra de progresso
+  var pr=document.getElementById('progresso');
+  if(pr){window.addEventListener('scroll',function(){
+    var h=document.documentElement.scrollHeight-window.innerHeight;
+    pr.style.width=(h>0?(window.scrollY/h)*100:0)+'%';
+  },{passive:true})}
+
+  // sumário ativo
+  var alvos=[].slice.call(document.querySelectorAll('main h2[id],main h3[id]'));
+  var links={};
+  document.querySelectorAll('.toc a').forEach(function(a){links[a.getAttribute('href').slice(1)]=a});
+  if(alvos.length&&'IntersectionObserver' in window){
+    var obs=new IntersectionObserver(function(ents){
+      ents.forEach(function(e){
+        var a=links[e.target.id];
+        if(!a)return;
+        if(e.isIntersecting){
+          Object.keys(links).forEach(function(k){links[k].classList.remove('ativo')});
+          a.classList.add('ativo');
+        }
+      });
+    },{rootMargin:'-76px 0px -75% 0px'});
+    alvos.forEach(function(t){obs.observe(t)});
+  }
+
+  // busca no índice
+  var busca=document.getElementById('busca');
+  if(busca){
+    busca.addEventListener('input',function(){
+      var q=busca.value.toLowerCase().trim();
+      document.querySelectorAll('[data-busca]').forEach(function(el){
+        el.classList.toggle('oculto', q!=='' && el.getAttribute('data-busca').indexOf(q)===-1);
+      });
+    });
+  }
+
+  // atalhos de teclado
+  document.addEventListener('keydown',function(e){
+    if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+    var ant=document.querySelector('[data-nav="anterior"]');
+    var pro=document.querySelector('[data-nav="proxima"]');
+    if(e.key==='j'&&pro)pro.click();
+    if(e.key==='k'&&ant)ant.click();
+    if(e.key==='/'&&busca){e.preventDefault();busca.focus()}
+  });
+})();
+</script>
+</body>
+</html>

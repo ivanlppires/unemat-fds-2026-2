@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-tema="escuro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aula 12 — CRUD com banco em nuvem (Supabase) · FACET-SNP-310</title>
+<meta name="description" content="Unidade 3 · 16/11/2026 · CRUD com banco em nuvem (Supabase)">
+<style>
+:root{
+  --bg:#0f1117; --bg-soft:#161922; --bg-code:#11131a; --line:#272b38;
+  --fg:#e6e8ee; --fg-dim:#a6adbb; --fg-faint:#6f7686;
+  --accent:#5eead4; --accent-2:#818cf8; --warn:#fbbf24; --danger:#fb7185;
+  --u1:#5eead4; --u2:#818cf8; --u3:#f0abfc;
+  --radius:12px; --max:860px;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+}
+html[data-tema="claro"]{
+  --bg:#ffffff; --bg-soft:#f6f7f9; --bg-code:#f2f3f6; --line:#e2e5ea;
+  --fg:#1a1d24; --fg-dim:#4b5262; --fg-faint:#8a92a3;
+  --accent:#0d9488; --accent-2:#4f46e5; --warn:#b45309; --danger:#be123c;
+  --u1:#0d9488; --u2:#4f46e5; --u3:#a21caf;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:76px}
+body{
+  margin:0; background:var(--bg); color:var(--fg); font-family:var(--font);
+  font-size:16.5px; line-height:1.72; -webkit-font-smoothing:antialiased;
+}
+a{color:var(--accent); text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ---------- barra superior ---------- */
+.topo{
+  position:sticky; top:0; z-index:50; background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:blur(12px); border-bottom:1px solid var(--line);
+}
+.topo-in{max-width:1400px;margin:0 auto;display:flex;align-items:center;gap:14px;padding:10px 18px}
+.marca{font-weight:700;font-size:.82rem;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-dim);white-space:nowrap}
+.marca b{color:var(--accent)}
+.topo .espaco{flex:1}
+.btn{
+  background:var(--bg-soft); color:var(--fg-dim); border:1px solid var(--line);
+  border-radius:8px; padding:6px 12px; font-size:.82rem; cursor:pointer; font-family:inherit;
+  transition:.15s;
+}
+.btn:hover{color:var(--fg); border-color:var(--accent)}
+#busca{
+  background:var(--bg-soft); border:1px solid var(--line); border-radius:8px; color:var(--fg);
+  padding:6px 12px; font-size:.85rem; font-family:inherit; width:200px;
+}
+#busca:focus{outline:none;border-color:var(--accent)}
+
+/* ---------- layout ---------- */
+.wrap{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:260px minmax(0,1fr) 240px;gap:34px;padding:0 18px}
+@media(max-width:1150px){.wrap{grid-template-columns:240px minmax(0,1fr)} .toc{display:none}}
+@media(max-width:860px){.wrap{grid-template-columns:minmax(0,1fr)} .lateral{display:none}}
+
+.lateral,.toc{position:sticky;top:76px;align-self:start;max-height:calc(100vh - 90px);overflow-y:auto;padding:22px 0 60px;font-size:.85rem}
+.lateral::-webkit-scrollbar,.toc::-webkit-scrollbar{width:6px}
+.lateral::-webkit-scrollbar-thumb,.toc::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+.lateral h4,.toc h4{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-faint);margin:0 0 12px}
+.lateral ol{list-style:none;margin:0;padding:0}
+.lateral li a{
+  display:flex;gap:9px;align-items:baseline;padding:6px 10px;border-radius:7px;
+  color:var(--fg-dim);border-left:2px solid transparent;line-height:1.35;
+}
+.lateral li a:hover{background:var(--bg-soft);color:var(--fg);text-decoration:none}
+.lateral li a.ativo{background:var(--bg-soft);color:var(--fg);border-left-color:var(--accent);font-weight:600}
+.lateral .num{font-variant-numeric:tabular-nums;color:var(--fg-faint);font-size:.78rem;min-width:16px}
+.lateral .grupo{margin:18px 0 6px;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-faint);padding-left:10px}
+.toc a{display:block;padding:4px 0 4px 12px;color:var(--fg-dim);border-left:2px solid var(--line);line-height:1.35;font-size:.8rem}
+.toc a:hover{color:var(--fg);text-decoration:none}
+.toc a.ativo{color:var(--accent);border-left-color:var(--accent)}
+.toc a.n3{padding-left:24px;font-size:.76rem;opacity:.8}
+
+/* ---------- conteúdo ---------- */
+main{padding:34px 0 100px;min-width:0}
+.cabecalho{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:34px}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.tag{font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;font-weight:700;padding:4px 10px;border-radius:999px;border:1px solid var(--line);color:var(--fg-dim)}
+.tag.u1{color:var(--u1);border-color:color-mix(in srgb,var(--u1) 40%,transparent)}
+.tag.u2{color:var(--u2);border-color:color-mix(in srgb,var(--u2) 40%,transparent)}
+.tag.u3{color:var(--u3);border-color:color-mix(in srgb,var(--u3) 40%,transparent)}
+.tag.av{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 45%,transparent)}
+.cabecalho h1{margin:0;font-size:2.05rem;line-height:1.2;letter-spacing:-.02em}
+.cabecalho .sub{color:var(--fg-faint);font-size:.9rem;margin-top:10px}
+
+main h1{font-size:1.9rem;line-height:1.22;letter-spacing:-.02em;margin:0 0 .6em}
+main h2{font-size:1.4rem;margin:2.4em 0 .7em;padding-top:.5em;border-top:1px solid var(--line);letter-spacing:-.01em}
+main h3{font-size:1.12rem;margin:1.9em 0 .5em;color:var(--fg)}
+main h4{font-size:.98rem;margin:1.5em 0 .4em;color:var(--fg-dim)}
+main h2:first-of-type{border-top:none;padding-top:0}
+main p{margin:0 0 1.05em}
+main ul,main ol{margin:0 0 1.15em;padding-left:1.4em}
+main li{margin:.32em 0}
+main li>ul,main li>ol{margin:.35em 0}
+hr{border:none;border-top:1px solid var(--line);margin:2.6em 0}
+strong{color:var(--fg);font-weight:650}
+
+/* âncoras */
+.anchor{opacity:0;margin-left:.4em;font-weight:400;color:var(--fg-faint);text-decoration:none;font-size:.8em}
+h2:hover .anchor,h3:hover .anchor{opacity:1}
+
+/* citações / callouts */
+blockquote{
+  margin:1.4em 0;padding:14px 18px;background:var(--bg-soft);border-left:3px solid var(--accent-2);
+  border-radius:0 var(--radius) var(--radius) 0;color:var(--fg-dim);
+}
+blockquote p:last-child{margin-bottom:0}
+blockquote.dica{border-left-color:var(--accent)}
+blockquote.atencao{border-left-color:var(--warn)}
+blockquote.capo{border-left-color:var(--accent-2)}
+blockquote.prova{border-left-color:var(--danger)}
+
+/* tabelas */
+.tabela-wrap{overflow-x:auto;margin:1.4em 0;border:1px solid var(--line);border-radius:var(--radius)}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{padding:9px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--bg-soft);font-weight:650;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-dim);white-space:nowrap}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:color-mix(in srgb,var(--bg-soft) 60%,transparent)}
+
+/* código */
+code{font-family:var(--mono);font-size:.87em;background:var(--bg-soft);padding:.14em .42em;border-radius:5px;border:1px solid var(--line)}
+.bloco{position:relative;margin:1.3em 0}
+.bloco-topo{
+  display:flex;align-items:center;gap:10px;background:var(--bg-soft);border:1px solid var(--line);
+  border-bottom:none;border-radius:var(--radius) var(--radius) 0 0;padding:6px 12px;
+  font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;color:var(--fg-faint);font-family:var(--mono);
+}
+.bloco-topo .espaco{flex:1}
+.copiar{
+  background:transparent;border:1px solid var(--line);color:var(--fg-faint);border-radius:6px;
+  padding:2px 9px;font-size:.68rem;cursor:pointer;font-family:inherit;letter-spacing:.06em;text-transform:uppercase;transition:.15s;
+}
+.copiar:hover{color:var(--accent);border-color:var(--accent)}
+.copiar.ok{color:var(--accent);border-color:var(--accent)}
+.highlight{
+  margin:0;background:var(--bg-code)!important;border:1px solid var(--line);
+  border-radius:0 0 var(--radius) var(--radius);overflow-x:auto;
+}
+.bloco:not(:has(.bloco-topo)) .highlight{border-radius:var(--radius)}
+.highlight pre{margin:0;padding:15px 17px;font-family:var(--mono);font-size:.845rem;line-height:1.62;background:transparent!important}
+.highlight code{background:transparent;border:none;padding:0;font-size:inherit}
+html[data-tema="claro"] .highlight pre{color:#1a1d24}
+
+/* detalhes */
+details{background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px;margin:1.2em 0}
+details[open]{padding-bottom:6px}
+summary{cursor:pointer;font-weight:600;color:var(--fg-dim);font-size:.9rem;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▸ ";color:var(--accent)}
+details[open] summary::before{content:"▾ "}
+details[open] summary{margin-bottom:10px}
+
+img{max-width:100%;border-radius:var(--radius)}
+
+/* rodapé / navegação */
+.navpe{display:flex;gap:14px;margin-top:60px;padding-top:26px;border-top:1px solid var(--line)}
+.navpe a{
+  flex:1;padding:14px 18px;background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);
+  color:var(--fg-dim);transition:.15s;
+}
+.navpe a:hover{border-color:var(--accent);color:var(--fg);text-decoration:none}
+.navpe .rot{display:block;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-faint);margin-bottom:4px}
+.navpe .tit{font-weight:600;font-size:.9rem}
+.navpe .dir{text-align:right}
+.rodape{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:var(--fg-faint);font-size:.8rem}
+
+/* progresso */
+#progresso{position:fixed;top:0;left:0;height:2px;background:var(--accent);z-index:60;width:0}
+
+/* índice (home) */
+.hero{padding:56px 0 34px;border-bottom:1px solid var(--line);margin-bottom:38px}
+.hero h1{font-size:2.6rem;margin:0 0 12px;letter-spacing:-.03em;line-height:1.1}
+.hero p{color:var(--fg-dim);max-width:640px;font-size:1.02rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin:34px 0}
+.stat{background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px}
+.stat .n{font-size:1.7rem;font-weight:700;letter-spacing:-.02em;color:var(--accent)}
+.stat .l{font-size:.75rem;letter-spacing:.07em;text-transform:uppercase;color:var(--fg-faint);margin-top:2px}
+.grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;margin:20px 0 44px}
+.cartao{
+  display:block;background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);
+  padding:17px 19px;color:var(--fg);transition:.16s;position:relative;overflow:hidden;
+}
+.cartao::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--line);transition:.16s}
+.cartao.u1::before{background:var(--u1)} .cartao.u2::before{background:var(--u2)} .cartao.u3::before{background:var(--u3)}
+.cartao:hover{transform:translateY(-2px);border-color:var(--fg-faint);text-decoration:none}
+.cartao .meta{display:flex;justify-content:space-between;align-items:center;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-faint);margin-bottom:8px}
+.cartao .t{font-weight:650;line-height:1.35;font-size:.97rem}
+.cartao .av{display:inline-block;margin-top:9px;font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;color:var(--warn);border:1px solid color-mix(in srgb,var(--warn) 40%,transparent);border-radius:999px;padding:2px 9px}
+.oculto{display:none!important}
+@media print{
+  .topo,.lateral,.toc,.navpe,#progresso{display:none!important}
+  .wrap{display:block;max-width:none;padding:0}
+  body{background:#fff;color:#000;font-size:11pt}
+  .highlight{border:1px solid #ccc;background:#fafafa!important}
+  a{color:#000}
+}
+
+pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #49483e }
+.highlight { background: #232629; color: #CCC }
+.highlight .c { color: #777; font-style: italic } /* Comment */
+.highlight .err { color: #A61717; background-color: #E3D2D2 } /* Error */
+.highlight .esc { color: #CCC } /* Escape */
+.highlight .g { color: #CCC } /* Generic */
+.highlight .k { color: #7686BB; font-weight: bold } /* Keyword */
+.highlight .l { color: #CCC } /* Literal */
+.highlight .n { color: #CCC } /* Name */
+.highlight .o { color: #CCC } /* Operator */
+.highlight .x { color: #CCC } /* Other */
+.highlight .p { color: #CCC } /* Punctuation */
+.highlight .ch { color: #777; font-style: italic } /* Comment.Hashbang */
+.highlight .cm { color: #777; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #777; font-style: italic } /* Comment.Preproc */
+.highlight .cpf { color: #777; font-style: italic } /* Comment.PreprocFile */
+.highlight .c1 { color: #777; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #777; font-style: italic } /* Comment.Special */
+.highlight .gd { color: #CCC } /* Generic.Deleted */
+.highlight .ge { color: #CCC } /* Generic.Emph */
+.highlight .ges { color: #CCC } /* Generic.EmphStrong */
+.highlight .gr { color: #CCC } /* Generic.Error */
+.highlight .gh { color: #CCC } /* Generic.Heading */
+.highlight .gi { color: #CCC } /* Generic.Inserted */
+.highlight .go { color: #CCC } /* Generic.Output */
+.highlight .gp { color: #FFF } /* Generic.Prompt */
+.highlight .gs { color: #CCC } /* Generic.Strong */
+.highlight .gu { color: #CCC } /* Generic.Subheading */
+.highlight .gt { color: #CCC } /* Generic.Traceback */
+.highlight .kc { color: #7686BB; font-weight: bold } /* Keyword.Constant */
+.highlight .kd { color: #7686BB; font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { color: #7686BB; font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { color: #7686BB; font-weight: bold } /* Keyword.Pseudo */
+.highlight .kr { color: #7686BB; font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #7686BB; font-weight: bold } /* Keyword.Type */
+.highlight .ld { color: #CCC } /* Literal.Date */
+.highlight .m { color: #4FB8CC } /* Literal.Number */
+.highlight .s { color: #51CC99 } /* Literal.String */
+.highlight .na { color: #CCC } /* Name.Attribute */
+.highlight .nb { color: #CCC } /* Name.Builtin */
+.highlight .nc { color: #CCC } /* Name.Class */
+.highlight .no { color: #CCC } /* Name.Constant */
+.highlight .nd { color: #CCC } /* Name.Decorator */
+.highlight .ni { color: #CCC } /* Name.Entity */
+.highlight .ne { color: #CCC } /* Name.Exception */
+.highlight .nf { color: #6A6AFF } /* Name.Function */
+.highlight .nl { color: #CCC } /* Name.Label */
+.highlight .nn { color: #CCC } /* Name.Namespace */
+.highlight .nx { color: #E2828E } /* Name.Other */
+.highlight .py { color: #CCC } /* Name.Property */
+.highlight .nt { color: #CCC } /* Name.Tag */
+.highlight .nv { color: #7AB4DB; font-weight: bold } /* Name.Variable */
+.highlight .ow { color: #CCC } /* Operator.Word */
+.highlight .pm { color: #CCC } /* Punctuation.Marker */
+.highlight .w { color: #BBB } /* Text.Whitespace */
+.highlight .mb { color: #4FB8CC } /* Literal.Number.Bin */
+.highlight .mf { color: #4FB8CC } /* Literal.Number.Float */
+.highlight .mh { color: #4FB8CC } /* Literal.Number.Hex */
+.highlight .mi { color: #4FB8CC } /* Literal.Number.Integer */
+.highlight .mo { color: #4FB8CC } /* Literal.Number.Oct */
+.highlight .sa { color: #51CC99 } /* Literal.String.Affix */
+.highlight .sb { color: #51CC99 } /* Literal.String.Backtick */
+.highlight .sc { color: #51CC99 } /* Literal.String.Char */
+.highlight .dl { color: #51CC99 } /* Literal.String.Delimiter */
+.highlight .sd { color: #51CC99 } /* Literal.String.Doc */
+.highlight .s2 { color: #51CC99 } /* Literal.String.Double */
+.highlight .se { color: #51CC99 } /* Literal.String.Escape */
+.highlight .sh { color: #51CC99 } /* Literal.String.Heredoc */
+.highlight .si { color: #51CC99 } /* Literal.String.Interpol */
+.highlight .sx { color: #51CC99 } /* Literal.String.Other */
+.highlight .sr { color: #51CC99 } /* Literal.String.Regex */
+.highlight .s1 { color: #51CC99 } /* Literal.String.Single */
+.highlight .ss { color: #51CC99 } /* Literal.String.Symbol */
+.highlight .bp { color: #CCC } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #6A6AFF } /* Name.Function.Magic */
+.highlight .vc { color: #7AB4DB; font-weight: bold } /* Name.Variable.Class */
+.highlight .vg { color: #BE646C; font-weight: bold } /* Name.Variable.Global */
+.highlight .vi { color: #7AB4DB; font-weight: bold } /* Name.Variable.Instance */
+.highlight .vm { color: #7AB4DB; font-weight: bold } /* Name.Variable.Magic */
+.highlight .il { color: #4FB8CC } /* Literal.Number.Integer.Long */
+</style>
+</head>
+<body>
+<div id="progresso"></div>
+<header class="topo"><div class="topo-in">
+  <span class="marca"><b>FACET-SNP-310</b> &nbsp;Frameworks Modernos</span>
+  <span class="espaco"></span>
+  
+  <a class="btn" href="indice.html">Índice</a>
+  <button class="btn" id="tema" type="button">Tema</button>
+</div></header>
+<div class="wrap">
+  <nav class="lateral"><h4>Aulas</h4><ol><li class="grupo">Unidade 1</li><li><a class="" href="aula-01.html"><span class="num">01</span><span>Apresentação da Disciplina e Revisão JavaScript</span></a></li><li><a class="" href="aula-02.html"><span class="num">02</span><span>Introdução ao Vue: instância, ciclo de vida e diretivas</span></a></li><li><a class="" href="aula-03.html"><span class="num">03</span><span>Vue: listas, computed e ciclo de vida</span></a></li><li><a class="" href="aula-04.html"><span class="num">04</span><span>Introdução a Vuetify e Vue Router</span></a></li><li class="grupo">Unidade 2</li><li><a class="" href="aula-05.html"><span class="num">05</span><span>Componentes, Vue Router e Vuetify avançado</span></a></li><li><a class="" href="aula-06.html"><span class="num">06</span><span>Axios e Pinia</span></a></li><li class="grupo">Unidade 3</li><li><a class="" href="aula-07.html"><span class="num">07</span><span>Introdução ao Firebase, Node.js e Express</span></a></li><li><a class="" href="aula-08.html"><span class="num">08</span><span>Definindo endpoints e middlewares</span></a></li><li><a class="" href="aula-09.html"><span class="num">09</span><span>Integrando com SGBD MySQL</span></a></li><li><a class="" href="aula-10.html"><span class="num">10</span><span>Requisições autenticadas com Firebase</span></a></li><li><a class="" href="aula-11.html"><span class="num">11</span><span>Integrando front-end com back-end: CRUD</span></a></li><li><a class="ativo" href="aula-12.html"><span class="num">12</span><span>CRUD com banco em nuvem (Supabase)</span></a></li><li><a class="" href="aula-13.html"><span class="num">13</span><span>Desenvolvimento do Back-end</span></a></li><li><a class="" href="aula-14.html"><span class="num">14</span><span>Documentação com Swagger</span></a></li><li><a class="" href="aula-15.html"><span class="num">15</span><span>Deploy, apresentação e finalização</span></a></li></ol></nav>
+  <main class=""><div class="cabecalho"><div class="tags"><span class="tag u3">Unidade 3</span><span class="tag">16/11/2026</span><span class="tag">3 aulas de 50 min + 1 h EAD</span></div><h1>Aula 12 — CRUD com banco em nuvem (Supabase)</h1><div class="sub">FACET-SNP-310 · Frameworks Modernos para Desenvolvimento de Sistemas · UNEMAT/Cáceres · Prof. Ivan Luiz Pedroso Pires</div></div>
+<blockquote>
+<p><strong>FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas</strong> · Unidade 3
+UNEMAT/Cáceres — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
+<strong>Data:</strong> 16/11/2026 · <strong>Carga:</strong> 3 aulas de 50 min (síncrona) + 1 h (assíncrona)</p>
+</blockquote>
+<p>Na Aula 11 fechamos o CRUD de eventos ponta a ponta: Vue chamando <code>services/</code>, Express validando e persistindo no MySQL, Firebase autenticando. Hoje mudamos de fornecedor: o mesmo recurso <code>evento</code>, agora falando direto com o <strong>Supabase</strong> — sem API própria no meio. É a mesma pergunta de arquitetura de sempre ("onde mora a lógica?"), respondida de um jeito diferente.</p>
+<h2 id="objetivos-de-aprendizagem">🎯 Objetivos de aprendizagem<a class="anchor" href="#objetivos-de-aprendizagem" title="Permanent link">¶</a></h2>
+<p>Ao final desta aula você será capaz de:</p>
+<ul>
+<li>Comparar API própria (Express+MySQL), Firebase e Supabase, e justificar quando cada um é a escolha certa.</li>
+<li>Criar um projeto Supabase, entender a diferença entre chave <code>anon</code> e <code>service_role</code>, e nunca expor a segunda no front.</li>
+<li>Criar tabelas com SQL diretamente no SQL Editor, com <code>uuid</code> como chave primária e <code>timestamptz</code> para datas.</li>
+<li>Explicar o que é Row Level Security, por que o Supabase exige, e reconhecer a armadilha do <code>data: []</code> silencioso.</li>
+<li>Escrever policies de leitura pública, inserção autenticada e edição/exclusão restrita ao dono.</li>
+<li>Usar <code>@supabase/supabase-js</code> para <code>select</code>, <code>insert</code>, <code>update</code>, <code>delete</code>, joins e paginação, sempre tratando <code>{ data, error }</code>.</li>
+<li>Implementar login com Supabase Auth e conectar <code>auth.uid()</code> às policies.</li>
+<li>Assinar mudanças em tempo real com Realtime e implementar o padrão Adapter trocando o back-end via variável de ambiente.</li>
+</ul>
+<h2 id="pre-requisitos-desta-aula">📋 Pré-requisitos desta aula<a class="anchor" href="#pre-requisitos-desta-aula" title="Permanent link">¶</a></h2>
+<p>Checklist antes de começar:</p>
+<ul>
+<li>[ ] <code>unieventos-web</code> funcionando com o CRUD da Aula 11 (Express+MySQL+Firebase).</li>
+<li>[ ] Conta no <a href="https://supabase.com">supabase.com</a> (login com GitHub é o mais rápido).</li>
+<li>[ ] Node.js 22.22.2 e npm 10.9.7 instalados.</li>
+<li>[ ] Confortável com SQL básico (<code>SELECT</code>, <code>INSERT</code>, <code>CREATE TABLE</code>) — revisado na Aula 09 no contexto do MySQL.</li>
+</ul>
+<h2 id="roteiro">🗺️ Roteiro<a class="anchor" href="#roteiro" title="Permanent link">¶</a></h2>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Bloco</th>
+<th>Tempo</th>
+<th>Atividade</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>50 min</td>
+<td>Comparação Express×Firebase×Supabase; criar projeto; chaves; criar tabelas por SQL; Row Level Security e policies</td>
+</tr>
+<tr>
+<td>2</td>
+<td>50 min</td>
+<td><code>@supabase/supabase-js</code>: CRUD completo, joins, paginação, Supabase Auth</td>
+</tr>
+<tr>
+<td>3</td>
+<td>50 min</td>
+<td>Storage, Realtime, padrão Adapter, laboratório comparativo</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="1-tres-formas-de-resolver-o-mesmo-problema">1. Três formas de resolver o mesmo problema<a class="anchor" href="#1-tres-formas-de-resolver-o-mesmo-problema" title="Permanent link">¶</a></h2>
+<p>O UniEventos já tem back-end funcionando: Express + MySQL, com autenticação Firebase por cima. Por que aprender mais uma abordagem?</p>
+<p>Porque na vida profissional você vai escolher — e a escolha tem trade-offs reais, não é só gosto. Comparação honesta:</p>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Critério</th>
+<th>API própria (Express+MySQL)</th>
+<th>Firebase</th>
+<th>Supabase</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O que resolve</td>
+<td>Controle total sobre lógica e dados</td>
+<td>Auth + Firestore/Storage prontos, sem servidor próprio</td>
+<td>Postgres gerenciado + Auth + Storage, sem servidor próprio</td>
+</tr>
+<tr>
+<td>Banco de dados</td>
+<td>Você escolhe e administra (MySQL aqui)</td>
+<td>Firestore (NoSQL, documentos)</td>
+<td>Postgres (SQL relacional, o mesmo paradigma do MySQL)</td>
+</tr>
+<tr>
+<td>Onde mora a regra de negócio</td>
+<td>No seu back-end, você escreve tudo</td>
+<td>Cloud Functions (custo extra) ou no front (arriscado)</td>
+<td>SQL/policies no banco, ou funções Postgres, ou API própria por cima</td>
+</tr>
+<tr>
+<td>Curva de aprendizado</td>
+<td>Alta (você monta tudo)</td>
+<td>Média (SDK, mas modelo de dados diferente)</td>
+<td>Baixa se já sabe SQL</td>
+</tr>
+<tr>
+<td>Vendor lock-in</td>
+<td>Nenhum — seu código, seu servidor</td>
+<td>Alto — Firestore não é portável</td>
+<td>Médio — é Postgres puro por baixo, mais fácil de migrar</td>
+</tr>
+<tr>
+<td>Quando escolher</td>
+<td>Regra de negócio complexa, controle fino, já tem back-end</td>
+<td>Protótipo rápido, app mobile-first, tempo real nativo</td>
+<td>Precisa de SQL relacional gerenciado, quer Postgres sem administrar servidor</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote class="dica">
+<p><strong>💡 Dica</strong>
+Não existe "o melhor" fora de contexto. O UniEventos usa MySQL porque a disciplina precisa ensinar SQL relacional e arquitetura em camadas. Se o requisito fosse "app mobile com sincronização offline automática", Firebase seria mais natural. Se o requisito fosse "preciso de Postgres gerenciado sem administrar servidor, com auth pronta", Supabase entra bem. Custo de saída (trocar de fornecedor depois) também pesa: Postgres é um padrão aberto, então uma base Supabase se exporta e migra com muito menos atrito que uma base Firestore.</p>
+</blockquote>
+<h3 id="sobre-custo-e-por-que-isso-importa-desde-ja">Sobre custo, e por que isso importa desde já<a class="anchor" href="#sobre-custo-e-por-que-isso-importa-desde-ja" title="Permanent link">¶</a></h3>
+<p>Os três caminhos têm modelos de cobrança bem diferentes, e vale entender isso antes de escolher, não depois que a fatura chegar:</p>
+<ul>
+<li><strong>API própria (Express+MySQL):</strong> você paga o servidor (VM, container, PaaS) e o banco, direto, independente de quantas requisições ou quanto tráfego passa. Previsível, mas você também é responsável por escalar, fazer backup e manter tudo no ar.</li>
+<li><strong>Firebase:</strong> camada gratuita generosa para protótipos, mas cobra por leituras/escritas no Firestore e por armazenamento e tráfego de saída (egress) — em produtos com alto volume de leitura (uma lista que recarrega toda hora, por exemplo), o custo pode crescer rápido e de forma menos previsível.</li>
+<li><strong>Supabase:</strong> também tem camada gratuita (com o projeto "pausando" após um tempo sem uso no plano free), e cobra por armazenamento de banco, egress e por hora de computação do banco nos planos pagos. Como é Postgres puro por baixo, migrar para um Postgres autogerenciado depois (se o custo justificar) é factível sem reescrever o modelo de dados.</li>
+</ul>
+<p><strong>"Custo de saída" (egress)</strong> é o valor cobrado por dados que <strong>saem</strong> do provedor em direção ao seu usuário — toda resposta de <code>select</code>, toda imagem baixada do Storage, conta. É um item fácil de esquecer ao estimar custo de um app com uso intenso de leitura, como uma lista de eventos que recarrega a cada navegação.</p>
+<blockquote class="prova">
+<p><strong>📌 Na prova</strong>
+Os três modelos resolvem "onde guardar e servir dados", mas com contratos de responsabilidade diferentes: API própria = você administra tudo, custo previsível, controle total. Firebase = NoSQL gerenciado, ótimo para tempo real e mobile, lock-in alto. Supabase = Postgres gerenciado, SQL relacional, lock-in menor por ser padrão aberto.</p>
+</blockquote>
+<h2 id="2-criando-o-projeto-no-supabase">2. Criando o projeto no Supabase<a class="anchor" href="#2-criando-o-projeto-no-supabase" title="Permanent link">¶</a></h2>
+<ol>
+<li>Em <a href="https://supabase.com">supabase.com</a>, <strong>New project</strong>. Escolha organização, nome (<code>unieventos</code>), senha do banco (guarde — é a senha do Postgres, usada em conexões diretas) e região (mais próxima do Brasil, ex. São Paulo/<code>sa-east-1</code> se disponível).</li>
+<li>Aguarde o provisionamento (1–2 minutos).</li>
+<li>No painel do projeto, vá em <strong>Project Settings → API</strong>. Anote:
+   - <strong>Project URL</strong> — algo como <code>https://xxxxxxxxxxxx.supabase.co</code>.
+   - <strong>anon / public key</strong> — chave longa, começando com <code>eyJ...</code> (é um JWT também). Pode ir no front.
+   - <strong>service_role key</strong> — outra chave longa. <strong>Nunca vai para o front.</strong></li>
+</ol>
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+A chave <code>anon</code> é pública por design — ela vai no bundle JavaScript do seu front, qualquer pessoa que abrir o DevTools consegue vê-la. Isso é esperado e seguro <strong>desde que o Row Level Security esteja configurado corretamente</strong> (seção 4): a chave <code>anon</code> só consegue fazer o que as policies permitirem. Já a <code>service_role</code> <strong>ignora RLS completamente</strong> — com ela, qualquer requisição lê e escreve qualquer linha de qualquer tabela, sem checagem nenhuma. Se ela vazar no front, é o mesmo que vazar acesso total ao banco. Use <code>service_role</code> só em ambiente de servidor (scripts administrativos, back-end próprio), nunca em código que roda no navegador.</p>
+</blockquote>
+<h3 id="sql-editor-e-table-editor">SQL Editor e Table Editor<a class="anchor" href="#sql-editor-e-table-editor" title="Permanent link">¶</a></h3>
+<p>No menu lateral: <strong>SQL Editor</strong> (para rodar comandos SQL diretamente, o que faremos agora) e <strong>Table Editor</strong> (interface visual tipo planilha, útil para inspecionar dados rapidamente — mas hoje vamos criar tudo por SQL, para reforçar o que você já sabe da Aula 09).</p>
+<h2 id="3-criando-as-tabelas">3. Criando as tabelas<a class="anchor" href="#3-criando-as-tabelas" title="Permanent link">¶</a></h2>
+<p>No <strong>SQL Editor</strong>, uma nova query:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">-- Tabela de eventos. uuid como PK (padrão do Supabase/Postgres,</span>
+<span class="c1">-- gerado automaticamente, sem depender de auto-incremento sequencial).</span>
+<span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">eventos</span><span class="w"> </span><span class="p">(</span>
+<span class="w">  </span><span class="n">id</span><span class="w"> </span><span class="n">uuid</span><span class="w"> </span><span class="k">primary</span><span class="w"> </span><span class="k">key</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="n">gen_random_uuid</span><span class="p">(),</span>
+<span class="w">  </span><span class="n">titulo</span><span class="w"> </span><span class="nb">text</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="p">,</span>
+<span class="w">  </span><span class="n">descricao</span><span class="w"> </span><span class="nb">text</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="p">,</span>
+<span class="w">  </span><span class="n">categoria</span><span class="w"> </span><span class="nb">text</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="w"> </span><span class="k">check</span><span class="w"> </span><span class="p">(</span><span class="n">categoria</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;palestra&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;minicurso&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;workshop&#39;</span><span class="p">)),</span>
+<span class="w">  </span><span class="n">data_hora</span><span class="w"> </span><span class="n">timestamptz</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="p">,</span>
+<span class="w">  </span><span class="k">local</span><span class="w"> </span><span class="nb">text</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="p">,</span>
+<span class="w">  </span><span class="n">vagas</span><span class="w"> </span><span class="nb">integer</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="w"> </span><span class="k">check</span><span class="w"> </span><span class="p">(</span><span class="n">vagas</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">),</span>
+<span class="w">  </span><span class="n">imagem_url</span><span class="w"> </span><span class="nb">text</span><span class="p">,</span>
+<span class="w">  </span><span class="n">usuario_id</span><span class="w"> </span><span class="n">uuid</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="w"> </span><span class="k">references</span><span class="w"> </span><span class="n">auth</span><span class="p">.</span><span class="n">users</span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+<span class="w">  </span><span class="n">criado_em</span><span class="w"> </span><span class="n">timestamptz</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="n">now</span><span class="p">()</span>
+<span class="p">);</span>
+
+<span class="c1">-- Tabela de inscrições, referenciando eventos e o usuário autenticado.</span>
+<span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">inscricoes</span><span class="w"> </span><span class="p">(</span>
+<span class="w">  </span><span class="n">id</span><span class="w"> </span><span class="n">uuid</span><span class="w"> </span><span class="k">primary</span><span class="w"> </span><span class="k">key</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="n">gen_random_uuid</span><span class="p">(),</span>
+<span class="w">  </span><span class="n">evento_id</span><span class="w"> </span><span class="n">uuid</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="w"> </span><span class="k">references</span><span class="w"> </span><span class="n">eventos</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="k">delete</span><span class="w"> </span><span class="k">cascade</span><span class="p">,</span>
+<span class="w">  </span><span class="n">usuario_id</span><span class="w"> </span><span class="n">uuid</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="w"> </span><span class="k">references</span><span class="w"> </span><span class="n">auth</span><span class="p">.</span><span class="n">users</span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+<span class="w">  </span><span class="n">criado_em</span><span class="w"> </span><span class="n">timestamptz</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="n">now</span><span class="p">(),</span>
+<span class="w">  </span><span class="k">unique</span><span class="w"> </span><span class="p">(</span><span class="n">evento_id</span><span class="p">,</span><span class="w"> </span><span class="n">usuario_id</span><span class="p">)</span><span class="w"> </span><span class="c1">-- um usuário não se inscreve duas vezes no mesmo evento</span>
+<span class="p">);</span>
+</code></pre></div></div>
+
+<blockquote class="capo">
+<p><strong>🔎 Por baixo do capô</strong>
+<code>timestamptz</code> (timestamp with time zone) guarda o instante em UTC internamente e converte na leitura/escrita conforme o fuso da sessão — é o tipo certo para datas que cruzam fusos horários, diferente de um <code>timestamp</code> sem fuso, que é ambíguo. <code>auth.users</code> é uma tabela que o próprio Supabase Auth já cria e mantém — é para lá que <code>signUp</code>/<code>signInWithPassword</code> gravam. <code>references auth.users(id)</code> garante, no nível do banco, que todo evento pertence a um usuário real.</p>
+</blockquote>
+<p>Rode o SQL (botão <strong>Run</strong> ou <code>Ctrl+Enter</code>). Confirme no <strong>Table Editor</strong> que as duas tabelas apareceram.</p>
+<h2 id="4-row-level-security-a-armadilha-no1">4. Row Level Security: a armadilha nº1<a class="anchor" href="#4-row-level-security-a-armadilha-no1" title="Permanent link">¶</a></h2>
+<p>Por padrão, o Supabase cria toda tabela <strong>sem RLS habilitado</strong> — o que na prática significa "qualquer um com a chave <code>anon</code> lê e escreve tudo", porque o Postgres do Supabase é acessado via API REST autogerada por cima do banco. Isso é perigoso, então o primeiro passo depois de criar uma tabela de verdade é:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="k">alter</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">eventos</span><span class="w"> </span><span class="n">enable</span><span class="w"> </span><span class="k">row</span><span class="w"> </span><span class="k">level</span><span class="w"> </span><span class="k">security</span><span class="p">;</span>
+<span class="k">alter</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">inscricoes</span><span class="w"> </span><span class="n">enable</span><span class="w"> </span><span class="k">row</span><span class="w"> </span><span class="k">level</span><span class="w"> </span><span class="k">security</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>Rode isso agora e tente buscar eventos do front (ou do próprio SQL Editor simulando a role <code>anon</code>) — o retorno vai ser uma lista vazia, <strong>sem nenhum erro</strong>:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"> </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção — a armadilha nº1 do Supabase</strong>
+Uma tabela com RLS <strong>habilitado</strong> e <strong>sem nenhuma policy</strong> não gera erro de permissão — ela simplesmente se comporta como se estivesse vazia para quem não é dono/<code>service_role</code>. É a causa mais comum de "meu código está certo mas não retorna nada" com Supabase. Sempre que você habilitar RLS numa tabela nova, o próximo passo, sem exceção, é escrever as policies dela.</p>
+</blockquote>
+<h3 id="o-que-e-rls-e-por-que-existe">O que é RLS e por que existe<a class="anchor" href="#o-que-e-rls-e-por-que-existe" title="Permanent link">¶</a></h3>
+<p>Row Level Security é um recurso nativo do Postgres: em vez de controlar acesso só por tabela (você pode ou não fazer <code>SELECT</code> em <code>eventos</code>), ele controla acesso <strong>linha por linha</strong>, com uma condição SQL avaliada para cada linha. O Supabase se apoia nisso porque expõe o banco diretamente via API para o front — sem RLS, qualquer chave <code>anon</code> vazada (e ela É pública) daria acesso irrestrito. RLS é o que torna seguro o front conversar direto com o banco.</p>
+<h3 id="policies-leitura-publica-insercao-autenticada-edicaoexclusao-so-do-dono">Policies: leitura pública, inserção autenticada, edição/exclusão só do dono<a class="anchor" href="#policies-leitura-publica-insercao-autenticada-edicaoexclusao-so-do-dono" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">-- LEITURA: qualquer pessoa (mesmo não autenticada) pode ver eventos.</span>
+<span class="k">create</span><span class="w"> </span><span class="n">policy</span><span class="w"> </span><span class="ss">&quot;eventos_leitura_publica&quot;</span>
+<span class="k">on</span><span class="w"> </span><span class="n">eventos</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="k">select</span>
+<span class="k">using</span><span class="w"> </span><span class="p">(</span><span class="k">true</span><span class="p">);</span>
+
+<span class="c1">-- INSERÇÃO: só usuários autenticados podem criar evento, e o evento</span>
+<span class="c1">-- criado precisa pertencer a quem está criando (não dá para criar</span>
+<span class="c1">-- em nome de outro usuário).</span>
+<span class="k">create</span><span class="w"> </span><span class="n">policy</span><span class="w"> </span><span class="ss">&quot;eventos_insercao_autenticada&quot;</span>
+<span class="k">on</span><span class="w"> </span><span class="n">eventos</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="k">insert</span>
+<span class="k">to</span><span class="w"> </span><span class="n">authenticated</span>
+<span class="k">with</span><span class="w"> </span><span class="k">check</span><span class="w"> </span><span class="p">(</span><span class="n">auth</span><span class="p">.</span><span class="n">uid</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">usuario_id</span><span class="p">);</span>
+
+<span class="c1">-- EDIÇÃO: só o dono do evento pode editar.</span>
+<span class="k">create</span><span class="w"> </span><span class="n">policy</span><span class="w"> </span><span class="ss">&quot;eventos_edicao_dono&quot;</span>
+<span class="k">on</span><span class="w"> </span><span class="n">eventos</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="k">update</span>
+<span class="k">to</span><span class="w"> </span><span class="n">authenticated</span>
+<span class="k">using</span><span class="w"> </span><span class="p">(</span><span class="n">auth</span><span class="p">.</span><span class="n">uid</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">usuario_id</span><span class="p">)</span>
+<span class="k">with</span><span class="w"> </span><span class="k">check</span><span class="w"> </span><span class="p">(</span><span class="n">auth</span><span class="p">.</span><span class="n">uid</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">usuario_id</span><span class="p">);</span>
+
+<span class="c1">-- EXCLUSÃO: só o dono pode excluir.</span>
+<span class="k">create</span><span class="w"> </span><span class="n">policy</span><span class="w"> </span><span class="ss">&quot;eventos_exclusao_dono&quot;</span>
+<span class="k">on</span><span class="w"> </span><span class="n">eventos</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="k">delete</span>
+<span class="k">to</span><span class="w"> </span><span class="n">authenticated</span>
+<span class="k">using</span><span class="w"> </span><span class="p">(</span><span class="n">auth</span><span class="p">.</span><span class="n">uid</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">usuario_id</span><span class="p">);</span>
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">-- Inscrições: leitura pública (para mostrar vagas ocupadas),</span>
+<span class="c1">-- inserção só autenticado e só em nome de si mesmo,</span>
+<span class="c1">-- exclusão só de si mesmo (cancelar a própria inscrição).</span>
+<span class="k">create</span><span class="w"> </span><span class="n">policy</span><span class="w"> </span><span class="ss">&quot;inscricoes_leitura_publica&quot;</span>
+<span class="k">on</span><span class="w"> </span><span class="n">inscricoes</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="k">select</span>
+<span class="k">using</span><span class="w"> </span><span class="p">(</span><span class="k">true</span><span class="p">);</span>
+
+<span class="k">create</span><span class="w"> </span><span class="n">policy</span><span class="w"> </span><span class="ss">&quot;inscricoes_insercao_propria&quot;</span>
+<span class="k">on</span><span class="w"> </span><span class="n">inscricoes</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="k">insert</span>
+<span class="k">to</span><span class="w"> </span><span class="n">authenticated</span>
+<span class="k">with</span><span class="w"> </span><span class="k">check</span><span class="w"> </span><span class="p">(</span><span class="n">auth</span><span class="p">.</span><span class="n">uid</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">usuario_id</span><span class="p">);</span>
+
+<span class="k">create</span><span class="w"> </span><span class="n">policy</span><span class="w"> </span><span class="ss">&quot;inscricoes_exclusao_propria&quot;</span>
+<span class="k">on</span><span class="w"> </span><span class="n">inscricoes</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="k">delete</span>
+<span class="k">to</span><span class="w"> </span><span class="n">authenticated</span>
+<span class="k">using</span><span class="w"> </span><span class="p">(</span><span class="n">auth</span><span class="p">.</span><span class="n">uid</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">usuario_id</span><span class="p">);</span>
+</code></pre></div></div>
+
+<h3 id="using-with-check"><code>USING</code> × <code>WITH CHECK</code><a class="anchor" href="#using-with-check" title="Permanent link">¶</a></h3>
+<p>As duas cláusulas parecem sinônimos, mas checam momentos diferentes:</p>
+<ul>
+<li><strong><code>USING</code></strong> filtra quais linhas <strong>existentes</strong> a operação pode enxergar/afetar. Vale para <code>SELECT</code>, <code>UPDATE</code> e <code>DELETE</code> — é a condição "essa linha, que já está no banco, pode ser vista/alterada/apagada por você?".</li>
+<li><strong><code>WITH CHECK</code></strong> valida os dados da linha <strong>depois</strong> da operação (ou os dados que vão ser inseridos). Vale para <code>INSERT</code> e <code>UPDATE</code> — é a condição "o resultado desta escrita é permitido?".</li>
+</ul>
+<p>Em um <code>UPDATE</code>, as duas coexistem e respondem perguntas diferentes: <code>USING</code> decide se você pode tocar naquela linha específica (ex.: só se <code>usuario_id</code> já era seu); <code>WITH CHECK</code> decide se o <strong>novo</strong> valor que você está tentando gravar é aceitável (ex.: impedir que você mude <code>usuario_id</code> da linha para outra pessoa, "roubando" o evento).</p>
+<blockquote class="prova">
+<p><strong>📌 Na prova</strong>
+<code>USING</code> = filtro sobre a linha que já existe (quem pode ver/mexer). <code>WITH CHECK</code> = validação sobre o dado que está sendo escrito (o resultado é permitido?). <code>INSERT</code> só tem <code>WITH CHECK</code> (não existe linha "antes"). <code>SELECT</code>/<code>DELETE</code> só têm <code>USING</code>. <code>UPDATE</code> tem os dois.</p>
+</blockquote>
+<h2 id="padrao-de-projeto-em-uso-adapter">🧩 Padrão de projeto em uso: Adapter<a class="anchor" href="#padrao-de-projeto-em-uso-adapter" title="Permanent link">¶</a></h2>
+<p>O padrão <strong>Adapter</strong> (estrutural) permite que duas interfaces incompatíveis trabalhem juntas, criando uma camada intermediária que traduz uma para a outra. É exatamente o que vamos construir na seção 8: duas implementações de <code>eventosRepo</code> — uma fala com a API Express (Aula 11), outra fala direto com o Supabase — mas <strong>as duas expõem a mesma interface</strong> (<code>listar()</code>, <code>buscarPorId()</code>, <code>criar()</code>, <code>atualizar()</code>, <code>remover()</code>). O resto do front (store, telas) não sabe, e não precisa saber, qual das duas está em uso. Trocar de fornecedor de dados vira uma linha de variável de ambiente, não uma reescrita de tela.</p>
+<h2 id="5-supabasesupabase-js-cliente-e-operacoes-basicas">5. <code>@supabase/supabase-js</code>: cliente e operações básicas<a class="anchor" href="#5-supabasesupabase-js-cliente-e-operacoes-basicas" title="Permanent link">¶</a></h2>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>npm<span class="w"> </span>install<span class="w"> </span>@supabase/supabase-js@2.112.3
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/services/supabase.js</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">createClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@supabase/supabase-js&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">supabaseUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">import</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">VITE_SUPABASE_URL</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">supabaseAnonKey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">import</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">VITE_SUPABASE_ANON_KEY</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">supabase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">createClient</span><span class="p">(</span><span class="nx">supabaseUrl</span><span class="p">,</span><span class="w"> </span><span class="nx">supabaseAnonKey</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1"># .env</span>
+<span class="nv">VITE_SUPABASE_URL</span><span class="o">=</span>https://xxxxxxxxxxxx.supabase.co
+<span class="nv">VITE_SUPABASE_ANON_KEY</span><span class="o">=</span>eyJhbGciOiJIUzI1NiIs...
+</code></pre></div></div>
+
+<h3 id="select-filtros-ordenacao-e-paginacao"><code>select</code>, filtros, ordenação e paginação<a class="anchor" href="#select-filtros-ordenacao-e-paginacao" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// consultas de exemplo — cole no console do navegador ou num componente de teste</span>
+
+<span class="c1">// Selecionar colunas específicas</span>
+<span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">supabase</span>
+<span class="w">  </span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="s1">&#39;eventos&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="nx">select</span><span class="p">(</span><span class="s1">&#39;id, titulo, categoria, data_hora, vagas&#39;</span><span class="p">)</span>
+
+<span class="c1">// Filtros: eq, neq, gt, lt, like, ilike, in</span>
+<span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="nx">palestras</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">supabase</span>
+<span class="w">  </span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="s1">&#39;eventos&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="nx">select</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="nx">eq</span><span class="p">(</span><span class="s1">&#39;categoria&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;palestra&#39;</span><span class="p">)</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="nx">buscaPorTitulo</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">supabase</span>
+<span class="w">  </span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="s1">&#39;eventos&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="nx">select</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="nx">ilike</span><span class="p">(</span><span class="s1">&#39;titulo&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;%semana%&#39;</span><span class="p">)</span><span class="w"> </span><span class="c1">// ilike = LIKE case-insensitive</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="nx">futuros</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">supabase</span>
+<span class="w">  </span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="s1">&#39;eventos&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="nx">select</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="nx">gt</span><span class="p">(</span><span class="s1">&#39;data_hora&#39;</span><span class="p">,</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">().</span><span class="nx">toISOString</span><span class="p">())</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="nx">algumasCategorias</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">supabase</span>
+<span class="w">  </span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="s1">&#39;eventos&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="nx">select</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="ow">in</span><span class="p">(</span><span class="s1">&#39;categoria&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;palestra&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;workshop&#39;</span><span class="p">])</span>
+
+<span class="c1">// Ordenação</span>
+<span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="nx">ordenados</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">supabase</span>
+<span class="w">  </span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="s1">&#39;eventos&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="nx">select</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="nx">order</span><span class="p">(</span><span class="s1">&#39;data_hora&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ascending</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">})</span>
+
+<span class="c1">// Paginação: range(inicio, fim), ambos inclusive, base 0</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">pagina</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">porPagina</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">10</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">inicio</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">pagina</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">porPagina</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">fim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">inicio</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">porPagina</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="nx">pagina1</span><span class="p">,</span><span class="w"> </span><span class="nx">count</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">supabase</span>
+<span class="w">  </span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="s1">&#39;eventos&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="nx">select</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">count</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;exact&#39;</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="c1">// pede o total de linhas junto</span>
+<span class="w">  </span><span class="p">.</span><span class="nx">order</span><span class="p">(</span><span class="s1">&#39;data_hora&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ascending</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">})</span>
+<span class="w">  </span><span class="p">.</span><span class="nx">range</span><span class="p">(</span><span class="nx">inicio</span><span class="p">,</span><span class="w"> </span><span class="nx">fim</span><span class="p">)</span>
+
+<span class="c1">// Buscar um único registro (lança erro se vier mais de uma linha</span>
+<span class="c1">// ou se nenhuma linha for encontrada)</span>
+<span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="nx">evento</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="o">:</span><span class="w"> </span><span class="nx">erroUnico</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">supabase</span>
+<span class="w">  </span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="s1">&#39;eventos&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="nx">select</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="nx">eq</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;algum-uuid-aqui&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="nx">single</span><span class="p">()</span>
+</code></pre></div></div>
+
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+<code>single()</code> <strong>estoura em erro</strong> se a consulta não retornar exatamente uma linha — nem zero, nem duas ou mais. Se o <code>id</code> pode não existir (ex.: usuário editou a URL na mão), trate o <code>error</code> em vez de assumir que <code>data</code> sempre vem preenchido. Para o caso "pode não existir, e tudo bem", use <code>.maybeSingle()</code> no lugar de <code>.single()</code> — ele devolve <code>data: null</code> sem erro quando não encontra.</p>
+</blockquote>
+<h3 id="data-error-por-que-trycatch-sozinho-nao-basta"><code>{ data, error }</code>: por que <code>try/catch</code> sozinho não basta<a class="anchor" href="#data-error-por-que-trycatch-sozinho-nao-basta" title="Permanent link">¶</a></h3>
+<p>O <code>supabase-js</code> <strong>não lança exceção</strong> para a maioria dos erros de banco (violação de policy, coluna inexistente, <code>check constraint</code> falhando). Em vez disso, ele sempre resolve a Promise com sucesso e devolve um objeto <code>{ data, error }</code> — se <code>error</code> não for <code>null</code>, a operação falhou, mas nenhuma exceção foi lançada e um <code>try/catch</code> ao redor não pega nada:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// ERRADO — o try/catch aqui nunca vê o erro de RLS/validação</span>
+<span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">supabase</span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="s1">&#39;eventos&#39;</span><span class="p">).</span><span class="nx">insert</span><span class="p">({</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;X&#39;</span><span class="w"> </span><span class="p">})</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Criado:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">data</span><span class="p">)</span><span class="w"> </span><span class="c1">// data pode ser null e o código nem percebe</span>
+<span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;Nunca chega aqui para erros de policy/validação&#39;</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// CORRETO — sempre desestruture e cheque error explicitamente</span>
+<span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">supabase</span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="s1">&#39;eventos&#39;</span><span class="p">).</span><span class="nx">insert</span><span class="p">({</span><span class="w"> </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;X&#39;</span><span class="w"> </span><span class="p">})</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;Falha ao criar evento:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span><span class="p">)</span>
+<span class="w">  </span><span class="c1">// trate aqui: mostrar mensagem, não seguir o fluxo, etc.</span>
+<span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Criado:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">data</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote class="capo">
+<p><strong>🔎 Por baixo do capô</strong>
+Isso é uma escolha de design da biblioteca: erros de banco de dados (RLS negou, constraint violada, coluna não existe) são tratados como <strong>resultado esperado da operação</strong>, não como falha excepcional do programa — parecido com como uma função de parsing pode devolver <code>null</code> em vez de lançar. <code>try/catch</code> continua útil para erros de rede (sem internet, timeout), mas a lógica de negócio do Supabase sempre passa pelo <code>error</code> do objeto retornado. Esqueça isso e você vai debugar "por que meu insert não fez nada" sem nunca ver a mensagem real.</p>
+</blockquote>
+<h3 id="insert-update-delete"><code>insert</code>, <code>update</code>, <code>delete</code><a class="anchor" href="#insert-update-delete" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// INSERT — .select() no final devolve a linha criada (senão, data vem null)</span>
+<span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="nx">novoEvento</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="o">:</span><span class="w"> </span><span class="nx">erroInsert</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">supabase</span>
+<span class="w">  </span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="s1">&#39;eventos&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="nx">insert</span><span class="p">({</span>
+<span class="w">    </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Minicurso de Docker&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">descricao</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Introdução prática a containers&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;minicurso&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">data_hora</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2026-12-10T14:00:00-04:00&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">local</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Laboratório 3&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">30</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">usuario_id</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="k">await</span><span class="w"> </span><span class="nx">supabase</span><span class="p">.</span><span class="nx">auth</span><span class="p">.</span><span class="nx">getUser</span><span class="p">()).</span><span class="nx">data</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span>
+<span class="w">  </span><span class="p">})</span>
+<span class="w">  </span><span class="p">.</span><span class="nx">select</span><span class="p">()</span>
+<span class="w">  </span><span class="p">.</span><span class="nx">single</span><span class="p">()</span>
+
+<span class="c1">// UPDATE — sempre com .eq() para não atualizar a tabela inteira</span>
+<span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="nx">eventoAtualizado</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="o">:</span><span class="w"> </span><span class="nx">erroUpdate</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">supabase</span>
+<span class="w">  </span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="s1">&#39;eventos&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="nx">update</span><span class="p">({</span><span class="w"> </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">40</span><span class="w"> </span><span class="p">})</span>
+<span class="w">  </span><span class="p">.</span><span class="nx">eq</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">novoEvento</span><span class="p">.</span><span class="nx">id</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="nx">select</span><span class="p">()</span>
+<span class="w">  </span><span class="p">.</span><span class="nx">single</span><span class="p">()</span>
+
+<span class="c1">// DELETE</span>
+<span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">error</span><span class="o">:</span><span class="w"> </span><span class="nx">erroDelete</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">supabase</span>
+<span class="w">  </span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="s1">&#39;eventos&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="ow">delete</span><span class="p">()</span>
+<span class="w">  </span><span class="p">.</span><span class="nx">eq</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">novoEvento</span><span class="p">.</span><span class="nx">id</span><span class="p">)</span>
+</code></pre></div></div>
+
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+Um <code>update()</code> ou <code>delete()</code> <strong>sem <code>.eq(...)</code></strong> (ou outro filtro) tenta afetar a tabela inteira. O RLS te protege de estragos globais (a policy <code>usuario_id = auth.uid()</code> limita às suas próprias linhas), mas mesmo dentro das suas linhas isso é raramente o que você quer. Sempre filtre pelo identificador específico.</p>
+</blockquote>
+<h3 id="joins-por-relacionamento">Joins por relacionamento<a class="anchor" href="#joins-por-relacionamento" title="Permanent link">¶</a></h3>
+<p>O Supabase entende as <code>foreign keys</code> que você declarou e permite buscar dados relacionados dentro do mesmo <code>select</code>, sem escrever <code>JOIN</code> manualmente:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// Buscar eventos já trazendo as inscrições relacionadas</span>
+<span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="nx">eventosComInscritos</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">supabase</span>
+<span class="w">  </span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="s1">&#39;eventos&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="nx">select</span><span class="p">(</span><span class="s1">&#39;*, inscricoes(*)&#39;</span><span class="p">)</span>
+
+<span class="c1">// eventosComInscritos[0].inscricoes é um array com as inscrições daquele evento</span>
+
+<span class="c1">// Contagem de relacionados sem trazer todas as linhas</span>
+<span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="nx">eventosComContagem</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">supabase</span>
+<span class="w">  </span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="s1">&#39;eventos&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">.</span><span class="nx">select</span><span class="p">(</span><span class="s1">&#39;*, inscricoes(count)&#39;</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="6-supabase-auth">6. Supabase Auth<a class="anchor" href="#6-supabase-auth" title="Permanent link">¶</a></h2>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/services/supabaseAuthService.js</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">supabase</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./supabase&#39;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">cadastrar</span><span class="p">(</span><span class="nx">email</span><span class="p">,</span><span class="w"> </span><span class="nx">senha</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">supabase</span><span class="p">.</span><span class="nx">auth</span><span class="p">.</span><span class="nx">signUp</span><span class="p">({</span><span class="w"> </span><span class="nx">email</span><span class="p">,</span><span class="w"> </span><span class="nx">password</span><span class="o">:</span><span class="w"> </span><span class="nx">senha</span><span class="w"> </span><span class="p">})</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span><span class="p">)</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">user</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">entrar</span><span class="p">(</span><span class="nx">email</span><span class="p">,</span><span class="w"> </span><span class="nx">senha</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">supabase</span><span class="p">.</span><span class="nx">auth</span><span class="p">.</span><span class="nx">signInWithPassword</span><span class="p">({</span><span class="w"> </span><span class="nx">email</span><span class="p">,</span><span class="w"> </span><span class="nx">password</span><span class="o">:</span><span class="w"> </span><span class="nx">senha</span><span class="w"> </span><span class="p">})</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span><span class="p">)</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">user</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">sair</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">error</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">supabase</span><span class="p">.</span><span class="nx">auth</span><span class="p">.</span><span class="nx">signOut</span><span class="p">()</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">obterSessaoAtual</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">supabase</span><span class="p">.</span><span class="nx">auth</span><span class="p">.</span><span class="nx">getSession</span><span class="p">()</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">session</span>
+<span class="p">}</span>
+
+<span class="c1">// Observa login/logout/renovação de token, igual ao onAuthStateChanged</span>
+<span class="c1">// do Firebase que vimos na Aula 10.</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">observarAutenticacao</span><span class="p">(</span><span class="nx">callback</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="nx">assinatura</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">supabase</span><span class="p">.</span><span class="nx">auth</span><span class="p">.</span><span class="nx">onAuthStateChange</span><span class="p">((</span><span class="nx">_evento</span><span class="p">,</span><span class="w"> </span><span class="nx">sessao</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">callback</span><span class="p">(</span><span class="nx">sessao</span><span class="p">)</span>
+<span class="w">  </span><span class="p">})</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">assinatura</span><span class="p">.</span><span class="nx">subscription</span><span class="p">.</span><span class="nx">unsubscribe</span><span class="w"> </span><span class="c1">// função de cancelamento</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>A ligação entre Auth e RLS é direta: quando o front faz uma chamada autenticada, o <code>supabase-js</code> anexa automaticamente o token de sessão, e as policies usam <code>auth.uid()</code> para saber quem está pedindo. É o mesmo princípio do middleware <code>autenticar</code> da Aula 10 (ler o token, extrair a identidade) — só que aqui a checagem acontece <strong>dentro do banco</strong>, não numa camada de middleware que você escreve.</p>
+<p>A store de autenticação segue exatamente a mesma forma da Aula 10 — Pinia, estado <code>usuario</code>/<code>carregando</code>/<code>inicializado</code>, Promise resolvida no primeiro evento do observador, guard de rota aguardando essa Promise. Só troca o serviço por baixo: <code>observarAutenticacao</code> do Supabase no lugar de <code>onAuthStateChanged</code> do Firebase.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/stores/authStoreSupabase.js</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">defineStore</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;pinia&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="p">,</span><span class="w"> </span><span class="nx">computed</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">obterSessaoAtual</span><span class="p">,</span><span class="w"> </span><span class="nx">observarAutenticacao</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@/services/supabaseAuthService&#39;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">useAuthStore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">defineStore</span><span class="p">(</span><span class="s1">&#39;auth&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">usuario</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="kc">null</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">carregando</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">inicializado</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+
+<span class="w">  </span><span class="kd">let</span><span class="w"> </span><span class="nx">promessaInicializacao</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span>
+
+<span class="w">  </span><span class="kd">function</span><span class="w"> </span><span class="nx">inicializar</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">promessaInicializacao</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nx">promessaInicializacao</span>
+
+<span class="w">    </span><span class="nx">promessaInicializacao</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Promise</span><span class="p">((</span><span class="nx">resolve</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="c1">// Primeiro, lê a sessão já persistida (ex.: recarregou a página).</span>
+<span class="w">      </span><span class="nx">obterSessaoAtual</span><span class="p">().</span><span class="nx">then</span><span class="p">((</span><span class="nx">sessao</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">usuario</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">sessao</span><span class="o">?</span><span class="p">.</span><span class="nx">user</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="kc">null</span>
+<span class="w">      </span><span class="p">})</span>
+
+<span class="w">      </span><span class="c1">// Depois, mantém o estado sincronizado com login/logout/renovação.</span>
+<span class="w">      </span><span class="nx">observarAutenticacao</span><span class="p">((</span><span class="nx">sessao</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">usuario</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">sessao</span><span class="o">?</span><span class="p">.</span><span class="nx">user</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="kc">null</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">inicializado</span><span class="p">.</span><span class="nx">value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nx">inicializado</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">          </span><span class="nx">resolve</span><span class="p">()</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">})</span>
+<span class="w">    </span><span class="p">})</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">promessaInicializacao</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">estaLogado</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">computed</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">usuario</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">usuario</span><span class="p">,</span><span class="w"> </span><span class="nx">carregando</span><span class="p">,</span><span class="w"> </span><span class="nx">inicializado</span><span class="p">,</span><span class="w"> </span><span class="nx">inicializar</span><span class="p">,</span><span class="w"> </span><span class="nx">estaLogado</span><span class="w"> </span><span class="p">}</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/router/index.js — guard idêntico em espírito ao da Aula 10,</span>
+<span class="c1">// trocando authStore de Firebase pela variante Supabase.</span>
+<span class="nx">router</span><span class="p">.</span><span class="nx">beforeEach</span><span class="p">(</span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">to</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">authStore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useAuthStore</span><span class="p">()</span>
+<span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">authStore</span><span class="p">.</span><span class="nx">inicializar</span><span class="p">()</span>
+
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">to</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">requerAuth</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="nx">authStore</span><span class="p">.</span><span class="nx">estaLogado</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;login&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">query</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">redirect</span><span class="o">:</span><span class="w"> </span><span class="nx">to</span><span class="p">.</span><span class="nx">fullPath</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<blockquote class="dica">
+<p><strong>💡 Dica</strong>
+Repare que a <em>forma</em> do problema — "aguardar a primeira resolução do observador antes de deixar o guard decidir" — é idêntica entre Firebase e Supabase, mesmo os dois SDKs sendo de fornecedores diferentes. É um sinal de que o problema (evitar redirecionamento indevido no F5) é estrutural do padrão "autenticação assíncrona no cliente", não uma peculiaridade de um SDK específico.</p>
+</blockquote>
+<h2 id="7-storage-e-realtime">7. Storage e Realtime<a class="anchor" href="#7-storage-e-realtime" title="Permanent link">¶</a></h2>
+<h3 id="storage-bucket-publico-upload-url-publica">Storage: bucket público, upload, URL pública<a class="anchor" href="#storage-bucket-publico-upload-url-publica" title="Permanent link">¶</a></h3>
+<p>No painel: <strong>Storage → New bucket</strong>, nome <code>eventos-imagens</code>, marque <strong>Public bucket</strong>.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/services/supabaseStorageService.js</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">supabase</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./supabase&#39;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">enviarImagemEvento</span><span class="p">(</span><span class="nx">arquivo</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">nomeUnico</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`</span><span class="si">${</span><span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span><span class="si">}</span><span class="sb">-</span><span class="si">${</span><span class="nx">arquivo</span><span class="p">.</span><span class="nx">name</span><span class="si">}</span><span class="sb">`</span>
+
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">error</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">supabase</span><span class="p">.</span><span class="nx">storage</span>
+<span class="w">    </span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="s1">&#39;eventos-imagens&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">upload</span><span class="p">(</span><span class="nx">nomeUnico</span><span class="p">,</span><span class="w"> </span><span class="nx">arquivo</span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="s1">&#39;Falha ao enviar imagem: &#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span><span class="p">)</span>
+
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">supabase</span><span class="p">.</span><span class="nx">storage</span>
+<span class="w">    </span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="s1">&#39;eventos-imagens&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">getPublicUrl</span><span class="p">(</span><span class="nx">nomeUnico</span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">publicUrl</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="realtime-a-lista-se-atualizando-sozinha">Realtime: a lista se atualizando sozinha<a class="anchor" href="#realtime-a-lista-se-atualizando-sozinha" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// trecho de EventosListaView.vue (variante Supabase)</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">onMounted</span><span class="p">,</span><span class="w"> </span><span class="nx">onUnmounted</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">supabase</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@/services/supabase&#39;</span>
+
+<span class="kd">let</span><span class="w"> </span><span class="nx">canal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span>
+
+<span class="nx">onMounted</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">canal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">supabase</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">channel</span><span class="p">(</span><span class="s1">&#39;eventos-mudancas&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">on</span><span class="p">(</span>
+<span class="w">      </span><span class="s1">&#39;postgres_changes&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nx">event</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;*&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">schema</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;public&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">table</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;eventos&#39;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">(</span><span class="nx">payload</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Mudança recebida:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">payload</span><span class="p">.</span><span class="nx">eventType</span><span class="p">,</span><span class="w"> </span><span class="nx">payload</span><span class="p">.</span><span class="ow">new</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="nx">payload</span><span class="p">.</span><span class="nx">old</span><span class="p">)</span>
+<span class="w">        </span><span class="nx">eventosStore</span><span class="p">.</span><span class="nx">carregar</span><span class="p">()</span><span class="w"> </span><span class="c1">// recarrega a lista quando algo muda</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">    </span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">subscribe</span><span class="p">()</span>
+<span class="p">})</span>
+
+<span class="nx">onUnmounted</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">canal</span><span class="p">)</span><span class="w"> </span><span class="nx">supabase</span><span class="p">.</span><span class="nx">removeChannel</span><span class="p">(</span><span class="nx">canal</span><span class="p">)</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<p>Abra o UniEventos em duas abas lado a lado. Crie um evento em uma; a lista da outra atualiza sozinha, sem F5. É o momento em que a turma costuma reagir — vale demonstrar ao vivo antes de explicar o código.</p>
+<blockquote class="capo">
+<p><strong>🔎 Por baixo do capô</strong>
+Realtime do Supabase se apoia na replicação lógica do Postgres (<code>logical replication</code>): o banco publica um fluxo de mudanças (<code>postgres_changes</code>), e o <code>supabase-js</code> mantém um WebSocket assinando esse fluxo filtrado pela tabela/evento que você configurou. Não é polling — é o próprio banco avisando o cliente quando algo muda.</p>
+</blockquote>
+<h2 id="mao-na-massa-crud-direto-com-supabase-e-depois-o-adapter">💻 Mão na massa — CRUD direto com Supabase e, depois, o Adapter<a class="anchor" href="#mao-na-massa-crud-direto-com-supabase-e-depois-o-adapter" title="Permanent link">¶</a></h2>
+<h3 id="passo-1-testando-a-conexao-no-console-do-navegador">Passo 1 — Testando a conexão no console do navegador<a class="anchor" href="#passo-1-testando-a-conexao-no-console-do-navegador" title="Permanent link">¶</a></h3>
+<p>Antes de montar telas, confirme que o cliente conecta e que as policies estão certas. Com <code>unieventos-web</code> rodando (<code>npm run dev</code>), abra o DevTools no navegador, importe o cliente e rode uma consulta:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// cole no console do navegador, na página do seu app rodando com Vite</span>
+<span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">supabase</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="k">import</span><span class="p">(</span><span class="s1">&#39;/src/services/supabase.js&#39;</span><span class="p">)</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">supabase</span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="s1">&#39;eventos&#39;</span><span class="p">).</span><span class="nx">select</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">)</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">({</span><span class="w"> </span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="w"> </span><span class="p">})</span>
+</code></pre></div></div>
+
+<p>Se <code>data</code> vier <code>[]</code> e <code>error</code> vier <code>null</code>, e você já cadastrou alguma linha pelo Table Editor, é a armadilha da seção 4: falta a policy de leitura. Se <code>error</code> trouxer uma mensagem sobre coluna ou relação inexistente, revise o SQL de criação da tabela.</p>
+<h3 id="passo-2-tela-de-listagem-consumindo-o-supabase-diretamente">Passo 2 — Tela de listagem consumindo o Supabase diretamente<a class="anchor" href="#passo-2-tela-de-listagem-consumindo-o-supabase-diretamente" title="Permanent link">¶</a></h3>
+<p>Antes de introduzir o Adapter, vale montar a versão mais direta — a store chamando o <code>supabase-js</code> sem nenhuma camada de repositório no meio. É o ponto de partida mais simples, e o que a maioria dos tutoriais mostra.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/stores/eventosStoreSupabase.js</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">defineStore</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;pinia&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ref</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">supabase</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@/services/supabase&#39;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">useEventosStore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">defineStore</span><span class="p">(</span><span class="s1">&#39;eventos&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">lista</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">([])</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">itemAtual</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="kc">null</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">carregando</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="kc">false</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">erro</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">(</span><span class="kc">null</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">paginacao</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ref</span><span class="p">({</span><span class="w"> </span><span class="nx">pagina</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">limite</span><span class="o">:</span><span class="w"> </span><span class="mf">10</span><span class="p">,</span><span class="w"> </span><span class="nx">total</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="nx">totalPaginas</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="w"> </span><span class="p">})</span>
+
+<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">carregar</span><span class="p">({</span><span class="w"> </span><span class="nx">pagina</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">limite</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">10</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{})</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">carregando</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">    </span><span class="nx">erro</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span>
+
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">inicio</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">pagina</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">limite</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">fim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">inicio</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">limite</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span>
+
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="p">,</span><span class="w"> </span><span class="nx">count</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">supabase</span>
+<span class="w">      </span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="s1">&#39;eventos&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">select</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">count</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;exact&#39;</span><span class="w"> </span><span class="p">})</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">order</span><span class="p">(</span><span class="s1">&#39;data_hora&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ascending</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">})</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">range</span><span class="p">(</span><span class="nx">inicio</span><span class="p">,</span><span class="w"> </span><span class="nx">fim</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">erro</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">lista</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">data</span>
+<span class="w">      </span><span class="nx">paginacao</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">pagina</span><span class="p">,</span><span class="w"> </span><span class="nx">limite</span><span class="p">,</span><span class="w"> </span><span class="nx">total</span><span class="o">:</span><span class="w"> </span><span class="nx">count</span><span class="p">,</span><span class="w"> </span><span class="nx">totalPaginas</span><span class="o">:</span><span class="w"> </span><span class="nb">Math</span><span class="p">.</span><span class="nx">ceil</span><span class="p">(</span><span class="nx">count</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nx">limite</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">carregando</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">carregarUm</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">carregando</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">    </span><span class="nx">erro</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span>
+
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">supabase</span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="s1">&#39;eventos&#39;</span><span class="p">).</span><span class="nx">select</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">).</span><span class="nx">eq</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="p">).</span><span class="nx">maybeSingle</span><span class="p">()</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">erro</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">erro</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;Evento não encontrado.&#39;</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">itemAtual</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">data</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">carregando</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">criar</span><span class="p">(</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">carregando</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">    </span><span class="nx">erro</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span>
+
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="nx">sessao</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">supabase</span><span class="p">.</span><span class="nx">auth</span><span class="p">.</span><span class="nx">getUser</span><span class="p">()</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">supabase</span>
+<span class="w">      </span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="s1">&#39;eventos&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">insert</span><span class="p">({</span><span class="w"> </span><span class="p">...</span><span class="nx">evento</span><span class="p">,</span><span class="w"> </span><span class="nx">usuario_id</span><span class="o">:</span><span class="w"> </span><span class="nx">sessao</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="p">})</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">select</span><span class="p">()</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">single</span><span class="p">()</span>
+
+<span class="w">    </span><span class="nx">carregando</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">erro</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span>
+<span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">lista</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="p">...</span><span class="nx">lista</span><span class="p">.</span><span class="nx">value</span><span class="p">]</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">data</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">atualizar</span><span class="p">(</span><span class="nx">id</span><span class="p">,</span><span class="w"> </span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">carregando</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">    </span><span class="nx">erro</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span>
+
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">supabase</span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="s1">&#39;eventos&#39;</span><span class="p">).</span><span class="nx">update</span><span class="p">(</span><span class="nx">evento</span><span class="p">).</span><span class="nx">eq</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="p">).</span><span class="nx">select</span><span class="p">().</span><span class="nx">single</span><span class="p">()</span>
+
+<span class="w">    </span><span class="nx">carregando</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">erro</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span>
+<span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">indice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">lista</span><span class="p">.</span><span class="nx">value</span><span class="p">.</span><span class="nx">findIndex</span><span class="p">((</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">id</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">indice</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="o">-</span><span class="mf">1</span><span class="p">)</span><span class="w"> </span><span class="nx">lista</span><span class="p">.</span><span class="nx">value</span><span class="p">[</span><span class="nx">indice</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">data</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">data</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">remover</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">carregando</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">    </span><span class="nx">erro</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span>
+
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">error</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">supabase</span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="s1">&#39;eventos&#39;</span><span class="p">).</span><span class="ow">delete</span><span class="p">().</span><span class="nx">eq</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="p">)</span>
+
+<span class="w">    </span><span class="nx">carregando</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">erro</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span>
+<span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">lista</span><span class="p">.</span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">lista</span><span class="p">.</span><span class="nx">value</span><span class="p">.</span><span class="nx">filter</span><span class="p">((</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="nx">id</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">lista</span><span class="p">,</span><span class="w"> </span><span class="nx">itemAtual</span><span class="p">,</span><span class="w"> </span><span class="nx">carregando</span><span class="p">,</span><span class="w"> </span><span class="nx">erro</span><span class="p">,</span><span class="w"> </span><span class="nx">paginacao</span><span class="p">,</span><span class="w"> </span><span class="nx">carregar</span><span class="p">,</span><span class="w"> </span><span class="nx">carregarUm</span><span class="p">,</span><span class="w"> </span><span class="nx">criar</span><span class="p">,</span><span class="w"> </span><span class="nx">atualizar</span><span class="p">,</span><span class="w"> </span><span class="nx">remover</span><span class="w"> </span><span class="p">}</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="cm">&lt;!-- src/views/EventosListaSupabaseView.vue --&gt;</span>
+<span class="p">&lt;</span><span class="nt">script</span> <span class="na">setup</span><span class="p">&gt;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">onMounted</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;vue&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">useEventosStore</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@/stores/eventosStoreSupabase&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">useAuthStore</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@/stores/authStoreSupabase&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">eventosStore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useEventosStore</span><span class="p">()</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">authStore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useAuthStore</span><span class="p">()</span>
+
+<span class="nx">onMounted</span><span class="p">(()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">eventosStore</span><span class="p">.</span><span class="nx">carregar</span><span class="p">())</span>
+
+<span class="kd">function</span><span class="w"> </span><span class="nx">formatarData</span><span class="p">(</span><span class="nx">isoString</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Intl</span><span class="p">.</span><span class="nx">DateTimeFormat</span><span class="p">(</span><span class="s1">&#39;pt-BR&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">dateStyle</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;short&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">timeStyle</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;short&#39;</span><span class="w"> </span><span class="p">}).</span><span class="nx">format</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">(</span><span class="nx">isoString</span><span class="p">))</span>
+<span class="p">}</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+
+<span class="p">&lt;</span><span class="nt">template</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">v-container</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">h1</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;text-h4 mb-4&quot;</span><span class="p">&gt;</span>Eventos (Supabase)<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">v-progress-linear</span> <span class="na">v-if</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">eventosStore</span><span class="p">.</span><span class="nx">carregando</span><span class="s">&quot;</span> <span class="na">indeterminate</span> <span class="na">color</span><span class="o">=</span><span class="s">&quot;primary&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;mb-2&quot;</span> <span class="p">/&gt;</span>
+    <span class="p">&lt;</span><span class="nt">v-alert</span> <span class="na">v-if</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">eventosStore</span><span class="p">.</span><span class="nx">erro</span><span class="s">&quot;</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;error&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;mb-4&quot;</span><span class="p">&gt;</span><span class="cp">{{</span><span class="w"> </span><span class="nx">eventosStore</span><span class="p">.</span><span class="nx">erro</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">v-alert</span><span class="p">&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">v-row</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nt">v-col</span> <span class="na">v-for</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nx">eventosStore</span><span class="p">.</span><span class="nx">lista</span><span class="s">&quot;</span> <span class="p">:</span><span class="na">key</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="p">.</span><span class="nx">id</span><span class="s">&quot;</span> <span class="na">cols</span><span class="o">=</span><span class="s">&quot;12&quot;</span> <span class="na">sm</span><span class="o">=</span><span class="s">&quot;6&quot;</span> <span class="na">md</span><span class="o">=</span><span class="s">&quot;4&quot;</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">v-card</span><span class="p">&gt;</span>
+          <span class="p">&lt;</span><span class="nt">v-img</span> <span class="na">v-if</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="p">.</span><span class="nx">imagem_url</span><span class="s">&quot;</span> <span class="p">:</span><span class="na">src</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">evento</span><span class="p">.</span><span class="nx">imagem_url</span><span class="s">&quot;</span> <span class="na">height</span><span class="o">=</span><span class="s">&quot;140&quot;</span> <span class="na">cover</span> <span class="p">/&gt;</span>
+          <span class="p">&lt;</span><span class="nt">v-card-title</span><span class="p">&gt;</span><span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">v-card-title</span><span class="p">&gt;</span>
+          <span class="p">&lt;</span><span class="nt">v-card-subtitle</span><span class="p">&gt;</span><span class="cp">{{</span><span class="w"> </span><span class="nx">formatarData</span><span class="p">(</span><span class="nx">evento</span><span class="p">.</span><span class="nx">data_hora</span><span class="p">)</span><span class="w"> </span><span class="cp">}}</span> · <span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">local</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">v-card-subtitle</span><span class="p">&gt;</span>
+          <span class="p">&lt;</span><span class="nt">v-card-text</span><span class="p">&gt;</span><span class="cp">{{</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">descricao</span><span class="w"> </span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">v-card-text</span><span class="p">&gt;</span>
+          <span class="p">&lt;</span><span class="nt">v-card-actions</span> <span class="na">v-if</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">authStore</span><span class="p">.</span><span class="nx">usuario</span><span class="o">?</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">evento</span><span class="p">.</span><span class="nx">usuario_id</span><span class="s">&quot;</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">v-btn</span> <span class="na">variant</span><span class="o">=</span><span class="s">&quot;text&quot;</span> <span class="p">:</span><span class="na">to</span><span class="o">=</span><span class="s">&quot;</span><span class="sb">`/eventos-supabase/</span><span class="si">${</span><span class="nx">evento</span><span class="p">.</span><span class="nx">id</span><span class="si">}</span><span class="sb">/editar`</span><span class="s">&quot;</span><span class="p">&gt;</span>Editar<span class="p">&lt;/</span><span class="nt">v-btn</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">v-btn</span> <span class="na">variant</span><span class="o">=</span><span class="s">&quot;text&quot;</span> <span class="na">color</span><span class="o">=</span><span class="s">&quot;error&quot;</span> <span class="p">@</span><span class="na">click</span><span class="o">=</span><span class="s">&quot;</span><span class="nx">eventosStore</span><span class="p">.</span><span class="nx">remover</span><span class="p">(</span><span class="nx">evento</span><span class="p">.</span><span class="nx">id</span><span class="p">)</span><span class="s">&quot;</span><span class="p">&gt;</span>Excluir<span class="p">&lt;/</span><span class="nt">v-btn</span><span class="p">&gt;</span>
+          <span class="p">&lt;/</span><span class="nt">v-card-actions</span><span class="p">&gt;</span>
+        <span class="p">&lt;/</span><span class="nt">v-card</span><span class="p">&gt;</span>
+      <span class="p">&lt;/</span><span class="nt">v-col</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">v-row</span><span class="p">&gt;</span>
+
+    <span class="p">&lt;</span><span class="nt">p</span> <span class="na">v-if</span><span class="o">=</span><span class="s">&quot;</span><span class="o">!</span><span class="nx">eventosStore</span><span class="p">.</span><span class="nx">carregando</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">eventosStore</span><span class="p">.</span><span class="nx">lista</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="s">&quot;</span><span class="p">&gt;</span>Nenhum evento cadastrado ainda.<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">v-container</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">template</span><span class="p">&gt;</span>
+</code></pre></div></div>
+
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+<code>authStore.usuario?.id === evento.usuario_id</code> no template controla só a <strong>exibição</strong> do botão — é UX, igual ao guard de rota da Aula 10. A garantia de verdade é a policy <code>eventos_edicao_dono</code> (seção 4): mesmo que alguém forje uma requisição de <code>update</code> para um evento alheio direto contra a API do Supabase, o banco recusa porque <code>auth.uid()</code> não bate com <code>usuario_id</code>.</p>
+</blockquote>
+<h3 id="do-crud-direto-ao-adapter">Do CRUD direto ao Adapter<a class="anchor" href="#do-crud-direto-ao-adapter" title="Permanent link">¶</a></h3>
+<p>Com o CRUD direto funcionando, damos o passo seguinte: extrair uma interface comum que permita alternar entre a API Express (Aula 11) e o Supabase sem tocar em store nem em tela.</p>
+<h3 id="passo-3-interface-comum-e-implementacao-para-a-api-express">Passo 3 — Interface comum e implementação para a API Express<a class="anchor" href="#passo-3-interface-comum-e-implementacao-para-a-api-express" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/repositories/eventosRepoExpress.js</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">api</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@/services/api&#39;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">eventosRepoExpress</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">listar</span><span class="p">({</span><span class="w"> </span><span class="nx">pagina</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">limite</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">10</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{})</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">resposta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">api</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/eventos&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">params</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">pagina</span><span class="p">,</span><span class="w"> </span><span class="nx">limite</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">})</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">resposta</span><span class="p">.</span><span class="nx">data</span><span class="w"> </span><span class="c1">// { dados, paginacao }</span>
+<span class="w">  </span><span class="p">},</span>
+
+<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">buscarPorId</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">resposta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">api</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="sb">`/eventos/</span><span class="si">${</span><span class="nx">id</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">resposta</span><span class="p">.</span><span class="nx">data</span>
+<span class="w">  </span><span class="p">},</span>
+
+<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">criar</span><span class="p">(</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">resposta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">api</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s1">&#39;/eventos&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">evento</span><span class="p">)</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">resposta</span><span class="p">.</span><span class="nx">data</span>
+<span class="w">  </span><span class="p">},</span>
+
+<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">atualizar</span><span class="p">(</span><span class="nx">id</span><span class="p">,</span><span class="w"> </span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">resposta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">api</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="sb">`/eventos/</span><span class="si">${</span><span class="nx">id</span><span class="si">}</span><span class="sb">`</span><span class="p">,</span><span class="w"> </span><span class="nx">evento</span><span class="p">)</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">resposta</span><span class="p">.</span><span class="nx">data</span>
+<span class="w">  </span><span class="p">},</span>
+
+<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">remover</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">api</span><span class="p">.</span><span class="ow">delete</span><span class="p">(</span><span class="sb">`/eventos/</span><span class="si">${</span><span class="nx">id</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="passo-4-mesma-interface-implementacao-supabase">Passo 4 — Mesma interface, implementação Supabase<a class="anchor" href="#passo-4-mesma-interface-implementacao-supabase" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/repositories/eventosRepoSupabase.js</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">supabase</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@/services/supabase&#39;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">eventosRepoSupabase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">listar</span><span class="p">({</span><span class="w"> </span><span class="nx">pagina</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nx">limite</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">10</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{})</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">inicio</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">pagina</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">limite</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">fim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">inicio</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">limite</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span>
+
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="p">,</span><span class="w"> </span><span class="nx">count</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">supabase</span>
+<span class="w">      </span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="s1">&#39;eventos&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">select</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">count</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;exact&#39;</span><span class="w"> </span><span class="p">})</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">order</span><span class="p">(</span><span class="s1">&#39;data_hora&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ascending</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">})</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">range</span><span class="p">(</span><span class="nx">inicio</span><span class="p">,</span><span class="w"> </span><span class="nx">fim</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c1">// Formato devolvido igual ao da API Express — é isso que faz o</span>
+<span class="w">    </span><span class="c1">// Adapter funcionar: a FORMA da resposta precisa ser a mesma.</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">dados</span><span class="o">:</span><span class="w"> </span><span class="nx">data</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">paginacao</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">pagina</span><span class="p">,</span><span class="w"> </span><span class="nx">limite</span><span class="p">,</span><span class="w"> </span><span class="nx">total</span><span class="o">:</span><span class="w"> </span><span class="nx">count</span><span class="p">,</span><span class="w"> </span><span class="nx">totalPaginas</span><span class="o">:</span><span class="w"> </span><span class="nb">Math</span><span class="p">.</span><span class="nx">ceil</span><span class="p">(</span><span class="nx">count</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nx">limite</span><span class="p">)</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">},</span>
+
+<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">buscarPorId</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">supabase</span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="s1">&#39;eventos&#39;</span><span class="p">).</span><span class="nx">select</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">).</span><span class="nx">eq</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="p">).</span><span class="nx">single</span><span class="p">()</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span><span class="p">)</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">data</span>
+<span class="w">  </span><span class="p">},</span>
+
+<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">criar</span><span class="p">(</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="nx">sessao</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">supabase</span><span class="p">.</span><span class="nx">auth</span><span class="p">.</span><span class="nx">getUser</span><span class="p">()</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">supabase</span>
+<span class="w">      </span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="s1">&#39;eventos&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">insert</span><span class="p">({</span><span class="w"> </span><span class="p">...</span><span class="nx">evento</span><span class="p">,</span><span class="w"> </span><span class="nx">usuario_id</span><span class="o">:</span><span class="w"> </span><span class="nx">sessao</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="p">})</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">select</span><span class="p">()</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">single</span><span class="p">()</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span><span class="p">)</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">data</span>
+<span class="w">  </span><span class="p">},</span>
+
+<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">atualizar</span><span class="p">(</span><span class="nx">id</span><span class="p">,</span><span class="w"> </span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">supabase</span>
+<span class="w">      </span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="s1">&#39;eventos&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">update</span><span class="p">(</span><span class="nx">evento</span><span class="p">)</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">eq</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="p">)</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">select</span><span class="p">()</span>
+<span class="w">      </span><span class="p">.</span><span class="nx">single</span><span class="p">()</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span><span class="p">)</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">data</span>
+<span class="w">  </span><span class="p">},</span>
+
+<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">remover</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">error</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">supabase</span><span class="p">.</span><span class="kr">from</span><span class="p">(</span><span class="s1">&#39;eventos&#39;</span><span class="p">).</span><span class="ow">delete</span><span class="p">().</span><span class="nx">eq</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">id</span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span><span class="p">)</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="passo-5-trocando-a-implementacao-por-variavel-de-ambiente">Passo 5 — Trocando a implementação por variável de ambiente<a class="anchor" href="#passo-5-trocando-a-implementacao-por-variavel-de-ambiente" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/repositories/eventosRepo.js</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">eventosRepoExpress</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./eventosRepoExpress&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">eventosRepoSupabase</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./eventosRepoSupabase&#39;</span>
+
+<span class="c1">// VITE_BACKEND=express ou VITE_BACKEND=supabase no .env</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">backendEscolhido</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">import</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">VITE_BACKEND</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="s1">&#39;express&#39;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">eventosRepo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">backendEscolhido</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;supabase&#39;</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">eventosRepoSupabase</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="nx">eventosRepoExpress</span>
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/services/eventosService.js — reescrito para usar o Adapter</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">eventosRepo</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@/repositories/eventosRepo&#39;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">listarEventos</span><span class="p">(</span><span class="nx">params</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">eventosRepo</span><span class="p">.</span><span class="nx">listar</span><span class="p">(</span><span class="nx">params</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">buscarEvento</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">eventosRepo</span><span class="p">.</span><span class="nx">buscarPorId</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">criarEvento</span><span class="p">(</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">eventosRepo</span><span class="p">.</span><span class="nx">criar</span><span class="p">(</span><span class="nx">evento</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">atualizarEvento</span><span class="p">(</span><span class="nx">id</span><span class="p">,</span><span class="w"> </span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">eventosRepo</span><span class="p">.</span><span class="nx">atualizar</span><span class="p">(</span><span class="nx">id</span><span class="p">,</span><span class="w"> </span><span class="nx">evento</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">removerEvento</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">eventosRepo</span><span class="p">.</span><span class="nx">remover</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1"># .env — uma linha decide qual back-end o front usa</span>
+<span class="nv">VITE_BACKEND</span><span class="o">=</span>supabase
+</code></pre></div></div>
+
+<p>Nenhuma linha da store (<code>eventosStore.js</code>) ou das telas (<code>EventosListaView.vue</code>, <code>EventoFormView.vue</code>) precisa mudar. Isso é o Adapter cumprindo sua função: a store continua chamando <code>eventosService.listarEventos(...)</code>, que continua chamando <code>eventosRepo.listar(...)</code> — só a implementação por trás mudou, escolhida por uma variável de ambiente.</p>
+<blockquote class="prova">
+<p><strong>📌 Na prova</strong>
+Facade (Aula 11) simplifica uma interface complexa. Adapter (esta aula) traduz uma interface para outra, permitindo trocar a implementação sem o cliente perceber. A camada <code>services/</code> do UniEventos usa os dois: é Facade em relação às telas (esconde detalhes de HTTP/Supabase) e se apoia num Adapter (<code>eventosRepo</code>) para trocar de fornecedor por baixo.</p>
+</blockquote>
+<h2 id="laboratorio">🧪 Laboratório<a class="anchor" href="#laboratorio" title="Permanent link">¶</a></h2>
+<p><strong>1. Projeto e tabelas.</strong> Crie seu projeto no Supabase e as tabelas da sua entidade principal (autoral), com <code>uuid</code> como PK, <code>timestamptz</code> para datas e RLS habilitado desde o início.</p>
+<details><summary>Dica</summary>Habilite RLS na mesma migração/script SQL em que cria a tabela — não deixe para depois, é fácil esquecer.</details>
+
+<p><strong>2. Policies completas.</strong> Escreva as quatro policies (leitura pública, inserção autenticada, edição e exclusão só do dono) para sua tabela principal.</p>
+<details><summary>Dica</summary>Teste cada uma isoladamente: logado como usuário A, tente editar uma linha do usuário B — deve falhar silenciosamente (nenhuma linha afetada), não com erro.</details>
+
+<p><strong>3. CRUD com <code>supabase-js</code>.</strong> Implemente <code>select</code>, <code>insert</code>, <code>update</code>, <code>delete</code> da sua entidade, sempre desestruturando <code>{ data, error }</code> e tratando o erro.</p>
+<details><summary>Dica</summary>Se `data` vier vazio sem erro nenhum, sua primeira suspeita deve ser RLS sem policy — releia a seção 4 antes de procurar bug no seu código.</details>
+
+<p><strong>4. Realtime funcionando.</strong> Assine mudanças na sua tabela principal e demonstre, em duas abas, uma lista atualizando sozinha.</p>
+<details><summary>Dica</summary>Confirme que o Realtime está habilitado para a tabela em Database → Replication no painel do Supabase — em alguns planos/tabelas ele vem desligado por padrão.</details>
+
+<p><strong>5. Adapter comparativo.</strong> Implemente as duas versões do repositório (<code>Repo...Express</code> e <code>Repo...Supabase</code>) para sua entidade principal, com a mesma interface, e alterne entre elas por variável de ambiente.</p>
+<details><summary>Dica</summary>O ponto de verificação: você deve conseguir trocar `VITE_BACKEND` no `.env`, reiniciar o `npm run dev`, e a tela continuar funcionando sem tocar em nenhuma linha de `store` ou `view`.</details>
+
+<h2 id="erros-comuns-e-como-resolver">🐛 Erros comuns e como resolver<a class="anchor" href="#erros-comuns-e-como-resolver" title="Permanent link">¶</a></h2>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Sintoma</th>
+<th>Causa</th>
+<th>Solução</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>data: []</code> sem erro nenhum</td>
+<td>RLS habilitado, sem policy correspondente à operação</td>
+<td>Escrever a policy que falta; conferir se cobre <code>select</code>/<code>insert</code>/<code>update</code>/<code>delete</code> conforme necessário</td>
+</tr>
+<tr>
+<td>Erro "JWT expired" ou 401 genérico</td>
+<td>Chave <code>anon</code> errada, ou copiada de outro projeto</td>
+<td>Reconferir <code>VITE_SUPABASE_URL</code> e <code>VITE_SUPABASE_ANON_KEY</code> em Project Settings → API</td>
+</tr>
+<tr>
+<td><code>insert</code>/<code>update</code> falha sem mensagem clara na tela</td>
+<td>Esqueceu de checar <code>error</code> do retorno (usou só <code>try/catch</code>)</td>
+<td>Sempre desestruturar <code>{ data, error }</code> e tratar <code>error</code> explicitamente</td>
+</tr>
+<tr>
+<td>Policy de <code>update</code> "não funciona" mesmo parecendo certa</td>
+<td>Faltou <code>with check</code>, então a policy só filtra a linha original mas aceita qualquer novo valor (ou vice-versa)</td>
+<td>Escrever <code>using</code> e <code>with check</code> juntos em policies de <code>update</code></td>
+</tr>
+<tr>
+<td>Erro de sintaxe SQL mencionando palavra reservada</td>
+<td>Coluna nomeada <code>order</code>, <code>user</code>, <code>group</code> etc. sem aspas</td>
+<td>Evitar nomes reservados; se inevitável, usar aspas duplas (<code>"order"</code>) em todo lugar</td>
+</tr>
+<tr>
+<td><code>.single()</code> lança erro "multiple (or no) rows returned"</td>
+<td>Consulta não bateu em exatamente uma linha</td>
+<td>Usar <code>.maybeSingle()</code> se zero linhas é um caso válido; revisar o filtro se esperava uma única linha</td>
+</tr>
+<tr>
+<td>Realtime não dispara nada</td>
+<td>Tabela sem replicação habilitada, ou canal não te inscreveu no evento certo</td>
+<td>Checar Database → Replication; conferir <code>schema: 'public', table: 'nome_certo'</code> no <code>.on(...)</code></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="atividade-assincrona-1-h">🏠 Atividade assíncrona (1 h)<a class="anchor" href="#atividade-assincrona-1-h" title="Permanent link">¶</a></h2>
+<p>Recrie o CRUD da sua entidade principal usando Supabase (se ainda não completou no laboratório) e escreva uma <strong>análise comparativa de 1 página</strong> entre a abordagem Express+MySQL (Aula 11) e a abordagem Supabase (hoje), cobrindo: quantidade de código escrito em cada uma, onde ficou a validação e a regra de negócio em cada caso, o que foi mais rápido de implementar, o que você confiaria menos sem testes automatizados, e qual você escolheria para o seu projeto autoral final — com justificativa. <strong>Este texto é conteúdo de estudo para o exame final.</strong></p>
+<p><strong>Critério de pronto:</strong> CRUD Supabase funcionando (RLS + policies + operações básicas) e o texto comparativo entregue, com pelo menos os cinco pontos acima abordados.</p>
+<h2 id="checkpoint-do-projeto-autoral">✅ Checkpoint do projeto autoral<a class="anchor" href="#checkpoint-do-projeto-autoral" title="Permanent link">¶</a></h2>
+<ul>
+<li>[ ] Projeto Supabase criado, com <code>VITE_SUPABASE_URL</code> e <code>VITE_SUPABASE_ANON_KEY</code> no <code>.env</code> (nunca a <code>service_role</code>).</li>
+<li>[ ] Tabelas da entidade principal criadas por SQL, com <code>uuid</code> como PK e <code>timestamptz</code> onde há data/hora.</li>
+<li>[ ] RLS habilitado em toda tabela nova, com as quatro policies (leitura pública, inserção autenticada, edição e exclusão do dono) escritas e testadas.</li>
+<li>[ ] CRUD completo com <code>supabase-js</code>, sempre tratando <code>{ data, error }</code>.</li>
+<li>[ ] Login/logout via Supabase Auth conectado às policies por <code>auth.uid()</code>.</li>
+<li>[ ] Realtime funcionando em pelo menos uma tela.</li>
+<li>[ ] <code>eventosRepo</code> (ou equivalente autoral) implementado nas duas versões (API própria e Supabase), com troca por variável de ambiente.</li>
+<li>[ ] Análise comparativa de 1 página escrita e guardada no repositório.</li>
+</ul>
+<h2 id="para-aprofundar">📚 Para aprofundar<a class="anchor" href="#para-aprofundar" title="Permanent link">¶</a></h2>
+<ul>
+<li><a href="https://supabase.com/docs/guides/database/postgres/row-level-security">Supabase — Row Level Security</a></li>
+<li><a href="https://supabase.com/docs/reference/javascript/introduction">Supabase — <code>supabase-js</code> reference</a></li>
+<li><a href="https://supabase.com/docs/guides/auth">Supabase — Auth</a></li>
+<li><a href="https://supabase.com/docs/guides/realtime">Supabase — Realtime</a></li>
+<li><a href="https://www.postgresql.org/docs/current/datatype-datetime.html">PostgreSQL — <code>timestamptz</code> e tipos de data</a></li>
+<li>Plano de curso, Unidade 3: banco de dados em nuvem e padrões estruturais.</li>
+</ul>
+<p>A Aula 13 muda de foco: em vez de mais um fornecedor, vamos <strong>refatorar e consolidar o back-end</strong> do UniEventos — revisando a arquitetura em camadas, aplicando injeção de dependência e organizando tudo o que construímos nas Aulas 07 a 12 num back-end coeso e defensável.</p><nav class="navpe"><a data-nav="anterior" href="aula-11.html"><span class="rot">← Aula 11</span><span class="tit">Integrando front-end com back-end: CRUD</span></a><a class="dir" data-nav="proxima" href="aula-13.html"><span class="rot">Aula 13 →</span><span class="tit">Desenvolvimento do Back-end</span></a></nav>
+    <div class="rodape">
+      UNEMAT — Universidade do Estado de Mato Grosso · Campus Cáceres · FACET<br>
+      FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas · 2026.2<br>
+      Prof. Ivan Luiz Pedroso Pires
+    </div>
+  </main>
+  <aside class="toc"><h4>Nesta aula</h4><a class="" href="#objetivos-de-aprendizagem">🎯 Objetivos de aprendizagem</a><a class="" href="#pre-requisitos-desta-aula">📋 Pré-requisitos desta aula</a><a class="" href="#roteiro">🗺️ Roteiro</a><a class="" href="#1-tres-formas-de-resolver-o-mesmo-problema">1. Três formas de resolver o mesmo problema</a><a class="n3" href="#sobre-custo-e-por-que-isso-importa-desde-ja">Sobre custo, e por que isso importa desde já</a><a class="" href="#2-criando-o-projeto-no-supabase">2. Criando o projeto no Supabase</a><a class="n3" href="#sql-editor-e-table-editor">SQL Editor e Table Editor</a><a class="" href="#3-criando-as-tabelas">3. Criando as tabelas</a><a class="" href="#4-row-level-security-a-armadilha-no1">4. Row Level Security: a armadilha nº1</a><a class="n3" href="#o-que-e-rls-e-por-que-existe">O que é RLS e por que existe</a><a class="n3" href="#policies-leitura-publica-insercao-autenticada-edicaoexclusao-so-do-dono">Policies: leitura pública, inserção autenticada, edição/exclusão só do dono</a><a class="n3" href="#using-with-check">USING × WITH CHECK</a><a class="" href="#padrao-de-projeto-em-uso-adapter">🧩 Padrão de projeto em uso: Adapter</a><a class="" href="#5-supabasesupabase-js-cliente-e-operacoes-basicas">5. @supabase/supabase-js: cliente e operações básicas</a><a class="n3" href="#select-filtros-ordenacao-e-paginacao">select, filtros, ordenação e paginação</a><a class="n3" href="#data-error-por-que-trycatch-sozinho-nao-basta">{ data, error }: por que try/catch sozinho não basta</a><a class="n3" href="#insert-update-delete">insert, update, delete</a><a class="n3" href="#joins-por-relacionamento">Joins por relacionamento</a><a class="" href="#6-supabase-auth">6. Supabase Auth</a><a class="" href="#7-storage-e-realtime">7. Storage e Realtime</a><a class="n3" href="#storage-bucket-publico-upload-url-publica">Storage: bucket público, upload, URL pública</a><a class="n3" href="#realtime-a-lista-se-atualizando-sozinha">Realtime: a lista se atualizando sozinha</a><a class="" href="#mao-na-massa-crud-direto-com-supabase-e-depois-o-adapter">💻 Mão na massa — CRUD direto com Supabase e, depois, o Adapter</a><a class="n3" href="#passo-1-testando-a-conexao-no-console-do-navegador">Passo 1 — Testando a conexão no console do navegador</a><a class="n3" href="#passo-2-tela-de-listagem-consumindo-o-supabase-diretamente">Passo 2 — Tela de listagem consumindo o Supabase diretamente</a><a class="n3" href="#do-crud-direto-ao-adapter">Do CRUD direto ao Adapter</a><a class="n3" href="#passo-3-interface-comum-e-implementacao-para-a-api-express">Passo 3 — Interface comum e implementação para a API Express</a><a class="n3" href="#passo-4-mesma-interface-implementacao-supabase">Passo 4 — Mesma interface, implementação Supabase</a><a class="n3" href="#passo-5-trocando-a-implementacao-por-variavel-de-ambiente">Passo 5 — Trocando a implementação por variável de ambiente</a><a class="" href="#laboratorio">🧪 Laboratório</a><a class="" href="#erros-comuns-e-como-resolver">🐛 Erros comuns e como resolver</a><a class="" href="#atividade-assincrona-1-h">🏠 Atividade assíncrona (1 h)</a><a class="" href="#checkpoint-do-projeto-autoral">✅ Checkpoint do projeto autoral</a><a class="" href="#para-aprofundar">📚 Para aprofundar</a></aside>
+</div>
+<script>
+(function(){
+  var raiz=document.documentElement;
+  var salvo=null;
+  try{salvo=window.localStorage&&localStorage.getItem('fds-tema')}catch(e){}
+  if(salvo){raiz.setAttribute('data-tema',salvo)}
+  var bt=document.getElementById('tema');
+  if(bt){bt.addEventListener('click',function(){
+    var novo=raiz.getAttribute('data-tema')==='claro'?'escuro':'claro';
+    raiz.setAttribute('data-tema',novo);
+    try{localStorage.setItem('fds-tema',novo)}catch(e){}
+    bt.textContent=novo==='claro'?'● Escuro':'○ Claro';
+  });
+  bt.textContent=raiz.getAttribute('data-tema')==='claro'?'● Escuro':'○ Claro';}
+
+  // copiar código
+  document.querySelectorAll('.copiar').forEach(function(b){
+    b.addEventListener('click',function(){
+      var pre=b.closest('.bloco').querySelector('pre');
+      var txt=pre.innerText;
+      var ok=function(){b.textContent='Copiado';b.classList.add('ok');
+        setTimeout(function(){b.textContent='Copiar';b.classList.remove('ok')},1600)};
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(ok)}
+      else{var t=document.createElement('textarea');t.value=txt;document.body.appendChild(t);
+           t.select();document.execCommand('copy');t.remove();ok()}
+    });
+  });
+
+  // barra de progresso
+  var pr=document.getElementById('progresso');
+  if(pr){window.addEventListener('scroll',function(){
+    var h=document.documentElement.scrollHeight-window.innerHeight;
+    pr.style.width=(h>0?(window.scrollY/h)*100:0)+'%';
+  },{passive:true})}
+
+  // sumário ativo
+  var alvos=[].slice.call(document.querySelectorAll('main h2[id],main h3[id]'));
+  var links={};
+  document.querySelectorAll('.toc a').forEach(function(a){links[a.getAttribute('href').slice(1)]=a});
+  if(alvos.length&&'IntersectionObserver' in window){
+    var obs=new IntersectionObserver(function(ents){
+      ents.forEach(function(e){
+        var a=links[e.target.id];
+        if(!a)return;
+        if(e.isIntersecting){
+          Object.keys(links).forEach(function(k){links[k].classList.remove('ativo')});
+          a.classList.add('ativo');
+        }
+      });
+    },{rootMargin:'-76px 0px -75% 0px'});
+    alvos.forEach(function(t){obs.observe(t)});
+  }
+
+  // busca no índice
+  var busca=document.getElementById('busca');
+  if(busca){
+    busca.addEventListener('input',function(){
+      var q=busca.value.toLowerCase().trim();
+      document.querySelectorAll('[data-busca]').forEach(function(el){
+        el.classList.toggle('oculto', q!=='' && el.getAttribute('data-busca').indexOf(q)===-1);
+      });
+    });
+  }
+
+  // atalhos de teclado
+  document.addEventListener('keydown',function(e){
+    if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+    var ant=document.querySelector('[data-nav="anterior"]');
+    var pro=document.querySelector('[data-nav="proxima"]');
+    if(e.key==='j'&&pro)pro.click();
+    if(e.key==='k'&&ant)ant.click();
+    if(e.key==='/'&&busca){e.preventDefault();busca.focus()}
+  });
+})();
+</script>
+</body>
+</html>

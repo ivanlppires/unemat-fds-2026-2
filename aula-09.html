@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-tema="escuro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aula 09 — Integrando com SGBD MySQL · FACET-SNP-310</title>
+<meta name="description" content="Unidade 3 · 19/10/2026 · Integrando com SGBD MySQL">
+<style>
+:root{
+  --bg:#0f1117; --bg-soft:#161922; --bg-code:#11131a; --line:#272b38;
+  --fg:#e6e8ee; --fg-dim:#a6adbb; --fg-faint:#6f7686;
+  --accent:#5eead4; --accent-2:#818cf8; --warn:#fbbf24; --danger:#fb7185;
+  --u1:#5eead4; --u2:#818cf8; --u3:#f0abfc;
+  --radius:12px; --max:860px;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+}
+html[data-tema="claro"]{
+  --bg:#ffffff; --bg-soft:#f6f7f9; --bg-code:#f2f3f6; --line:#e2e5ea;
+  --fg:#1a1d24; --fg-dim:#4b5262; --fg-faint:#8a92a3;
+  --accent:#0d9488; --accent-2:#4f46e5; --warn:#b45309; --danger:#be123c;
+  --u1:#0d9488; --u2:#4f46e5; --u3:#a21caf;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:76px}
+body{
+  margin:0; background:var(--bg); color:var(--fg); font-family:var(--font);
+  font-size:16.5px; line-height:1.72; -webkit-font-smoothing:antialiased;
+}
+a{color:var(--accent); text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ---------- barra superior ---------- */
+.topo{
+  position:sticky; top:0; z-index:50; background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:blur(12px); border-bottom:1px solid var(--line);
+}
+.topo-in{max-width:1400px;margin:0 auto;display:flex;align-items:center;gap:14px;padding:10px 18px}
+.marca{font-weight:700;font-size:.82rem;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-dim);white-space:nowrap}
+.marca b{color:var(--accent)}
+.topo .espaco{flex:1}
+.btn{
+  background:var(--bg-soft); color:var(--fg-dim); border:1px solid var(--line);
+  border-radius:8px; padding:6px 12px; font-size:.82rem; cursor:pointer; font-family:inherit;
+  transition:.15s;
+}
+.btn:hover{color:var(--fg); border-color:var(--accent)}
+#busca{
+  background:var(--bg-soft); border:1px solid var(--line); border-radius:8px; color:var(--fg);
+  padding:6px 12px; font-size:.85rem; font-family:inherit; width:200px;
+}
+#busca:focus{outline:none;border-color:var(--accent)}
+
+/* ---------- layout ---------- */
+.wrap{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:260px minmax(0,1fr) 240px;gap:34px;padding:0 18px}
+@media(max-width:1150px){.wrap{grid-template-columns:240px minmax(0,1fr)} .toc{display:none}}
+@media(max-width:860px){.wrap{grid-template-columns:minmax(0,1fr)} .lateral{display:none}}
+
+.lateral,.toc{position:sticky;top:76px;align-self:start;max-height:calc(100vh - 90px);overflow-y:auto;padding:22px 0 60px;font-size:.85rem}
+.lateral::-webkit-scrollbar,.toc::-webkit-scrollbar{width:6px}
+.lateral::-webkit-scrollbar-thumb,.toc::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+.lateral h4,.toc h4{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-faint);margin:0 0 12px}
+.lateral ol{list-style:none;margin:0;padding:0}
+.lateral li a{
+  display:flex;gap:9px;align-items:baseline;padding:6px 10px;border-radius:7px;
+  color:var(--fg-dim);border-left:2px solid transparent;line-height:1.35;
+}
+.lateral li a:hover{background:var(--bg-soft);color:var(--fg);text-decoration:none}
+.lateral li a.ativo{background:var(--bg-soft);color:var(--fg);border-left-color:var(--accent);font-weight:600}
+.lateral .num{font-variant-numeric:tabular-nums;color:var(--fg-faint);font-size:.78rem;min-width:16px}
+.lateral .grupo{margin:18px 0 6px;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-faint);padding-left:10px}
+.toc a{display:block;padding:4px 0 4px 12px;color:var(--fg-dim);border-left:2px solid var(--line);line-height:1.35;font-size:.8rem}
+.toc a:hover{color:var(--fg);text-decoration:none}
+.toc a.ativo{color:var(--accent);border-left-color:var(--accent)}
+.toc a.n3{padding-left:24px;font-size:.76rem;opacity:.8}
+
+/* ---------- conteúdo ---------- */
+main{padding:34px 0 100px;min-width:0}
+.cabecalho{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:34px}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.tag{font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;font-weight:700;padding:4px 10px;border-radius:999px;border:1px solid var(--line);color:var(--fg-dim)}
+.tag.u1{color:var(--u1);border-color:color-mix(in srgb,var(--u1) 40%,transparent)}
+.tag.u2{color:var(--u2);border-color:color-mix(in srgb,var(--u2) 40%,transparent)}
+.tag.u3{color:var(--u3);border-color:color-mix(in srgb,var(--u3) 40%,transparent)}
+.tag.av{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 45%,transparent)}
+.cabecalho h1{margin:0;font-size:2.05rem;line-height:1.2;letter-spacing:-.02em}
+.cabecalho .sub{color:var(--fg-faint);font-size:.9rem;margin-top:10px}
+
+main h1{font-size:1.9rem;line-height:1.22;letter-spacing:-.02em;margin:0 0 .6em}
+main h2{font-size:1.4rem;margin:2.4em 0 .7em;padding-top:.5em;border-top:1px solid var(--line);letter-spacing:-.01em}
+main h3{font-size:1.12rem;margin:1.9em 0 .5em;color:var(--fg)}
+main h4{font-size:.98rem;margin:1.5em 0 .4em;color:var(--fg-dim)}
+main h2:first-of-type{border-top:none;padding-top:0}
+main p{margin:0 0 1.05em}
+main ul,main ol{margin:0 0 1.15em;padding-left:1.4em}
+main li{margin:.32em 0}
+main li>ul,main li>ol{margin:.35em 0}
+hr{border:none;border-top:1px solid var(--line);margin:2.6em 0}
+strong{color:var(--fg);font-weight:650}
+
+/* âncoras */
+.anchor{opacity:0;margin-left:.4em;font-weight:400;color:var(--fg-faint);text-decoration:none;font-size:.8em}
+h2:hover .anchor,h3:hover .anchor{opacity:1}
+
+/* citações / callouts */
+blockquote{
+  margin:1.4em 0;padding:14px 18px;background:var(--bg-soft);border-left:3px solid var(--accent-2);
+  border-radius:0 var(--radius) var(--radius) 0;color:var(--fg-dim);
+}
+blockquote p:last-child{margin-bottom:0}
+blockquote.dica{border-left-color:var(--accent)}
+blockquote.atencao{border-left-color:var(--warn)}
+blockquote.capo{border-left-color:var(--accent-2)}
+blockquote.prova{border-left-color:var(--danger)}
+
+/* tabelas */
+.tabela-wrap{overflow-x:auto;margin:1.4em 0;border:1px solid var(--line);border-radius:var(--radius)}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{padding:9px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--bg-soft);font-weight:650;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-dim);white-space:nowrap}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:color-mix(in srgb,var(--bg-soft) 60%,transparent)}
+
+/* código */
+code{font-family:var(--mono);font-size:.87em;background:var(--bg-soft);padding:.14em .42em;border-radius:5px;border:1px solid var(--line)}
+.bloco{position:relative;margin:1.3em 0}
+.bloco-topo{
+  display:flex;align-items:center;gap:10px;background:var(--bg-soft);border:1px solid var(--line);
+  border-bottom:none;border-radius:var(--radius) var(--radius) 0 0;padding:6px 12px;
+  font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;color:var(--fg-faint);font-family:var(--mono);
+}
+.bloco-topo .espaco{flex:1}
+.copiar{
+  background:transparent;border:1px solid var(--line);color:var(--fg-faint);border-radius:6px;
+  padding:2px 9px;font-size:.68rem;cursor:pointer;font-family:inherit;letter-spacing:.06em;text-transform:uppercase;transition:.15s;
+}
+.copiar:hover{color:var(--accent);border-color:var(--accent)}
+.copiar.ok{color:var(--accent);border-color:var(--accent)}
+.highlight{
+  margin:0;background:var(--bg-code)!important;border:1px solid var(--line);
+  border-radius:0 0 var(--radius) var(--radius);overflow-x:auto;
+}
+.bloco:not(:has(.bloco-topo)) .highlight{border-radius:var(--radius)}
+.highlight pre{margin:0;padding:15px 17px;font-family:var(--mono);font-size:.845rem;line-height:1.62;background:transparent!important}
+.highlight code{background:transparent;border:none;padding:0;font-size:inherit}
+html[data-tema="claro"] .highlight pre{color:#1a1d24}
+
+/* detalhes */
+details{background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px;margin:1.2em 0}
+details[open]{padding-bottom:6px}
+summary{cursor:pointer;font-weight:600;color:var(--fg-dim);font-size:.9rem;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▸ ";color:var(--accent)}
+details[open] summary::before{content:"▾ "}
+details[open] summary{margin-bottom:10px}
+
+img{max-width:100%;border-radius:var(--radius)}
+
+/* rodapé / navegação */
+.navpe{display:flex;gap:14px;margin-top:60px;padding-top:26px;border-top:1px solid var(--line)}
+.navpe a{
+  flex:1;padding:14px 18px;background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);
+  color:var(--fg-dim);transition:.15s;
+}
+.navpe a:hover{border-color:var(--accent);color:var(--fg);text-decoration:none}
+.navpe .rot{display:block;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-faint);margin-bottom:4px}
+.navpe .tit{font-weight:600;font-size:.9rem}
+.navpe .dir{text-align:right}
+.rodape{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:var(--fg-faint);font-size:.8rem}
+
+/* progresso */
+#progresso{position:fixed;top:0;left:0;height:2px;background:var(--accent);z-index:60;width:0}
+
+/* índice (home) */
+.hero{padding:56px 0 34px;border-bottom:1px solid var(--line);margin-bottom:38px}
+.hero h1{font-size:2.6rem;margin:0 0 12px;letter-spacing:-.03em;line-height:1.1}
+.hero p{color:var(--fg-dim);max-width:640px;font-size:1.02rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin:34px 0}
+.stat{background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px}
+.stat .n{font-size:1.7rem;font-weight:700;letter-spacing:-.02em;color:var(--accent)}
+.stat .l{font-size:.75rem;letter-spacing:.07em;text-transform:uppercase;color:var(--fg-faint);margin-top:2px}
+.grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;margin:20px 0 44px}
+.cartao{
+  display:block;background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);
+  padding:17px 19px;color:var(--fg);transition:.16s;position:relative;overflow:hidden;
+}
+.cartao::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--line);transition:.16s}
+.cartao.u1::before{background:var(--u1)} .cartao.u2::before{background:var(--u2)} .cartao.u3::before{background:var(--u3)}
+.cartao:hover{transform:translateY(-2px);border-color:var(--fg-faint);text-decoration:none}
+.cartao .meta{display:flex;justify-content:space-between;align-items:center;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-faint);margin-bottom:8px}
+.cartao .t{font-weight:650;line-height:1.35;font-size:.97rem}
+.cartao .av{display:inline-block;margin-top:9px;font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;color:var(--warn);border:1px solid color-mix(in srgb,var(--warn) 40%,transparent);border-radius:999px;padding:2px 9px}
+.oculto{display:none!important}
+@media print{
+  .topo,.lateral,.toc,.navpe,#progresso{display:none!important}
+  .wrap{display:block;max-width:none;padding:0}
+  body{background:#fff;color:#000;font-size:11pt}
+  .highlight{border:1px solid #ccc;background:#fafafa!important}
+  a{color:#000}
+}
+
+pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #49483e }
+.highlight { background: #232629; color: #CCC }
+.highlight .c { color: #777; font-style: italic } /* Comment */
+.highlight .err { color: #A61717; background-color: #E3D2D2 } /* Error */
+.highlight .esc { color: #CCC } /* Escape */
+.highlight .g { color: #CCC } /* Generic */
+.highlight .k { color: #7686BB; font-weight: bold } /* Keyword */
+.highlight .l { color: #CCC } /* Literal */
+.highlight .n { color: #CCC } /* Name */
+.highlight .o { color: #CCC } /* Operator */
+.highlight .x { color: #CCC } /* Other */
+.highlight .p { color: #CCC } /* Punctuation */
+.highlight .ch { color: #777; font-style: italic } /* Comment.Hashbang */
+.highlight .cm { color: #777; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #777; font-style: italic } /* Comment.Preproc */
+.highlight .cpf { color: #777; font-style: italic } /* Comment.PreprocFile */
+.highlight .c1 { color: #777; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #777; font-style: italic } /* Comment.Special */
+.highlight .gd { color: #CCC } /* Generic.Deleted */
+.highlight .ge { color: #CCC } /* Generic.Emph */
+.highlight .ges { color: #CCC } /* Generic.EmphStrong */
+.highlight .gr { color: #CCC } /* Generic.Error */
+.highlight .gh { color: #CCC } /* Generic.Heading */
+.highlight .gi { color: #CCC } /* Generic.Inserted */
+.highlight .go { color: #CCC } /* Generic.Output */
+.highlight .gp { color: #FFF } /* Generic.Prompt */
+.highlight .gs { color: #CCC } /* Generic.Strong */
+.highlight .gu { color: #CCC } /* Generic.Subheading */
+.highlight .gt { color: #CCC } /* Generic.Traceback */
+.highlight .kc { color: #7686BB; font-weight: bold } /* Keyword.Constant */
+.highlight .kd { color: #7686BB; font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { color: #7686BB; font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { color: #7686BB; font-weight: bold } /* Keyword.Pseudo */
+.highlight .kr { color: #7686BB; font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #7686BB; font-weight: bold } /* Keyword.Type */
+.highlight .ld { color: #CCC } /* Literal.Date */
+.highlight .m { color: #4FB8CC } /* Literal.Number */
+.highlight .s { color: #51CC99 } /* Literal.String */
+.highlight .na { color: #CCC } /* Name.Attribute */
+.highlight .nb { color: #CCC } /* Name.Builtin */
+.highlight .nc { color: #CCC } /* Name.Class */
+.highlight .no { color: #CCC } /* Name.Constant */
+.highlight .nd { color: #CCC } /* Name.Decorator */
+.highlight .ni { color: #CCC } /* Name.Entity */
+.highlight .ne { color: #CCC } /* Name.Exception */
+.highlight .nf { color: #6A6AFF } /* Name.Function */
+.highlight .nl { color: #CCC } /* Name.Label */
+.highlight .nn { color: #CCC } /* Name.Namespace */
+.highlight .nx { color: #E2828E } /* Name.Other */
+.highlight .py { color: #CCC } /* Name.Property */
+.highlight .nt { color: #CCC } /* Name.Tag */
+.highlight .nv { color: #7AB4DB; font-weight: bold } /* Name.Variable */
+.highlight .ow { color: #CCC } /* Operator.Word */
+.highlight .pm { color: #CCC } /* Punctuation.Marker */
+.highlight .w { color: #BBB } /* Text.Whitespace */
+.highlight .mb { color: #4FB8CC } /* Literal.Number.Bin */
+.highlight .mf { color: #4FB8CC } /* Literal.Number.Float */
+.highlight .mh { color: #4FB8CC } /* Literal.Number.Hex */
+.highlight .mi { color: #4FB8CC } /* Literal.Number.Integer */
+.highlight .mo { color: #4FB8CC } /* Literal.Number.Oct */
+.highlight .sa { color: #51CC99 } /* Literal.String.Affix */
+.highlight .sb { color: #51CC99 } /* Literal.String.Backtick */
+.highlight .sc { color: #51CC99 } /* Literal.String.Char */
+.highlight .dl { color: #51CC99 } /* Literal.String.Delimiter */
+.highlight .sd { color: #51CC99 } /* Literal.String.Doc */
+.highlight .s2 { color: #51CC99 } /* Literal.String.Double */
+.highlight .se { color: #51CC99 } /* Literal.String.Escape */
+.highlight .sh { color: #51CC99 } /* Literal.String.Heredoc */
+.highlight .si { color: #51CC99 } /* Literal.String.Interpol */
+.highlight .sx { color: #51CC99 } /* Literal.String.Other */
+.highlight .sr { color: #51CC99 } /* Literal.String.Regex */
+.highlight .s1 { color: #51CC99 } /* Literal.String.Single */
+.highlight .ss { color: #51CC99 } /* Literal.String.Symbol */
+.highlight .bp { color: #CCC } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #6A6AFF } /* Name.Function.Magic */
+.highlight .vc { color: #7AB4DB; font-weight: bold } /* Name.Variable.Class */
+.highlight .vg { color: #BE646C; font-weight: bold } /* Name.Variable.Global */
+.highlight .vi { color: #7AB4DB; font-weight: bold } /* Name.Variable.Instance */
+.highlight .vm { color: #7AB4DB; font-weight: bold } /* Name.Variable.Magic */
+.highlight .il { color: #4FB8CC } /* Literal.Number.Integer.Long */
+</style>
+</head>
+<body>
+<div id="progresso"></div>
+<header class="topo"><div class="topo-in">
+  <span class="marca"><b>FACET-SNP-310</b> &nbsp;Frameworks Modernos</span>
+  <span class="espaco"></span>
+  
+  <a class="btn" href="indice.html">Índice</a>
+  <button class="btn" id="tema" type="button">Tema</button>
+</div></header>
+<div class="wrap">
+  <nav class="lateral"><h4>Aulas</h4><ol><li class="grupo">Unidade 1</li><li><a class="" href="aula-01.html"><span class="num">01</span><span>Apresentação da Disciplina e Revisão JavaScript</span></a></li><li><a class="" href="aula-02.html"><span class="num">02</span><span>Introdução ao Vue: instância, ciclo de vida e diretivas</span></a></li><li><a class="" href="aula-03.html"><span class="num">03</span><span>Vue: listas, computed e ciclo de vida</span></a></li><li><a class="" href="aula-04.html"><span class="num">04</span><span>Introdução a Vuetify e Vue Router</span></a></li><li class="grupo">Unidade 2</li><li><a class="" href="aula-05.html"><span class="num">05</span><span>Componentes, Vue Router e Vuetify avançado</span></a></li><li><a class="" href="aula-06.html"><span class="num">06</span><span>Axios e Pinia</span></a></li><li class="grupo">Unidade 3</li><li><a class="" href="aula-07.html"><span class="num">07</span><span>Introdução ao Firebase, Node.js e Express</span></a></li><li><a class="" href="aula-08.html"><span class="num">08</span><span>Definindo endpoints e middlewares</span></a></li><li><a class="ativo" href="aula-09.html"><span class="num">09</span><span>Integrando com SGBD MySQL</span></a></li><li><a class="" href="aula-10.html"><span class="num">10</span><span>Requisições autenticadas com Firebase</span></a></li><li><a class="" href="aula-11.html"><span class="num">11</span><span>Integrando front-end com back-end: CRUD</span></a></li><li><a class="" href="aula-12.html"><span class="num">12</span><span>CRUD com banco em nuvem (Supabase)</span></a></li><li><a class="" href="aula-13.html"><span class="num">13</span><span>Desenvolvimento do Back-end</span></a></li><li><a class="" href="aula-14.html"><span class="num">14</span><span>Documentação com Swagger</span></a></li><li><a class="" href="aula-15.html"><span class="num">15</span><span>Deploy, apresentação e finalização</span></a></li></ol></nav>
+  <main class=""><div class="cabecalho"><div class="tags"><span class="tag u3">Unidade 3</span><span class="tag">19/10/2026</span><span class="tag">3 aulas de 50 min + 1 h EAD</span></div><h1>Aula 09 — Integrando com SGBD MySQL</h1><div class="sub">FACET-SNP-310 · Frameworks Modernos para Desenvolvimento de Sistemas · UNEMAT/Cáceres · Prof. Ivan Luiz Pedroso Pires</div></div>
+<blockquote>
+<p><strong>FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas</strong> · Unidade 3
+UNEMAT/Cáceres — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
+<strong>Data:</strong> 19/10/2026 · <strong>Carga:</strong> 3 aulas de 50 min (síncrona) + 1 h (assíncrona)</p>
+</blockquote>
+<p>Na Aula 08 você entregou a Avaliação 2 com um CRUD completo, middlewares próprios e validação com Zod — tudo isso guardando dados num array em memória. Hoje esse array desaparece. Toda a <code>unieventos-api</code> passa a persistir em um banco de dados relacional de verdade: <strong>MySQL</strong>.</p>
+<p>Vale reforçar o que muda e o que não muda hoje. O que muda: de onde os dados vêm e para onde vão — de um array na RAM para tabelas em disco, com todas as garantias que isso traz. O que <strong>não</strong> muda: o formato de cada requisição, o formato de cada resposta, os status codes, as rotas, os middlewares de validação e de erro. Esse é o teste que valida se você fez a migração corretamente — se o <code>requests.http</code> da Aula 08 continuar passando sem editar uma linha sequer, a API está correta.</p>
+<h2 id="objetivos-de-aprendizagem">🎯 Objetivos de aprendizagem<a class="anchor" href="#objetivos-de-aprendizagem" title="Permanent link">¶</a></h2>
+<p>Ao final desta aula você será capaz de:</p>
+<ul>
+<li>explicar por que dados em memória não servem para uma aplicação real, e o que persistência significa;</li>
+<li>modelar as tabelas do UniEventos em MySQL, com chaves primárias, estrangeiras, tipos, restrições e índices;</li>
+<li>instalar e configurar um servidor MySQL (nativo ou via Docker) e conectar-se a ele com uma ferramenta gráfica;</li>
+<li>criar um pool de conexões com <code>mysql2/promise</code>, entendendo por que pool e não conexão única;</li>
+<li>escrever consultas parametrizadas, evitando SQL injection por concatenação de string;</li>
+<li>ler resultados de <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code> e <code>SELECT</code> corretamente com a API baseada em Promise;</li>
+<li>usar transações para operações que precisam ser atômicas (inscrever em evento e decrementar vagas);</li>
+<li>organizar o back-end em camadas — repositório, serviço, controlador — migrando o CRUD da Aula 08 sem quebrar contrato nenhum com o front-end.</li>
+</ul>
+<h2 id="pre-requisitos-desta-aula">📋 Pré-requisitos desta aula<a class="anchor" href="#pre-requisitos-desta-aula" title="Permanent link">¶</a></h2>
+<ul>
+<li>[ ] <code>unieventos-api</code> da Aula 08, com CRUD completo em memória, middlewares e validação Zod funcionando.</li>
+<li>[ ] <code>requests.http</code> cobrindo todos os endpoints (Aula 08).</li>
+<li>[ ] Avaliação 2 entregue.</li>
+<li>[ ] Modelagem relacional revisada: entidade, atributo, chave primária e estrangeira (conteúdo de disciplinas anteriores de banco de dados — hoje é aplicação, não introdução).</li>
+<li>[ ] Máquina com privilégios de administrador para instalar o MySQL (ou Docker instalado, como alternativa).</li>
+<li>[ ] Ao menos uma ferramenta gráfica de banco escolhida (MySQL Workbench, DBeaver ou a extensão do VS Code) para inspecionar tabelas visualmente durante a aula.</li>
+</ul>
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+Nunca commite senha de banco de dados no repositório. Toda credencial desta aula vive em <code>.env</code>, fora do controle de versão. Se você acidentalmente commitar uma senha, troque-a imediatamente — trocar a senha é mais rápido e mais seguro do que tentar "remover" o commit do histórico.</p>
+</blockquote>
+<h2 id="roteiro">🗺️ Roteiro<a class="anchor" href="#roteiro" title="Permanent link">¶</a></h2>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Bloco</th>
+<th>Tempo</th>
+<th>Atividade</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>50 min</td>
+<td>Modelagem relacional do UniEventos; instalação do MySQL; <code>schema.sql</code> completo</td>
+</tr>
+<tr>
+<td>2</td>
+<td>50 min</td>
+<td><code>mysql2/promise</code>: pool, consultas parametrizadas, SQL injection, transações</td>
+</tr>
+<tr>
+<td>3</td>
+<td>50 min</td>
+<td>Camadas repositório/serviço/controlador; migração dos endpoints da Aula 08 para MySQL</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="1-por-que-dados-em-memoria-nao-servem">1. Por que dados em memória não servem<a class="anchor" href="#1-por-que-dados-em-memoria-nao-servem" title="Permanent link">¶</a></h2>
+<p>O array <code>eventos</code> das Aulas 07 e 08 vive na memória RAM do processo Node. Isso tem três problemas fatais para uso real:</p>
+<p><strong>Não sobrevive a um reinício.</strong> Toda vez que você reinicia o servidor (ou ele cai por qualquer motivo), o array volta ao estado inicial do código-fonte — qualquer evento criado, editado ou removido durante a execução se perde.</p>
+<p><strong>Não escala para múltiplas instâncias.</strong> Se você um dia rodar duas cópias da API (para atender mais tráfego), cada cópia tem seu próprio array, na sua própria memória — uma não sabe o que a outra gravou. Os dados ficam inconsistentes entre instâncias.</p>
+<p><strong>Não sobrevive a um deploy.</strong> Publicar uma nova versão do código normalmente significa derrubar o processo antigo e subir um novo — e o processo novo começa com o array do código, não com o estado anterior.</p>
+<p><strong>Persistência</strong> é a propriedade de dados sobreviverem além do tempo de vida do processo que os manipula. Um banco de dados é software especializado exatamente nisso: gravar em disco (ou em memória de forma replicada e durável) de um jeito que sobrevive a reinícios, crashes e múltiplas instâncias acessando ao mesmo tempo — com garantias de consistência que um array simples não oferece.</p>
+<h3 id="por-que-relacional-e-por-que-mysql">Por que relacional, e por que MySQL<a class="anchor" href="#por-que-relacional-e-por-que-mysql" title="Permanent link">¶</a></h3>
+<p>O UniEventos tem entidades com relações claras entre si: um evento tem várias inscrições; uma inscrição pertence a um evento e a um usuário. Esse tipo de relação — um-para-muitos, muitos-para-muitos — é exatamente o que um <strong>banco de dados relacional</strong> (SGBD — Sistema Gerenciador de Banco de Dados) modela bem, com chaves estrangeiras garantindo a integridade dessas relações no próprio banco, não só no código da aplicação.</p>
+<p><strong>MySQL</strong> é um dos SGBDs relacionais mais usados no mercado, de código aberto, com décadas de maturidade. A disciplina usa a versão 8, com o driver <code>mysql2</code> (Node) na versão 3.23, sempre pelo submódulo <code>mysql2/promise</code> — a variante que devolve <code>Promise</code>s em vez de exigir callbacks, compatível com <code>async</code>/<code>await</code>, no mesmo estilo que você já usa desde a Aula 01.</p>
+<blockquote class="capo">
+<p><strong>🔎 Por baixo do capô</strong>
+Você já viu o Firestore (Aula 07) como alternativa de persistência. A diferença central: o Firestore é um banco <strong>NoSQL orientado a documentos</strong> — cada documento é um JSON flexível, sem schema fixo entre documentos da mesma coleção, e relações entre coleções são geridas manualmente pela aplicação. Um SGBD relacional como o MySQL exige schema definido antes de inserir dados (as tabelas do script abaixo), mas em troca oferece integridade referencial garantida pelo próprio banco (<code>FOREIGN KEY</code>), consultas relacionais poderosas (<code>JOIN</code>) e transações ACID robustas. Nenhum dos dois é "melhor" em absoluto — a escolha depende do formato dos dados e das garantias que a aplicação precisa. O UniEventos usa MySQL a partir de hoje porque suas entidades são fortemente relacionadas (evento ↔ inscrição ↔ usuário), o caso de uso clássico para modelagem relacional.</p>
+</blockquote>
+<h2 id="2-modelagem-relacional-aplicada-ao-unieventos">2. Modelagem relacional aplicada ao UniEventos<a class="anchor" href="#2-modelagem-relacional-aplicada-ao-unieventos" title="Permanent link">¶</a></h2>
+<p>Relembrando o modelo de dados do projeto (Aula 07, §3), as três entidades centrais do UniEventos:</p>
+<ul>
+<li><strong><code>eventos</code></strong> — os eventos acadêmicos: palestras, minicursos, workshops.</li>
+<li><strong><code>usuarios</code></strong> — quem se cadastra e se inscreve (autenticados via Firebase Auth a partir da Aula 10; aqui já preparamos a tabela).</li>
+<li><strong><code>inscricoes</code></strong> — a relação muitos-para-muitos entre <code>usuarios</code> e <code>eventos</code>: um usuário pode se inscrever em vários eventos, um evento tem vários inscritos.</li>
+</ul>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>┌───────────────┐          ┌──────────────────┐          ┌───────────────┐
+│   eventos      │          │   inscricoes       │          │   usuarios     │
+├───────────────┤          ├──────────────────┤          ├───────────────┤
+│ id (PK)        │◄─────────│ evento_id (FK)     │          │ id (PK)        │
+│ titulo         │  1:N     │ usuario_id (FK)    │─────────►│ firebase_uid   │
+│ descricao      │          │ id (PK)             │   N:1    │ nome           │
+│ categoria      │          │ criado_em           │          │ email          │
+│ data_hora      │          └──────────────────┘          │ criado_em      │
+│ local          │                                          └───────────────┘
+│ vagas          │
+│ imagem_url     │
+│ criado_em      │
+└───────────────┘
+</code></pre></div></div>
+
+<h3 id="tipos-de-dados-restricoes-e-indices">Tipos de dados, restrições e índices<a class="anchor" href="#tipos-de-dados-restricoes-e-indices" title="Permanent link">¶</a></h3>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Coluna</th>
+<th>Tipo</th>
+<th>Por quê</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td><code>INT AUTO_INCREMENT</code></td>
+<td>número inteiro que o próprio banco incrementa a cada inserção</td>
+</tr>
+<tr>
+<td><code>titulo</code>, <code>nome</code>, <code>email</code></td>
+<td><code>VARCHAR(n)</code></td>
+<td>texto de tamanho limitado e conhecido</td>
+</tr>
+<tr>
+<td><code>descricao</code></td>
+<td><code>TEXT</code></td>
+<td>texto longo, sem limite prático relevante</td>
+</tr>
+<tr>
+<td><code>data_hora</code>, <code>criado_em</code></td>
+<td><code>DATETIME</code></td>
+<td>data e hora, sem fuso embutido (cuidado explicado adiante)</td>
+</tr>
+<tr>
+<td><code>vagas</code></td>
+<td><code>INT</code></td>
+<td>número inteiro não negativo</td>
+</tr>
+<tr>
+<td><code>NOT NULL</code></td>
+<td>restrição</td>
+<td>impede gravar um registro sem aquele campo</td>
+</tr>
+<tr>
+<td><code>UNIQUE</code></td>
+<td>restrição</td>
+<td>impede duplicar um valor (ex.: dois usuários com o mesmo e-mail)</td>
+</tr>
+<tr>
+<td>índice em chave estrangeira</td>
+<td>otimização</td>
+<td>acelera buscas e junções (<code>JOIN</code>) que filtram por aquela coluna</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+<code>DATETIME</code> no MySQL grava data e hora <strong>sem informação de fuso</strong> — é literalmente "19:00 no dia 15", sem dizer em qual fuso horário. Se a aplicação gravar horários locais (fuso de Cáceres, UTC−4) e outra parte do sistema assumir UTC (o padrão do JavaScript com <code>new Date().toISOString()</code>), o horário exibido para o usuário fica deslocado. A prática mais segura: padronize um único fuso para toda a aplicação — o mais comum é gravar tudo em UTC no banco e converter para o fuso do usuário só na apresentação (no front-end). Esta disciplina, por simplicidade didática, grava os horários já no fuso local do evento; em um sistema com usuários em fusos diferentes, prefira UTC no banco.</p>
+</blockquote>
+<h3 id="script-sqlschemasql-completo">Script <code>sql/schema.sql</code> completo<a class="anchor" href="#script-sqlschemasql-completo" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">-- sql/schema.sql</span>
+<span class="c1">-- Script de criação do banco de dados do UniEventos.</span>
+<span class="c1">-- Execute com: mysql -u root -p &lt; sql/schema.sql</span>
+
+<span class="k">CREATE</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">unieventos</span>
+<span class="w">  </span><span class="nb">CHARACTER</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">utf8mb4</span>
+<span class="w">  </span><span class="k">COLLATE</span><span class="w"> </span><span class="n">utf8mb4_unicode_ci</span><span class="p">;</span>
+
+<span class="n">USE</span><span class="w"> </span><span class="n">unieventos</span><span class="p">;</span>
+
+<span class="c1">-- tabela de usuários — uid do Firebase Auth vem na Aula 10, já deixamos o campo pronto</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">usuarios</span><span class="w"> </span><span class="p">(</span>
+<span class="w">  </span><span class="n">id</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="n">AUTO_INCREMENT</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+<span class="w">  </span><span class="n">firebase_uid</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">128</span><span class="p">)</span><span class="w"> </span><span class="k">UNIQUE</span><span class="p">,</span>
+<span class="w">  </span><span class="n">nome</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">120</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<span class="w">  </span><span class="n">email</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">160</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">UNIQUE</span><span class="p">,</span>
+<span class="w">  </span><span class="n">criado_em</span><span class="w"> </span><span class="n">DATETIME</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span>
+<span class="p">);</span>
+
+<span class="c1">-- tabela de eventos</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">eventos</span><span class="w"> </span><span class="p">(</span>
+<span class="w">  </span><span class="n">id</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="n">AUTO_INCREMENT</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+<span class="w">  </span><span class="n">titulo</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">160</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<span class="w">  </span><span class="n">descricao</span><span class="w"> </span><span class="nb">TEXT</span><span class="p">,</span>
+<span class="w">  </span><span class="n">categoria</span><span class="w"> </span><span class="n">ENUM</span><span class="p">(</span><span class="s1">&#39;palestra&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;minicurso&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;workshop&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<span class="w">  </span><span class="n">data_hora</span><span class="w"> </span><span class="n">DATETIME</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<span class="w">  </span><span class="k">local</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">160</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<span class="w">  </span><span class="n">vagas</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">  </span><span class="n">imagem_url</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">400</span><span class="p">),</span>
+<span class="w">  </span><span class="n">criado_em</span><span class="w"> </span><span class="n">DATETIME</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="p">,</span>
+
+<span class="w">  </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_eventos_categoria</span><span class="w"> </span><span class="p">(</span><span class="n">categoria</span><span class="p">),</span>
+<span class="w">  </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_eventos_data_hora</span><span class="w"> </span><span class="p">(</span><span class="n">data_hora</span><span class="p">)</span>
+<span class="p">);</span>
+
+<span class="c1">-- tabela de inscrições — relação N:N entre usuarios e eventos</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">inscricoes</span><span class="w"> </span><span class="p">(</span>
+<span class="w">  </span><span class="n">id</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="n">AUTO_INCREMENT</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+<span class="w">  </span><span class="n">evento_id</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<span class="w">  </span><span class="n">usuario_id</span><span class="w"> </span><span class="nb">INT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<span class="w">  </span><span class="n">criado_em</span><span class="w"> </span><span class="n">DATETIME</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span><span class="p">,</span>
+
+<span class="w">  </span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="n">fk_inscricoes_evento</span>
+<span class="w">    </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">evento_id</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">eventos</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="w">    </span><span class="k">ON</span><span class="w"> </span><span class="k">DELETE</span><span class="w"> </span><span class="k">CASCADE</span><span class="p">,</span>
+
+<span class="w">  </span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="n">fk_inscricoes_usuario</span>
+<span class="w">    </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">usuario_id</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">usuarios</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="w">    </span><span class="k">ON</span><span class="w"> </span><span class="k">DELETE</span><span class="w"> </span><span class="k">CASCADE</span><span class="p">,</span>
+
+<span class="w">  </span><span class="c1">-- um mesmo usuário não pode se inscrever duas vezes no mesmo evento</span>
+<span class="w">  </span><span class="k">UNIQUE</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="n">uk_inscricao_unica</span><span class="w"> </span><span class="p">(</span><span class="n">evento_id</span><span class="p">,</span><span class="w"> </span><span class="n">usuario_id</span><span class="p">)</span>
+<span class="p">);</span>
+
+<span class="c1">-- dados de exemplo</span>
+<span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">usuarios</span><span class="w"> </span><span class="p">(</span><span class="n">firebase_uid</span><span class="p">,</span><span class="w"> </span><span class="n">nome</span><span class="p">,</span><span class="w"> </span><span class="n">email</span><span class="p">)</span><span class="w"> </span><span class="k">VALUES</span>
+<span class="w">  </span><span class="p">(</span><span class="s1">&#39;uid-exemplo-001&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Ana Souza&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ana.souza@exemplo.com&#39;</span><span class="p">),</span>
+<span class="w">  </span><span class="p">(</span><span class="s1">&#39;uid-exemplo-002&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Bruno Lima&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;bruno.lima@exemplo.com&#39;</span><span class="p">);</span>
+
+<span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">eventos</span><span class="w"> </span><span class="p">(</span><span class="n">titulo</span><span class="p">,</span><span class="w"> </span><span class="n">descricao</span><span class="p">,</span><span class="w"> </span><span class="n">categoria</span><span class="p">,</span><span class="w"> </span><span class="n">data_hora</span><span class="p">,</span><span class="w"> </span><span class="k">local</span><span class="p">,</span><span class="w"> </span><span class="n">vagas</span><span class="p">,</span><span class="w"> </span><span class="n">imagem_url</span><span class="p">)</span><span class="w"> </span><span class="k">VALUES</span>
+<span class="w">  </span><span class="p">(</span><span class="s1">&#39;Semana Acadêmica de Computação&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Palestras e minicursos sobre o mercado de tecnologia.&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;palestra&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;2026-10-15 19:00:00&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Auditório FACET&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">80</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;https://picsum.photos/seed/semana-computacao/400/240&#39;</span><span class="p">),</span>
+<span class="w">  </span><span class="p">(</span><span class="s1">&#39;Minicurso de Vue 3&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Introdução prática ao framework Vue com Composition API.&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;minicurso&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;2026-10-20 14:00:00&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Laboratório 3&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;https://picsum.photos/seed/minicurso-vue/400/240&#39;</span><span class="p">),</span>
+<span class="w">  </span><span class="p">(</span><span class="s1">&#39;Workshop de Firebase e Express&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Construindo uma API real do zero.&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;workshop&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;2026-10-28 19:30:00&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Laboratório 1&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;https://picsum.photos/seed/workshop-firebase/400/240&#39;</span><span class="p">);</span>
+
+<span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">inscricoes</span><span class="w"> </span><span class="p">(</span><span class="n">evento_id</span><span class="p">,</span><span class="w"> </span><span class="n">usuario_id</span><span class="p">)</span><span class="w"> </span><span class="k">VALUES</span>
+<span class="w">  </span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">),</span>
+<span class="w">  </span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">),</span>
+<span class="w">  </span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p><code>ON DELETE CASCADE</code> garante que, se um evento for removido, todas as inscrições associadas a ele são removidas automaticamente pelo próprio banco — sem precisar de código na aplicação para limpar registros órfãos. A restrição <code>UNIQUE KEY uk_inscricao_unica (evento_id, usuario_id)</code> impede, no nível do banco, que o mesmo usuário se inscreva duas vezes no mesmo evento — mesmo que a aplicação, por algum bug, tentasse permitir.</p>
+<blockquote class="dica">
+<p><strong>💡 Dica</strong>
+<code>utf8mb4</code> (em vez do antigo <code>utf8</code> do MySQL, que na verdade só suporta um subconjunto do Unicode) é o padrão recomendado hoje — suporta acentos, emojis e qualquer caractere completo do Unicode sem surpresas.</p>
+</blockquote>
+<h2 id="3-instalando-o-mysql">3. Instalando o MySQL<a class="anchor" href="#3-instalando-o-mysql" title="Permanent link">¶</a></h2>
+<p>Três caminhos chegam ao mesmo lugar: um servidor MySQL 8 escutando em <code>localhost:3306</code>. Escolha o que for mais conveniente para o seu sistema operacional e siga — não é preciso instalar mais de um.</p>
+<h3 id="linux-debianubuntu">Linux (Debian/Ubuntu)<a class="anchor" href="#linux-debianubuntu" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>apt<span class="w"> </span>update
+sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>mysql-server
+sudo<span class="w"> </span>systemctl<span class="w"> </span>start<span class="w"> </span>mysql
+sudo<span class="w"> </span>mysql_secure_installation<span class="w">   </span><span class="c1"># define senha do root e remove configurações inseguras padrão</span>
+</code></pre></div></div>
+
+<h3 id="windows">Windows<a class="anchor" href="#windows" title="Permanent link">¶</a></h3>
+<p>Baixe o <strong>MySQL Installer</strong> em <a href="https://dev.mysql.com/downloads/installer/">dev.mysql.com/downloads/installer</a>, escolha "Server only" (ou "Full" se quiser o Workbench junto), e siga o assistente — ele já pede para definir a senha do usuário <code>root</code> durante a instalação.</p>
+<h3 id="alternativa-docker-qualquer-sistema-operacional">Alternativa: Docker (qualquer sistema operacional)<a class="anchor" href="#alternativa-docker-qualquer-sistema-operacional" title="Permanent link">¶</a></h3>
+<p>Se você já tem Docker instalado, essa é a forma mais rápida de ter um MySQL isolado, sem instalar nada permanentemente no sistema:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>--name<span class="w"> </span>mysql-fds<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">MYSQL_ROOT_PASSWORD</span><span class="o">=</span>senhaDeDesenvolvimento123<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">MYSQL_DATABASE</span><span class="o">=</span>unieventos<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-p<span class="w"> </span><span class="m">3306</span>:3306<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span>mysql:8
+</code></pre></div></div>
+
+<p>Isso sobe um contêiner MySQL 8, já criando o banco <code>unieventos</code>, expondo a porta padrão <code>3306</code> na sua máquina. Para parar e voltar a usar depois:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>docker<span class="w"> </span>stop<span class="w"> </span>mysql-fds<span class="w">     </span><span class="c1"># para o contêiner</span>
+docker<span class="w"> </span>start<span class="w"> </span>mysql-fds<span class="w">    </span><span class="c1"># volta a rodar, com os dados preservados</span>
+</code></pre></div></div>
+
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+A senha do exemplo (<code>senhaDeDesenvolvimento123</code>) é só para desenvolvimento local. Nunca reutilize senhas de exemplo de material didático em nada que vá para produção.</p>
+<p><strong>💡 Dica</strong>
+Se você usa Docker no dia a dia, considere adicionar um <code>docker-compose.yml</code> ao repositório <code>unieventos-api</code>, versionando a configuração do banco de desenvolvimento junto do código — assim qualquer colega que clonar o projeto sobe o mesmo ambiente com um único <code>docker compose up -d</code>, sem precisar copiar o comando <code>docker run</code> manualmente.</p>
+</blockquote>
+<h3 id="ferramentas-para-explorar-o-banco-visualmente">Ferramentas para explorar o banco visualmente<a class="anchor" href="#ferramentas-para-explorar-o-banco-visualmente" title="Permanent link">¶</a></h3>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Ferramenta</th>
+<th>Característica</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>MySQL Workbench</strong></td>
+<td>oficial da Oracle/MySQL, completa, modelagem visual de schema</td>
+</tr>
+<tr>
+<td><strong>DBeaver</strong></td>
+<td>multiplataforma, suporta vários SGBDs além de MySQL, gratuita</td>
+</tr>
+<tr>
+<td><strong>extensão MySQL do VS Code</strong></td>
+<td>fica dentro do próprio editor, boa para consultas rápidas sem trocar de janela</td>
+</tr>
+<tr>
+<td><strong>linha de comando (<code>mysql</code>)</strong></td>
+<td>sempre disponível, sem instalação extra, ótima para scripts e automação</td>
+</tr>
+<tr>
+<td><strong>phpMyAdmin</strong></td>
+<td>interface web, comum em hospedagens compartilhadas; menos usada em desenvolvimento local</td>
+</tr>
+</tbody>
+</table></div>
+<p>Escolha uma, conecte em <code>localhost:3306</code> com o usuário <code>root</code> e a senha definida, e rode o <code>sql/schema.sql</code> — ou pela ferramenta gráfica, ou direto no terminal:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>mysql<span class="w"> </span>-u<span class="w"> </span>root<span class="w"> </span>-p<span class="w"> </span>&lt;<span class="w"> </span>sql/schema.sql
+</code></pre></div></div>
+
+<p>Depois de rodar o script, use a ferramenta escolhida para navegar visualmente pelas tabelas criadas, conferir os <code>INSERT</code>s de exemplo e, se quiser, gerar um diagrama entidade-relacionamento a partir do schema existente — a maioria dessas ferramentas faz engenharia reversa do banco para um diagrama automaticamente, útil para conferir se as relações ficaram como o desenhado na §2.</p>
+<h2 id="padrao-de-projeto-em-uso">🧩 Padrão de projeto em uso<a class="anchor" href="#padrao-de-projeto-em-uso" title="Permanent link">¶</a></h2>
+<blockquote>
+<h3 id="padrao-de-projeto-em-uso-factory-object-pool-e-repository">🧩 Padrão de projeto em uso — Factory / Object Pool e Repository<a class="anchor" href="#padrao-de-projeto-em-uso-factory-object-pool-e-repository" title="Permanent link">¶</a></h3>
+<p><code>mysql2.createPool(...)</code> é uma aplicação combinada de dois padrões criacionais. <strong>Factory Method</strong>: você não instancia uma conexão diretamente com <code>new Conexao()</code> — chama uma função de fábrica (<code>createPool</code>) que encapsula a lógica de criação e devolve o objeto pronto para uso, escondendo os detalhes de configuração interna. <strong>Object Pool</strong>: em vez de criar uma conexão nova para cada requisição (caro: negociar protocolo, autenticar, alocar recursos no servidor de banco), o pool mantém um conjunto de conexões já abertas, prontas, emprestando uma a cada consulta e devolvendo-a ao pool quando termina — reduzindo drasticamente o custo de abrir/fechar conexão repetidamente.</p>
+<p>A camada de <strong>Repository</strong>, que construímos a seguir, é um padrão estrutural de organização: isola todo o SQL da aplicação dentro de funções com nomes de domínio (<code>buscarEventoPorId</code>, <code>inserirEvento</code>), para que o resto do código nunca precise saber que existe SQL por trás — só chama métodos. Trocar de MySQL para outro banco (Aula 12, com Supabase) significa reescrever o repositório, sem tocar em serviço, controlador ou rotas.</p>
+</blockquote>
+<h2 id="4-mysql2promise-na-pratica">4. <code>mysql2/promise</code> na prática<a class="anchor" href="#4-mysql2promise-na-pratica" title="Permanent link">¶</a></h2>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>npm<span class="w"> </span>install<span class="w"> </span>mysql2
+</code></pre></div></div>
+
+<h3 id="pool-de-conexoes-por-que-e-nao-conexao-unica">Pool de conexões: por que, e não conexão única<a class="anchor" href="#pool-de-conexoes-por-que-e-nao-conexao-unica" title="Permanent link">¶</a></h3>
+<p>Uma conexão única a um banco de dados atende <strong>uma consulta por vez</strong> — se sua API recebe cinco requisições simultâneas, e cada uma precisa consultar o banco, quatro delas ficam esperando a primeira terminar. Um <strong>pool de conexões</strong> mantém várias conexões abertas simultaneamente, e o driver empresta uma livre para cada consulta, devolvendo ao pool quando ela termina.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/bancoDeDados.js</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">mysql</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;mysql2/promise&#39;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">pool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">mysql</span><span class="p">.</span><span class="nx">createPool</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">host</span><span class="o">:</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">DB_HOST</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">user</span><span class="o">:</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">DB_USER</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">password</span><span class="o">:</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">DB_PASSWORD</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">database</span><span class="o">:</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">DB_NAME</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">waitForConnections</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">   </span><span class="c1">// se todas as conexões estiverem ocupadas, espera na fila em vez de falhar</span>
+<span class="w">  </span><span class="nx">connectionLimit</span><span class="o">:</span><span class="w"> </span><span class="mf">10</span><span class="p">,</span><span class="w">        </span><span class="c1">// no máximo 10 conexões simultâneas no pool</span>
+<span class="w">  </span><span class="nx">namedPlaceholders</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">    </span><span class="c1">// permite usar :nome em vez de só &quot;?&quot; nas queries</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<p><code>waitForConnections: true</code> significa que, se as 10 conexões do <code>connectionLimit</code> estiverem todas ocupadas no momento de uma nova consulta, o driver enfileira a requisição e espera uma liberar, em vez de lançar erro imediatamente. <code>namedPlaceholders: true</code> habilita a sintaxe <code>:nomeDoParametro</code> nas consultas, além da tradicional <code>?</code> posicional — útil quando a query tem muitos parâmetros e a ordem fica difícil de acompanhar.</p>
+<h3 id="poolquery-vs-poolexecute"><code>pool.query</code> vs <code>pool.execute</code><a class="anchor" href="#poolquery-vs-poolexecute" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// pool.query: envia a consulta e os valores juntos, o driver monta e executa</span>
+<span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">linhas</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">pool</span><span class="p">.</span><span class="nx">query</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM eventos WHERE categoria = ?&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;palestra&#39;</span><span class="p">])</span>
+
+<span class="c1">// pool.execute: usa prepared statements no protocolo do MySQL — o SQL é compilado</span>
+<span class="c1">// uma vez pelo servidor e reutilizado, mais eficiente para consultas repetidas</span>
+<span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">linhas2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">pool</span><span class="p">.</span><span class="nx">execute</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM eventos WHERE categoria = ?&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;palestra&#39;</span><span class="p">])</span>
+</code></pre></div></div>
+
+<p>Para a maioria dos casos, o comportamento observável é o mesmo — a diferença é performance em consultas repetidas com muita frequência (prepared statements do <code>execute</code> compensam o custo extra de preparo quando a mesma consulta roda muitas vezes). Esta disciplina usa <code>pool.execute</code> como padrão no repositório, por ser a prática mais recomendada em produção.</p>
+<h3 id="consultas-parametrizadas-e-o-ataque-que-elas-evitam">Consultas parametrizadas — e o ataque que elas evitam<a class="anchor" href="#consultas-parametrizadas-e-o-ataque-que-elas-evitam" title="Permanent link">¶</a></h3>
+<p>Nunca, em hipótese alguma, concatene valores vindos do usuário diretamente numa string SQL:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// NUNCA FAÇA ISSO — vulnerável a SQL injection</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">categoria</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">query</span><span class="p">.</span><span class="nx">categoria</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">sql</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`SELECT * FROM eventos WHERE categoria = &#39;</span><span class="si">${</span><span class="nx">categoria</span><span class="si">}</span><span class="sb">&#39;`</span>
+<span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">linhas</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">pool</span><span class="p">.</span><span class="nx">query</span><span class="p">(</span><span class="nx">sql</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Se alguém enviar <code>categoria</code> como <code>' OR 1=1 --</code>, a string final montada fica:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">eventos</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">categoria</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="mi">1</span><span class="o">=</span><span class="mi">1</span><span class="w"> </span><span class="c1">--&#39;</span>
+</code></pre></div></div>
+
+<p><code>OR 1=1</code> é sempre verdadeiro, e <code>--</code> comenta o resto da linha — a consulta passa a devolver <strong>todos</strong> os eventos da tabela, ignorando completamente o filtro pretendido. Em consultas de autenticação, o mesmo tipo de ataque pode permitir login sem senha correta; em <code>DELETE</code>/<code>UPDATE</code> malformados dessa forma, pode apagar ou alterar a tabela inteira.</p>
+<p>A correção é sempre usar <strong>placeholders</strong> (<code>?</code> ou <code>:nome</code>), nunca concatenação:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// CORRETO — consulta parametrizada</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">categoria</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">query</span><span class="p">.</span><span class="nx">categoria</span>
+<span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">linhas</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">pool</span><span class="p">.</span><span class="nx">execute</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM eventos WHERE categoria = ?&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="nx">categoria</span><span class="p">])</span>
+</code></pre></div></div>
+
+<p>Com placeholder, o driver envia a consulta e os valores <strong>separadamente</strong> para o servidor MySQL — o valor nunca é interpretado como parte da sintaxe SQL, não importa o que ele contenha. <code>' OR 1=1 --</code> viraria, nesse caso, literalmente o texto que está sendo procurado na coluna <code>categoria</code>, e não devolveria nada (porque nenhuma categoria se chama isso).</p>
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+SQL injection é uma das vulnerabilidades mais antigas e mais exploradas da web, e ainda aparece em sistemas reais porque alguém, em algum momento, concatenou uma string "só dessa vez". A regra não tem exceção: todo valor vindo de fora (query string, corpo da requisição, cabeçalho) entra numa query como parâmetro, nunca como texto concatenado.</p>
+</blockquote>
+<h3 id="lendo-o-resultado-de-cada-tipo-de-consulta">Lendo o resultado de cada tipo de consulta<a class="anchor" href="#lendo-o-resultado-de-cada-tipo-de-consulta" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// SELECT: o resultado é um array de linhas (mesmo com 0 ou 1 resultado)</span>
+<span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">linhas</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">pool</span><span class="p">.</span><span class="nx">execute</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM eventos WHERE id = ?&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mf">1</span><span class="p">])</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">evento</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">linhas</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span><span class="w"> </span><span class="c1">// undefined se não encontrou</span>
+
+<span class="c1">// INSERT: o resultado é um objeto com metadados da inserção</span>
+<span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">resultado</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">pool</span><span class="p">.</span><span class="nx">execute</span><span class="p">(</span>
+<span class="w">  </span><span class="s1">&#39;INSERT INTO eventos (titulo, categoria, data_hora, local, vagas) VALUES (?, ?, ?, ?, ?)&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">[</span><span class="s1">&#39;Palestra de teste&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;palestra&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;2026-11-05 19:00:00&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Auditório FACET&#39;</span><span class="p">,</span><span class="w"> </span><span class="mf">60</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">resultado</span><span class="p">.</span><span class="nx">insertId</span><span class="p">)</span><span class="w">       </span><span class="c1">// id gerado pelo AUTO_INCREMENT</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">resultado</span><span class="p">.</span><span class="nx">affectedRows</span><span class="p">)</span><span class="w">   </span><span class="c1">// quantas linhas foram afetadas (1, aqui)</span>
+
+<span class="c1">// UPDATE / DELETE: também devolvem affectedRows</span>
+<span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">resultadoUpdate</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">pool</span><span class="p">.</span><span class="nx">execute</span><span class="p">(</span><span class="s1">&#39;UPDATE eventos SET vagas = ? WHERE id = ?&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mf">50</span><span class="p">,</span><span class="w"> </span><span class="mf">1</span><span class="p">])</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">resultadoUpdate</span><span class="p">.</span><span class="nx">affectedRows</span><span class="p">)</span><span class="w"> </span><span class="c1">// 0 se o id não existia, 1 se atualizou</span>
+</code></pre></div></div>
+
+<p><code>pool.query</code>/<code>pool.execute</code> sempre devolvem um array de dois elementos — por isso o padrão <code>const [linhas] = await ...</code> (desestruturação, já vista desde a Aula 01). O primeiro elemento é o resultado propriamente dito; o segundo (normalmente descartado com <code>const [linhas]</code>, ignorando a segunda posição) traz metadados de campos, que raramente usamos diretamente.</p>
+<h3 id="consultas-relacionais-com-join">Consultas relacionais com <code>JOIN</code><a class="anchor" href="#consultas-relacionais-com-join" title="Permanent link">¶</a></h3>
+<p>A vantagem de ter um banco relacional aparece quando você precisa combinar dados de mais de uma tabela numa única consulta — algo que, com dados em memória (Aulas 07–08), exigia laços manuais em JavaScript para "juntar" arrays.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// buscar as inscrições de um evento, já trazendo o nome e e-mail de cada inscrito,</span>
+<span class="c1">// numa única ida ao banco — sem precisar de uma segunda consulta por usuário</span>
+<span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">inscricoesDoEvento</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">pool</span><span class="p">.</span><span class="nx">execute</span><span class="p">(</span>
+<span class="w">  </span><span class="sb">`SELECT i.id, i.criado_em, u.nome, u.email</span>
+<span class="sb">   FROM inscricoes i</span>
+<span class="sb">   INNER JOIN usuarios u ON u.id = i.usuario_id</span>
+<span class="sb">   WHERE i.evento_id = ?</span>
+<span class="sb">   ORDER BY i.criado_em ASC`</span><span class="p">,</span>
+<span class="w">  </span><span class="p">[</span><span class="nx">eventoId</span><span class="p">],</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<p><code>INNER JOIN</code> combina linhas de <code>inscricoes</code> com as linhas correspondentes de <code>usuarios</code>, casando pela condição <code>u.id = i.usuario_id</code> — exatamente a relação de chave estrangeira definida no <code>schema.sql</code>. O resultado já vem com os dados prontos para a resposta da API, sem processamento adicional em JavaScript.</p>
+<h3 id="transacoes-inscrever-em-evento-e-decrementar-vagas">Transações: inscrever em evento e decrementar vagas<a class="anchor" href="#transacoes-inscrever-em-evento-e-decrementar-vagas" title="Permanent link">¶</a></h3>
+<p>Considere a operação "inscrever um usuário num evento": ela precisa (1) verificar se há vaga, (2) inserir a inscrição, e (3) decrementar o contador de vagas. Se o passo 2 tiver sucesso mas o passo 3 falhar (por exemplo, o servidor cair no meio), o banco fica em um estado inconsistente — uma inscrição existe, mas a vaga não foi descontada. Uma <strong>transação</strong> garante que um grupo de operações aconteça <strong>tudo ou nada</strong>.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/repositories/inscricoesRepository.js</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">pool</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../bancoDeDados.js&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ErroHttp</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../erros/ErroHttp.js&#39;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">inscreverUsuarioNoEvento</span><span class="p">(</span><span class="nx">eventoId</span><span class="p">,</span><span class="w"> </span><span class="nx">usuarioId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// pool.getConnection() empresta UMA conexão específica do pool, exclusiva para esta transação</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">conexao</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">pool</span><span class="p">.</span><span class="nx">getConnection</span><span class="p">()</span>
+
+<span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">conexao</span><span class="p">.</span><span class="nx">beginTransaction</span><span class="p">()</span>
+
+<span class="w">    </span><span class="c1">// trava a linha do evento para leitura, evitando que duas inscrições simultâneas</span>
+<span class="w">    </span><span class="c1">// leiam &quot;vagas: 1&quot; ao mesmo tempo e ambas decidam que podem inscrever</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">eventos</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">conexao</span><span class="p">.</span><span class="nx">execute</span><span class="p">(</span>
+<span class="w">      </span><span class="s1">&#39;SELECT vagas FROM eventos WHERE id = ? FOR UPDATE&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="p">[</span><span class="nx">eventoId</span><span class="p">],</span>
+<span class="w">    </span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">eventos</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">ErroHttp</span><span class="p">(</span><span class="mf">404</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Evento não encontrado&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">eventos</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">vagas</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">ErroHttp</span><span class="p">(</span><span class="mf">422</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Não há vagas disponíveis para este evento&#39;</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">conexao</span><span class="p">.</span><span class="nx">execute</span><span class="p">(</span>
+<span class="w">      </span><span class="s1">&#39;INSERT INTO inscricoes (evento_id, usuario_id) VALUES (?, ?)&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="p">[</span><span class="nx">eventoId</span><span class="p">,</span><span class="w"> </span><span class="nx">usuarioId</span><span class="p">],</span>
+<span class="w">    </span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">conexao</span><span class="p">.</span><span class="nx">execute</span><span class="p">(</span>
+<span class="w">      </span><span class="s1">&#39;UPDATE eventos SET vagas = vagas - 1 WHERE id = ?&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="p">[</span><span class="nx">eventoId</span><span class="p">],</span>
+<span class="w">    </span><span class="p">)</span>
+
+<span class="w">    </span><span class="c1">// só grava tudo em definitivo se as três operações acima passaram sem erro</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">conexao</span><span class="p">.</span><span class="nx">commit</span><span class="p">()</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">erro</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// desfaz TUDO que essa transação tentou fazer — o banco volta ao estado anterior</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">conexao</span><span class="p">.</span><span class="nx">rollback</span><span class="p">()</span>
+<span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="nx">erro</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">finally</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// devolve a conexão ao pool, sempre — sucesso ou falha</span>
+<span class="w">    </span><span class="nx">conexao</span><span class="p">.</span><span class="nx">release</span><span class="p">()</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><code>FOR UPDATE</code> no <code>SELECT</code> trava a linha lida até o fim da transação, impedindo que outra transação concorrente leia o mesmo valor de <code>vagas</code> antes do commit — evitando o cenário de duas inscrições simultâneas "roubarem" a última vaga ao mesmo tempo.</p>
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+<code>conexao.release()</code> no <code>finally</code> é obrigatório. Se você esquecer de liberar uma conexão emprestada do pool, ela fica presa — e depois de <code>connectionLimit</code> conexões presas, o pool se esgota e toda nova consulta trava esperando uma conexão livre que nunca aparece. Isso é a causa mais comum de uma API que "funciona bem no início e trava depois de um tempo".</p>
+</blockquote>
+<p>O caminho de sucesso e o caminho de falha, lado a lado:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>  beginTransaction()
+        │
+        ▼
+  SELECT ... FOR UPDATE  (lê e trava a linha do evento)
+        │
+        ▼
+  vagas &gt; 0? ──── não ────► throw erroValidacao(422)
+        │ sim                      │
+        ▼                          ▼
+  INSERT em inscricoes        catch: rollback()
+        │                     (nada gravado)
+        ▼                          │
+  UPDATE vagas = vagas - 1         │
+        │                          │
+        ▼                          │
+  commit()                         │
+  (tudo gravado)                   │
+        │                          │
+        └──────────┬───────────────┘
+                    ▼
+             finally: release()
+             (conexão sempre volta ao pool)
+</code></pre></div></div>
+
+<p>Note que <code>release()</code> roda em <strong>ambos</strong> os caminhos — é justamente o papel do <code>finally</code>: executar independentemente de a <code>try</code> ter chegado ao <code>commit()</code> ou de o <code>catch</code> ter chegado ao <code>rollback()</code>.</p>
+<h2 id="5-configuracao-por-ambiente">5. Configuração por ambiente<a class="anchor" href="#5-configuracao-por-ambiente" title="Permanent link">¶</a></h2>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1"># .env (nunca commitar)</span>
+<span class="nv">PORTA</span><span class="o">=</span><span class="m">3000</span>
+<span class="nv">DB_HOST</span><span class="o">=</span>localhost
+<span class="nv">DB_USER</span><span class="o">=</span>root
+<span class="nv">DB_PASSWORD</span><span class="o">=</span>senhaDeDesenvolvimento123
+<span class="nv">DB_NAME</span><span class="o">=</span>unieventos
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1"># .env.example (versionado, sem valores sigilosos)</span>
+<span class="nv">PORTA</span><span class="o">=</span><span class="m">3000</span>
+<span class="nv">DB_HOST</span><span class="o">=</span>localhost
+<span class="nv">DB_USER</span><span class="o">=</span>
+<span class="nv">DB_PASSWORD</span><span class="o">=</span>
+<span class="nv">DB_NAME</span><span class="o">=</span>unieventos
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>node<span class="w"> </span>--watch<span class="w"> </span>--env-file<span class="o">=</span>.env<span class="w"> </span>src/servidor.js
+</code></pre></div></div>
+
+<p>Cada ambiente (sua máquina, a de um colega, um servidor de produção futuro) tem seu próprio <code>.env</code>, com valores possivelmente diferentes — mas o mesmo código-fonte funciona em todos, porque nada de configuração está fixado (<em>hardcoded</em>) no JavaScript.</p>
+<h2 id="mao-na-massa-camadas-repositorio-servico-e-controlador">💻 Mão na massa — camadas repositório, serviço e controlador<a class="anchor" href="#mao-na-massa-camadas-repositorio-servico-e-controlador" title="Permanent link">¶</a></h2>
+<p>A partir de agora a <code>unieventos-api</code> ganha três camadas com responsabilidades separadas:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>requisição HTTP
+      │
+      ▼
+  controller   — lê req, chama o service, monta a resposta HTTP (não sabe SQL)
+      │
+      ▼
+  service      — regra de negócio (ex.: &quot;vagas não pode ficar negativo&quot;)
+      │
+      ▼
+  repository   — só SQL: monta e executa queries, devolve dados &quot;crus&quot;
+      │
+      ▼
+  MySQL
+</code></pre></div></div>
+
+<p>O <strong>controller</strong> não sabe que existe SQL — ele lida só com <code>req</code>/<code>res</code> e delega tudo ao service. O <strong>service</strong> não sabe que existe <code>req</code>/<code>res</code> — ele recebe parâmetros simples e devolve dados ou lança erros de negócio. O <strong>repository</strong> não sabe nada sobre HTTP — só executa SQL e devolve linhas. Essa separação permite testar a regra de negócio sem precisar simular uma requisição HTTP, e trocar o banco de dados (Aula 12, Supabase) sem tocar em controller nem service.</p>
+<h3 id="passo-1-repositorio-de-eventos">Passo 1 — repositório de eventos<a class="anchor" href="#passo-1-repositorio-de-eventos" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/repositories/eventosRepository.js</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">pool</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../bancoDeDados.js&#39;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">listarEventos</span><span class="p">({</span><span class="w"> </span><span class="nx">categoria</span><span class="p">,</span><span class="w"> </span><span class="nx">ordenarPor</span><span class="p">,</span><span class="w"> </span><span class="nx">direcao</span><span class="p">,</span><span class="w"> </span><span class="nx">limite</span><span class="p">,</span><span class="w"> </span><span class="nx">offset</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">colunasPermitidas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;titulo&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;data_hora&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;vagas&#39;</span><span class="p">]</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">coluna</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">colunasPermitidas</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="nx">ordenarPor</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">ordenarPor</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;id&#39;</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">sentidoOrdenacao</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">direcao</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;desc&#39;</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;DESC&#39;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;ASC&#39;</span>
+
+<span class="w">  </span><span class="c1">// nomes de coluna/direção não podem ser parametrizados com &quot;?&quot; (só valores podem);</span>
+<span class="w">  </span><span class="c1">// por isso validamos contra uma lista fixa (colunasPermitidas) antes de montar a string</span>
+<span class="w">  </span><span class="kd">let</span><span class="w"> </span><span class="nx">sql</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;SELECT * FROM eventos&#39;</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">parametros</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span>
+
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">categoria</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">sql</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="s1">&#39; WHERE categoria = ?&#39;</span>
+<span class="w">    </span><span class="nx">parametros</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">categoria</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">sql</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="sb">` ORDER BY </span><span class="si">${</span><span class="nx">coluna</span><span class="si">}</span><span class="sb"> </span><span class="si">${</span><span class="nx">sentidoOrdenacao</span><span class="si">}</span><span class="sb"> LIMIT ? OFFSET ?`</span>
+<span class="w">  </span><span class="nx">parametros</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">limite</span><span class="p">,</span><span class="w"> </span><span class="nx">offset</span><span class="p">)</span>
+
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">linhas</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">pool</span><span class="p">.</span><span class="nx">execute</span><span class="p">(</span><span class="nx">sql</span><span class="p">,</span><span class="w"> </span><span class="nx">parametros</span><span class="p">)</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">linhas</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">contarEventos</span><span class="p">(</span><span class="nx">categoria</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">let</span><span class="w"> </span><span class="nx">sql</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;SELECT COUNT(*) AS total FROM eventos&#39;</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">parametros</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span>
+
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">categoria</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">sql</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="s1">&#39; WHERE categoria = ?&#39;</span>
+<span class="w">    </span><span class="nx">parametros</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">categoria</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">linhas</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">pool</span><span class="p">.</span><span class="nx">execute</span><span class="p">(</span><span class="nx">sql</span><span class="p">,</span><span class="w"> </span><span class="nx">parametros</span><span class="p">)</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">linhas</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">total</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">buscarEventoPorId</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">linhas</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">pool</span><span class="p">.</span><span class="nx">execute</span><span class="p">(</span><span class="s1">&#39;SELECT * FROM eventos WHERE id = ?&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="nx">id</span><span class="p">])</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">linhas</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="kc">null</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">inserirEvento</span><span class="p">(</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">resultado</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">pool</span><span class="p">.</span><span class="nx">execute</span><span class="p">(</span>
+<span class="w">    </span><span class="sb">`INSERT INTO eventos (titulo, descricao, categoria, data_hora, local, vagas, imagem_url)</span>
+<span class="sb">     VALUES (?, ?, ?, ?, ?, ?, ?)`</span><span class="p">,</span>
+<span class="w">    </span><span class="p">[</span>
+<span class="w">      </span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">evento</span><span class="p">.</span><span class="nx">descricao</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">evento</span><span class="p">.</span><span class="nx">categoria</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">evento</span><span class="p">.</span><span class="nx">dataHora</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">evento</span><span class="p">.</span><span class="nx">local</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">evento</span><span class="p">.</span><span class="nx">vagas</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">evento</span><span class="p">.</span><span class="nx">imagemUrl</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">  </span><span class="p">)</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">buscarEventoPorId</span><span class="p">(</span><span class="nx">resultado</span><span class="p">.</span><span class="nx">insertId</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">substituirEvento</span><span class="p">(</span><span class="nx">id</span><span class="p">,</span><span class="w"> </span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">resultado</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">pool</span><span class="p">.</span><span class="nx">execute</span><span class="p">(</span>
+<span class="w">    </span><span class="sb">`UPDATE eventos</span>
+<span class="sb">     SET titulo = ?, descricao = ?, categoria = ?, data_hora = ?, local = ?, vagas = ?, imagem_url = ?</span>
+<span class="sb">     WHERE id = ?`</span><span class="p">,</span>
+<span class="w">    </span><span class="p">[</span>
+<span class="w">      </span><span class="nx">evento</span><span class="p">.</span><span class="nx">titulo</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">evento</span><span class="p">.</span><span class="nx">descricao</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">evento</span><span class="p">.</span><span class="nx">categoria</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">evento</span><span class="p">.</span><span class="nx">dataHora</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">evento</span><span class="p">.</span><span class="nx">local</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">evento</span><span class="p">.</span><span class="nx">vagas</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">evento</span><span class="p">.</span><span class="nx">imagemUrl</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">id</span><span class="p">,</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">  </span><span class="p">)</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">resultado</span><span class="p">.</span><span class="nx">affectedRows</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">buscarEventoPorId</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">atualizarEventoParcial</span><span class="p">(</span><span class="nx">id</span><span class="p">,</span><span class="w"> </span><span class="nx">campos</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">colunasPermitidas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;titulo&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">descricao</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;descricao&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;categoria&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">dataHora</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;data_hora&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">local</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;local&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;vagas&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">imagemUrl</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;imagem_url&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">atribuicoes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">parametros</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span>
+
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">chave</span><span class="p">,</span><span class="w"> </span><span class="nx">valor</span><span class="p">]</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nb">Object</span><span class="p">.</span><span class="nx">entries</span><span class="p">(</span><span class="nx">campos</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">colunasPermitidas</span><span class="p">[</span><span class="nx">chave</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">atribuicoes</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">colunasPermitidas</span><span class="p">[</span><span class="nx">chave</span><span class="p">]</span><span class="si">}</span><span class="sb"> = ?`</span><span class="p">)</span>
+<span class="w">      </span><span class="nx">parametros</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">valor</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">atribuicoes</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nx">buscarEventoPorId</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span>
+
+<span class="w">  </span><span class="nx">parametros</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">resultado</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">pool</span><span class="p">.</span><span class="nx">execute</span><span class="p">(</span>
+<span class="w">    </span><span class="sb">`UPDATE eventos SET </span><span class="si">${</span><span class="nx">atribuicoes</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">)</span><span class="si">}</span><span class="sb"> WHERE id = ?`</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">parametros</span><span class="p">,</span>
+<span class="w">  </span><span class="p">)</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">resultado</span><span class="p">.</span><span class="nx">affectedRows</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">buscarEventoPorId</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">removerEvento</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">resultado</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">pool</span><span class="p">.</span><span class="nx">execute</span><span class="p">(</span><span class="s1">&#39;DELETE FROM eventos WHERE id = ?&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="nx">id</span><span class="p">])</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">resultado</span><span class="p">.</span><span class="nx">affectedRows</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">0</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+Note que nomes de <strong>coluna</strong> e <strong>direção de ordenação</strong> (<code>ORDER BY coluna ASC/DESC</code>) não podem vir de placeholder <code>?</code> — o protocolo de prepared statements do MySQL só parametriza <strong>valores</strong>, não identificadores de coluna nem palavras-chave SQL. É por isso que <code>listarEventos</code> valida <code>ordenarPor</code> contra uma lista fixa (<code>colunasPermitidas</code>) antes de montar a string com esse nome — validar contra uma lista fechada de valores aceitos é seguro; aceitar qualquer string do usuário nessa posição reabriria a porta para injection.</p>
+</blockquote>
+<h3 id="passo-2-servico-de-eventos">Passo 2 — serviço de eventos<a class="anchor" href="#passo-2-servico-de-eventos" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/services/eventosService.js</span>
+<span class="k">import</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">eventosRepository</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../repositories/eventosRepository.js&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">erroNaoEncontrado</span><span class="p">,</span><span class="w"> </span><span class="nx">erroValidacao</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../erros/ErroHttp.js&#39;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">obterListaDeEventos</span><span class="p">({</span><span class="w"> </span><span class="nx">categoria</span><span class="p">,</span><span class="w"> </span><span class="nx">ordenarPor</span><span class="p">,</span><span class="w"> </span><span class="nx">direcao</span><span class="p">,</span><span class="w"> </span><span class="nx">pagina</span><span class="p">,</span><span class="w"> </span><span class="nx">limite</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">paginaSegura</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nb">Number</span><span class="p">(</span><span class="nx">pagina</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="mf">1</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">limiteSeguro</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Math</span><span class="p">.</span><span class="nx">min</span><span class="p">(</span><span class="mf">100</span><span class="p">,</span><span class="w"> </span><span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="nb">Number</span><span class="p">(</span><span class="nx">limite</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="mf">10</span><span class="p">))</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">paginaSegura</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">limiteSeguro</span>
+
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">eventos</span><span class="p">,</span><span class="w"> </span><span class="nx">total</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nb">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">([</span>
+<span class="w">    </span><span class="nx">eventosRepository</span><span class="p">.</span><span class="nx">listarEventos</span><span class="p">({</span><span class="w"> </span><span class="nx">categoria</span><span class="p">,</span><span class="w"> </span><span class="nx">ordenarPor</span><span class="p">,</span><span class="w"> </span><span class="nx">direcao</span><span class="p">,</span><span class="w"> </span><span class="nx">limite</span><span class="o">:</span><span class="w"> </span><span class="nx">limiteSeguro</span><span class="p">,</span><span class="w"> </span><span class="nx">offset</span><span class="w"> </span><span class="p">}),</span>
+<span class="w">    </span><span class="nx">eventosRepository</span><span class="p">.</span><span class="nx">contarEventos</span><span class="p">(</span><span class="nx">categoria</span><span class="p">),</span>
+<span class="w">  </span><span class="p">])</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">eventos</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">meta</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">pagina</span><span class="o">:</span><span class="w"> </span><span class="nx">paginaSegura</span><span class="p">,</span><span class="w"> </span><span class="nx">limite</span><span class="o">:</span><span class="w"> </span><span class="nx">limiteSeguro</span><span class="p">,</span><span class="w"> </span><span class="nx">total</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">obterEventoPorId</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">evento</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">eventosRepository</span><span class="p">.</span><span class="nx">buscarEventoPorId</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="nx">erroNaoEncontrado</span><span class="p">(</span><span class="s1">&#39;Evento não encontrado&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">evento</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">criarEvento</span><span class="p">(</span><span class="nx">dadosEvento</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">dadosEvento</span><span class="p">.</span><span class="nx">vagas</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="nx">erroValidacao</span><span class="p">(</span><span class="s1">&#39;Vagas não pode ser negativo&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">eventosRepository</span><span class="p">.</span><span class="nx">inserirEvento</span><span class="p">(</span><span class="nx">dadosEvento</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">atualizarEventoCompleto</span><span class="p">(</span><span class="nx">id</span><span class="p">,</span><span class="w"> </span><span class="nx">dadosEvento</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">eventoAtualizado</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">eventosRepository</span><span class="p">.</span><span class="nx">substituirEvento</span><span class="p">(</span><span class="nx">id</span><span class="p">,</span><span class="w"> </span><span class="nx">dadosEvento</span><span class="p">)</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">eventoAtualizado</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="nx">erroNaoEncontrado</span><span class="p">(</span><span class="s1">&#39;Evento não encontrado&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">eventoAtualizado</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">atualizarEventoParcial</span><span class="p">(</span><span class="nx">id</span><span class="p">,</span><span class="w"> </span><span class="nx">campos</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">eventoAtualizado</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">eventosRepository</span><span class="p">.</span><span class="nx">atualizarEventoParcial</span><span class="p">(</span><span class="nx">id</span><span class="p">,</span><span class="w"> </span><span class="nx">campos</span><span class="p">)</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">eventoAtualizado</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="nx">erroNaoEncontrado</span><span class="p">(</span><span class="s1">&#39;Evento não encontrado&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">eventoAtualizado</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">excluirEvento</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">removeu</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">eventosRepository</span><span class="p">.</span><span class="nx">removerEvento</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">removeu</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="nx">erroNaoEncontrado</span><span class="p">(</span><span class="s1">&#39;Evento não encontrado&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>O service centraliza regras que o repository não deveria conhecer (como "vagas não pode ser negativo") e traduz "não encontrado no banco" (<code>null</code>) em um erro de domínio (<code>erroNaoEncontrado</code>) — o controller nunca precisa checar <code>if (!evento)</code> porque o service já garante isso via exceção.</p>
+<h3 id="passo-3-controlador-de-eventos">Passo 3 — controlador de eventos<a class="anchor" href="#passo-3-controlador-de-eventos" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/controllers/eventosController.js</span>
+<span class="k">import</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">eventosService</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../services/eventosService.js&#39;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">listar</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">categoria</span><span class="p">,</span><span class="w"> </span><span class="nx">ordenarPor</span><span class="p">,</span><span class="w"> </span><span class="nx">direcao</span><span class="p">,</span><span class="w"> </span><span class="nx">pagina</span><span class="p">,</span><span class="w"> </span><span class="nx">limite</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">query</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">eventos</span><span class="p">,</span><span class="w"> </span><span class="nx">meta</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">eventosService</span><span class="p">.</span><span class="nx">obterListaDeEventos</span><span class="p">({</span>
+<span class="w">    </span><span class="nx">categoria</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">ordenarPor</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">direcao</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">pagina</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">limite</span><span class="p">,</span>
+<span class="w">  </span><span class="p">})</span>
+<span class="w">  </span><span class="nx">res</span><span class="p">.</span><span class="nx">json</span><span class="p">({</span><span class="w"> </span><span class="nx">dados</span><span class="o">:</span><span class="w"> </span><span class="nx">eventos</span><span class="p">,</span><span class="w"> </span><span class="nx">meta</span><span class="w"> </span><span class="p">})</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">buscarPorId</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">evento</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">eventosService</span><span class="p">.</span><span class="nx">obterEventoPorId</span><span class="p">(</span><span class="nb">Number</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">id</span><span class="p">))</span>
+<span class="w">  </span><span class="nx">res</span><span class="p">.</span><span class="nx">json</span><span class="p">({</span><span class="w"> </span><span class="nx">dados</span><span class="o">:</span><span class="w"> </span><span class="nx">evento</span><span class="w"> </span><span class="p">})</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">criar</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">novoEvento</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">eventosService</span><span class="p">.</span><span class="nx">criarEvento</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">res</span><span class="p">.</span><span class="nx">status</span><span class="p">(</span><span class="mf">201</span><span class="p">).</span><span class="nx">location</span><span class="p">(</span><span class="sb">`/api/v1/eventos/</span><span class="si">${</span><span class="nx">novoEvento</span><span class="p">.</span><span class="nx">id</span><span class="si">}</span><span class="sb">`</span><span class="p">).</span><span class="nx">json</span><span class="p">({</span><span class="w"> </span><span class="nx">dados</span><span class="o">:</span><span class="w"> </span><span class="nx">novoEvento</span><span class="w"> </span><span class="p">})</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">substituir</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">eventoAtualizado</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">eventosService</span><span class="p">.</span><span class="nx">atualizarEventoCompleto</span><span class="p">(</span><span class="nb">Number</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">id</span><span class="p">),</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">res</span><span class="p">.</span><span class="nx">json</span><span class="p">({</span><span class="w"> </span><span class="nx">dados</span><span class="o">:</span><span class="w"> </span><span class="nx">eventoAtualizado</span><span class="w"> </span><span class="p">})</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">atualizarParcial</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">eventoAtualizado</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">eventosService</span><span class="p">.</span><span class="nx">atualizarEventoParcial</span><span class="p">(</span><span class="nb">Number</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">id</span><span class="p">),</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">res</span><span class="p">.</span><span class="nx">json</span><span class="p">({</span><span class="w"> </span><span class="nx">dados</span><span class="o">:</span><span class="w"> </span><span class="nx">eventoAtualizado</span><span class="w"> </span><span class="p">})</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">excluir</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">eventosService</span><span class="p">.</span><span class="nx">excluirEvento</span><span class="p">(</span><span class="nb">Number</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">id</span><span class="p">))</span>
+<span class="w">  </span><span class="nx">res</span><span class="p">.</span><span class="nx">status</span><span class="p">(</span><span class="mf">204</span><span class="p">).</span><span class="nx">send</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Repare que nenhum controller trata erro manualmente — todo <code>throw</code> (vindo do service, vindo do repository, vindo de qualquer lugar da cadeia de <code>await</code>) é capturado automaticamente pelo Express 5 e cai no <code>tratadorDeErros</code> da Aula 08, sem nenhuma mudança nele.</p>
+<h3 id="passo-4-rotas-usando-o-controller">Passo 4 — rotas usando o controller<a class="anchor" href="#passo-4-rotas-usando-o-controller" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/routes/eventos.routes.js</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Router</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;express&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">eventosController</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../controllers/eventosController.js&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">validar</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../middlewares/validador.js&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">schemaEvento</span><span class="p">,</span><span class="w"> </span><span class="nx">schemaEventoParcial</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../schemas/evento.schema.js&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">router</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">Router</span><span class="p">()</span>
+
+<span class="nx">router</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">eventosController</span><span class="p">.</span><span class="nx">listar</span><span class="p">)</span>
+<span class="nx">router</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/:id&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">eventosController</span><span class="p">.</span><span class="nx">buscarPorId</span><span class="p">)</span>
+<span class="nx">router</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">validar</span><span class="p">(</span><span class="nx">schemaEvento</span><span class="p">),</span><span class="w"> </span><span class="nx">eventosController</span><span class="p">.</span><span class="nx">criar</span><span class="p">)</span>
+<span class="nx">router</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s1">&#39;/:id&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">validar</span><span class="p">(</span><span class="nx">schemaEvento</span><span class="p">),</span><span class="w"> </span><span class="nx">eventosController</span><span class="p">.</span><span class="nx">substituir</span><span class="p">)</span>
+<span class="nx">router</span><span class="p">.</span><span class="nx">patch</span><span class="p">(</span><span class="s1">&#39;/:id&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">validar</span><span class="p">(</span><span class="nx">schemaEventoParcial</span><span class="p">),</span><span class="w"> </span><span class="nx">eventosController</span><span class="p">.</span><span class="nx">atualizarParcial</span><span class="p">)</span>
+<span class="nx">router</span><span class="p">.</span><span class="ow">delete</span><span class="p">(</span><span class="s1">&#39;/:id&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">eventosController</span><span class="p">.</span><span class="nx">excluir</span><span class="p">)</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">router</span>
+</code></pre></div></div>
+
+<p>Compare com o <code>eventos.routes.js</code> da Aula 08: a <strong>assinatura de cada rota é idêntica</strong> (mesmo método, mesmo caminho, mesmo middleware de validação). Só o corpo mudou de "manipula um array" para "chama um controller que fala com MySQL por baixo". Esse é o ponto central da aula: <strong>o contrato HTTP não mudou, então o front-end não precisa de nenhuma alteração.</strong></p>
+<h3 id="passo-5-atualizando-o-servidorjs">Passo 5 — atualizando o <code>servidor.js</code><a class="anchor" href="#passo-5-atualizando-o-servidorjs" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/servidor.js</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">express</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;express&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">cors</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;cors&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">helmet</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;helmet&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">compression</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;compression&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">morgan</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;morgan&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">rateLimit</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;express-rate-limit&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">eventosRoutes</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./routes/eventos.routes.js&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">middlewareNaoEncontrado</span><span class="p">,</span><span class="w"> </span><span class="nx">tratadorDeErros</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./middlewares/erros.js&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">logger</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./middlewares/logger.js&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">medidorDeTempo</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./middlewares/medidorDeTempo.js&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="s1">&#39;./bancoDeDados.js&#39;</span><span class="w"> </span><span class="c1">// garante que o pool é criado na subida do servidor</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">app</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">express</span><span class="p">()</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">cors</span><span class="p">())</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">helmet</span><span class="p">())</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">compression</span><span class="p">())</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">express</span><span class="p">.</span><span class="nx">json</span><span class="p">())</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">morgan</span><span class="p">(</span><span class="s1">&#39;dev&#39;</span><span class="p">))</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">logger</span><span class="p">)</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">medidorDeTempo</span><span class="p">)</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">limitador</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">rateLimit</span><span class="p">({</span><span class="w"> </span><span class="nx">windowMs</span><span class="o">:</span><span class="w"> </span><span class="mf">15</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">60</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1000</span><span class="p">,</span><span class="w"> </span><span class="nx">max</span><span class="o">:</span><span class="w"> </span><span class="mf">100</span><span class="w"> </span><span class="p">})</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="s1">&#39;/api/&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">limitador</span><span class="p">)</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="s1">&#39;/api/v1/eventos&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">eventosRoutes</span><span class="p">)</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">middlewareNaoEncontrado</span><span class="p">)</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">tratadorDeErros</span><span class="p">)</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">porta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">PORTA</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="mf">3000</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">listen</span><span class="p">(</span><span class="nx">porta</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`unieventos-api rodando em http://localhost:</span><span class="si">${</span><span class="nx">porta</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<p>Teste com o mesmo <code>requests.http</code> da Aula 08 — nenhuma linha dele precisa mudar. Se algum teste que passava antes agora falha, o problema está na camada MySQL nova, não no contrato da API.</p>
+<h2 id="laboratorio">🧪 Laboratório<a class="anchor" href="#laboratorio" title="Permanent link">¶</a></h2>
+<p><strong>1. Repositório de usuários.</strong> Escreva <code>src/repositories/usuariosRepository.js</code> com <code>listarUsuarios()</code>, <code>buscarUsuarioPorId(id)</code> e <code>inserirUsuario({ nome, email })</code>. Use consultas parametrizadas em todas.</p>
+<details>
+<summary>Dica</summary>
+<p>Siga exatamente o padrão de <code>eventosRepository.js</code>: <code>pool.execute(sql, parametros)</code>, desestruturando <code>[linhas]</code> do retorno.</p>
+</details>
+<p><strong>2. Endpoint de inscrição.</strong> Crie <code>POST /api/v1/eventos/:id/inscricoes</code> que recebe <code>{ "usuarioId": N }</code> no corpo e chama <code>inscreverUsuarioNoEvento</code> (já escrita nesta aula). Teste o caso de sucesso e o caso de vagas esgotadas (zere as vagas de um evento no banco antes de testar).</p>
+<details>
+<summary>Dica</summary>
+<p>O erro de vagas esgotadas já vem como <code>ErroHttp(422, ...)</code> de dentro da transação — seu controller só precisa dar <code>await</code> e deixar o Express capturar automaticamente.</p>
+</details>
+<p><strong>3. Ataque de SQL injection controlado.</strong> Na sua máquina de desenvolvimento, temporariamente reescreva <code>buscarEventoPorId</code> para concatenar a string (sem placeholder), e tente buscar com um <code>id</code> malicioso do tipo <code>1 OR 1=1</code>. Observe o resultado. Depois reverta para a versão parametrizada e repita o teste, confirmando que o ataque não funciona mais.</p>
+<details>
+<summary>Dica</summary>
+<p>Como <code>id</code> nessa rota já passa por <code>Number(req.params.id)</code> no controller, o ataque de string não chega inteiro ao repository nesse caso específico — para realmente ver o ataque funcionar, teste diretamente no <code>eventosRepository</code>, chamando a função com uma string maliciosa manualmente, sem o <code>Number()</code> do meio do caminho. Isso mostra por que <strong>duas camadas de proteção</strong> (validação de tipo + parametrização) são melhores que uma só.</p>
+</details>
+<p><strong>4. Índice e <code>EXPLAIN</code>.</strong> Rode <code>EXPLAIN SELECT * FROM eventos WHERE categoria = 'palestra'</code> no MySQL Workbench ou DBeaver, antes e depois de remover o índice <code>idx_eventos_categoria</code> (<code>DROP INDEX idx_eventos_categoria ON eventos</code>). Compare o campo <code>rows</code> do resultado (recrie o índice depois do teste).</p>
+<details>
+<summary>Dica</summary>
+<p>Com o índice, o MySQL deve mostrar <code>type: ref</code> e um número baixo em <code>rows</code>. Sem o índice, <code>type: ALL</code> (varredura completa da tabela) e <code>rows</code> igual ao total de linhas da tabela.</p>
+</details>
+<p><strong>5. Transação com falha proposital.</strong> No meio de <code>inscreverUsuarioNoEvento</code>, adicione temporariamente um <code>throw new Error('falha proposital')</code> logo depois do <code>INSERT</code> na tabela <code>inscricoes</code>, antes do <code>UPDATE</code> de vagas. Rode a função, confirme que a inscrição <strong>não</strong> aparece na tabela (porque o <code>rollback</code> desfez tudo), e remova o <code>throw</code> de teste depois.</p>
+<details>
+<summary>Dica</summary>
+<p>Consulte a tabela <code>inscricoes</code> direto pelo Workbench/DBeaver antes e depois de rodar o teste, para confirmar visualmente que nada foi persistido.</p>
+</details>
+<p><strong>6. Endpoint de listagem com <code>JOIN</code>.</strong> Crie <code>GET /api/v1/eventos/:id/inscricoes</code> que devolve a lista de inscritos de um evento, usando a consulta <code>JOIN</code> desta aula, no formato de envelope <code>{ "dados": [...] }</code>. Trate o caso de evento inexistente com <code>404</code>.</p>
+<details>
+<summary>Dica</summary>
+<p>Siga a mesma separação em camadas: uma função no repository (<code>listarInscricoesDoEvento</code>), verificação de existência do evento no service (reaproveite <code>obterEventoPorId</code>), e um controller enxuto.</p>
+</details>
+<h2 id="erros-comuns-e-como-resolver">🐛 Erros comuns e como resolver<a class="anchor" href="#erros-comuns-e-como-resolver" title="Permanent link">¶</a></h2>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Sintoma</th>
+<th>Causa</th>
+<th>Solução</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ER_ACCESS_DENIED_ERROR</code></td>
+<td>usuário ou senha incorretos no <code>.env</code></td>
+<td>confira <code>DB_USER</code>/<code>DB_PASSWORD</code>; teste login manual com <code>mysql -u usuario -p</code></td>
+</tr>
+<tr>
+<td><code>ECONNREFUSED</code></td>
+<td>MySQL não está rodando, ou porta/host errados</td>
+<td>confirme <code>systemctl status mysql</code> (Linux) ou o contêiner Docker rodando (<code>docker ps</code>)</td>
+</tr>
+<tr>
+<td><code>ER_NO_SUCH_TABLE</code></td>
+<td><code>schema.sql</code> não foi executado, ou executado no banco errado</td>
+<td>rode <code>mysql -u root -p &lt; sql/schema.sql</code>; confira <code>USE unieventos;</code> no início do script</td>
+</tr>
+<tr>
+<td><code>ER_BAD_DB_ERROR</code></td>
+<td><code>DB_NAME</code> no <code>.env</code> não corresponde ao banco criado</td>
+<td>confira o nome exato do banco criado pelo <code>CREATE DATABASE</code></td>
+</tr>
+<tr>
+<td>Datas retornam com horário deslocado</td>
+<td>fuso horário do servidor MySQL diferente do esperado pela aplicação</td>
+<td>padronize o fuso do servidor e/ou converta explicitamente no código, sem assumir local implícito</td>
+</tr>
+<tr>
+<td><code>ER_DUP_ENTRY</code></td>
+<td>tentou inserir um valor que viola <code>UNIQUE</code> (e-mail repetido, inscrição duplicada)</td>
+<td>trate esse erro específico no service, devolvendo <code>409 Conflict</code> com mensagem clara</td>
+</tr>
+<tr>
+<td>Pool trava depois de um tempo de uso</td>
+<td>conexão emprestada com <code>getConnection()</code> nunca foi liberada com <code>.release()</code></td>
+<td>sempre libere no <code>finally</code>, mesmo em caminhos de erro</td>
+</tr>
+<tr>
+<td><code>Too many connections</code> no lado do servidor MySQL</td>
+<td><code>connectionLimit</code> do pool maior que o limite configurado no servidor MySQL</td>
+<td>ajuste <code>connectionLimit</code> para um valor compatível com a capacidade do servidor</td>
+</tr>
+<tr>
+<td><code>req.body</code> chega vazio no <code>POST</code> de inscrição</td>
+<td>testou direto no banco sem passar pela API, ou esqueceu <code>Content-Type: application/json</code> no <code>requests.http</code></td>
+<td>confirme o cabeçalho e o corpo no arquivo <code>.http</code></td>
+</tr>
+<tr>
+<td><code>resultado.insertId</code> vem <code>0</code> ou <code>undefined</code></td>
+<td>a tabela não tem coluna <code>AUTO_INCREMENT</code>, ou a query não era um <code>INSERT</code></td>
+<td>confira o <code>CREATE TABLE</code>; <code>insertId</code> só é preenchido em <code>INSERT</code> sobre coluna <code>AUTO_INCREMENT</code></td>
+</tr>
+<tr>
+<td>Erro de sintaxe SQL só em produção, funcionava local</td>
+<td>diferença de versão do MySQL entre ambientes, ou script <code>schema.sql</code> não aplicado no novo ambiente</td>
+<td>garanta que <code>schema.sql</code> seja executado em todo ambiente novo antes de subir a API</td>
+</tr>
+<tr>
+<td><code>PROTOCOL_CONNECTION_LOST</code> durante uso prolongado</td>
+<td>conexão do pool expirou por inatividade (timeout do servidor MySQL)</td>
+<td>normal em pools ociosos; o <code>mysql2</code> reabre conexões automaticamente na próxima consulta — se persistir, revise <code>connectionLimit</code> e tempo de vida da conexão</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="atividade-assincrona-1-h">🏠 Atividade assíncrona (1 h)<a class="anchor" href="#atividade-assincrona-1-h" title="Permanent link">¶</a></h2>
+<p>No seu <strong>projeto autoral</strong>:</p>
+<ol>
+<li>Modele as tabelas do seu domínio em <code>sql/schema.sql</code>, com ao menos duas tabelas relacionadas por chave estrangeira (equivalente a <code>eventos</code>/<code>inscricoes</code>, adaptado ao seu tema).</li>
+<li>Crie o banco (nativo ou Docker) e execute o script.</li>
+<li>Migre seu repositório, serviço e controlador da Aula 08 (em memória) para MySQL, seguindo exatamente a separação em camadas desta aula.</li>
+<li>Rode novamente o seu <code>requests.http</code> da Aula 08 sem alterar nenhuma linha — confirme que todos os testes continuam passando, agora contra o MySQL.</li>
+<li>Implemente pelo menos uma operação transacional própria do seu domínio (qualquer ação que precise de "tudo ou nada" entre duas tabelas).</li>
+</ol>
+<p><strong>Critério de pronto:</strong> sua API autoral persiste em MySQL, os testes do <code>requests.http</code> da Aula 08 passam sem modificação, e o front-end autoral continua funcionando sem alterações — prova de que a migração foi transparente para quem consome a API.</p>
+<h2 id="checkpoint-do-projeto-autoral">✅ Checkpoint do projeto autoral<a class="anchor" href="#checkpoint-do-projeto-autoral" title="Permanent link">¶</a></h2>
+<ul>
+<li>[ ] <code>sql/schema.sql</code> versionado, com <code>CREATE DATABASE</code>, <code>CREATE TABLE</code>, chaves e <code>INSERT</code>s de exemplo.</li>
+<li>[ ] MySQL rodando localmente (nativo ou Docker), banco criado a partir do script.</li>
+<li>[ ] <code>.env</code>/<code>.env.example</code> com as quatro variáveis de conexão (<code>DB_HOST</code>, <code>DB_USER</code>, <code>DB_PASSWORD</code>, <code>DB_NAME</code>), <code>.env</code> nunca commitado.</li>
+<li>[ ] Pool de conexões criado com <code>createPool</code>, usado em toda consulta — nenhuma conexão avulsa.</li>
+<li>[ ] Todas as consultas parametrizadas — nenhuma concatenação de valor de usuário em string SQL.</li>
+<li>[ ] Camadas repository/service/controller separadas, cada uma com responsabilidade única.</li>
+<li>[ ] Ao menos uma operação usando transação (<code>beginTransaction</code>/<code>commit</code>/<code>rollback</code>).</li>
+<li>[ ] <code>requests.http</code> da Aula 08 passando sem alterações contra a API já em MySQL.</li>
+</ul>
+<h2 id="para-aprofundar">📚 Para aprofundar<a class="anchor" href="#para-aprofundar" title="Permanent link">¶</a></h2>
+<ul>
+<li>Documentação oficial do MySQL 8 — <a href="https://dev.mysql.com/doc/refman/8.0/en/">dev.mysql.com/doc/refman/8.0</a> (seções de tipos de dados, <code>FOREIGN KEY</code>, transações).</li>
+<li>Documentação do driver <code>mysql2</code> — <a href="https://github.com/sidorares/node-mysql2">github.com/sidorares/node-mysql2</a> (README cobre pool, prepared statements e Promise API).</li>
+<li>OWASP — <em>SQL Injection Prevention Cheat Sheet</em> — referência de mercado sobre o assunto.</li>
+<li>Documentação do Docker Hub para a imagem oficial <code>mysql</code> — <a href="https://hub.docker.com/_/mysql">hub.docker.com/_/mysql</a>.</li>
+<li>MySQL 8 Reference Manual — capítulo <em>The InnoDB Storage Engine</em> — para entender transações, <code>FOR UPDATE</code> e isolamento em profundidade.</li>
+<li>Documentação do MySQL Workbench — <a href="https://dev.mysql.com/doc/workbench/en/">dev.mysql.com/doc/workbench/en</a> — modelagem visual (ER Diagram) a partir de um schema existente.</li>
+<li>Plano de curso FACET-SNP-310 — bibliografia básica, capítulos sobre bancos de dados relacionais e persistência.</li>
+</ul>
+<p>Na Aula 10, a API que você acabou de migrar para MySQL ganha <strong>autenticação de verdade</strong>: o Firebase Authentication entra em cena para identificar quem faz cada requisição, e você vai proteger rotas — como criar, editar e remover eventos — para que só usuários autenticados (e autorizados) possam executá-las.</p><nav class="navpe"><a data-nav="anterior" href="aula-08.html"><span class="rot">← Aula 08</span><span class="tit">Definindo endpoints e middlewares</span></a><a class="dir" data-nav="proxima" href="aula-10.html"><span class="rot">Aula 10 →</span><span class="tit">Requisições autenticadas com Firebase</span></a></nav>
+    <div class="rodape">
+      UNEMAT — Universidade do Estado de Mato Grosso · Campus Cáceres · FACET<br>
+      FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas · 2026.2<br>
+      Prof. Ivan Luiz Pedroso Pires
+    </div>
+  </main>
+  <aside class="toc"><h4>Nesta aula</h4><a class="" href="#objetivos-de-aprendizagem">🎯 Objetivos de aprendizagem</a><a class="" href="#pre-requisitos-desta-aula">📋 Pré-requisitos desta aula</a><a class="" href="#roteiro">🗺️ Roteiro</a><a class="" href="#1-por-que-dados-em-memoria-nao-servem">1. Por que dados em memória não servem</a><a class="n3" href="#por-que-relacional-e-por-que-mysql">Por que relacional, e por que MySQL</a><a class="" href="#2-modelagem-relacional-aplicada-ao-unieventos">2. Modelagem relacional aplicada ao UniEventos</a><a class="n3" href="#tipos-de-dados-restricoes-e-indices">Tipos de dados, restrições e índices</a><a class="n3" href="#script-sqlschemasql-completo">Script sql/schema.sql completo</a><a class="" href="#3-instalando-o-mysql">3. Instalando o MySQL</a><a class="n3" href="#linux-debianubuntu">Linux (Debian/Ubuntu)</a><a class="n3" href="#windows">Windows</a><a class="n3" href="#alternativa-docker-qualquer-sistema-operacional">Alternativa: Docker (qualquer sistema operacional)</a><a class="n3" href="#ferramentas-para-explorar-o-banco-visualmente">Ferramentas para explorar o banco visualmente</a><a class="" href="#padrao-de-projeto-em-uso">🧩 Padrão de projeto em uso</a><a class="n3" href="#padrao-de-projeto-em-uso-factory-object-pool-e-repository">🧩 Padrão de projeto em uso — Factory / Object Pool e Repository</a><a class="" href="#4-mysql2promise-na-pratica">4. mysql2/promise na prática</a><a class="n3" href="#pool-de-conexoes-por-que-e-nao-conexao-unica">Pool de conexões: por que, e não conexão única</a><a class="n3" href="#poolquery-vs-poolexecute">pool.query vs pool.execute</a><a class="n3" href="#consultas-parametrizadas-e-o-ataque-que-elas-evitam">Consultas parametrizadas — e o ataque que elas evitam</a><a class="n3" href="#lendo-o-resultado-de-cada-tipo-de-consulta">Lendo o resultado de cada tipo de consulta</a><a class="n3" href="#consultas-relacionais-com-join">Consultas relacionais com JOIN</a><a class="n3" href="#transacoes-inscrever-em-evento-e-decrementar-vagas">Transações: inscrever em evento e decrementar vagas</a><a class="" href="#5-configuracao-por-ambiente">5. Configuração por ambiente</a><a class="" href="#mao-na-massa-camadas-repositorio-servico-e-controlador">💻 Mão na massa — camadas repositório, serviço e controlador</a><a class="n3" href="#passo-1-repositorio-de-eventos">Passo 1 — repositório de eventos</a><a class="n3" href="#passo-2-servico-de-eventos">Passo 2 — serviço de eventos</a><a class="n3" href="#passo-3-controlador-de-eventos">Passo 3 — controlador de eventos</a><a class="n3" href="#passo-4-rotas-usando-o-controller">Passo 4 — rotas usando o controller</a><a class="n3" href="#passo-5-atualizando-o-servidorjs">Passo 5 — atualizando o servidor.js</a><a class="" href="#laboratorio">🧪 Laboratório</a><a class="" href="#erros-comuns-e-como-resolver">🐛 Erros comuns e como resolver</a><a class="" href="#atividade-assincrona-1-h">🏠 Atividade assíncrona (1 h)</a><a class="" href="#checkpoint-do-projeto-autoral">✅ Checkpoint do projeto autoral</a><a class="" href="#para-aprofundar">📚 Para aprofundar</a></aside>
+</div>
+<script>
+(function(){
+  var raiz=document.documentElement;
+  var salvo=null;
+  try{salvo=window.localStorage&&localStorage.getItem('fds-tema')}catch(e){}
+  if(salvo){raiz.setAttribute('data-tema',salvo)}
+  var bt=document.getElementById('tema');
+  if(bt){bt.addEventListener('click',function(){
+    var novo=raiz.getAttribute('data-tema')==='claro'?'escuro':'claro';
+    raiz.setAttribute('data-tema',novo);
+    try{localStorage.setItem('fds-tema',novo)}catch(e){}
+    bt.textContent=novo==='claro'?'● Escuro':'○ Claro';
+  });
+  bt.textContent=raiz.getAttribute('data-tema')==='claro'?'● Escuro':'○ Claro';}
+
+  // copiar código
+  document.querySelectorAll('.copiar').forEach(function(b){
+    b.addEventListener('click',function(){
+      var pre=b.closest('.bloco').querySelector('pre');
+      var txt=pre.innerText;
+      var ok=function(){b.textContent='Copiado';b.classList.add('ok');
+        setTimeout(function(){b.textContent='Copiar';b.classList.remove('ok')},1600)};
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(ok)}
+      else{var t=document.createElement('textarea');t.value=txt;document.body.appendChild(t);
+           t.select();document.execCommand('copy');t.remove();ok()}
+    });
+  });
+
+  // barra de progresso
+  var pr=document.getElementById('progresso');
+  if(pr){window.addEventListener('scroll',function(){
+    var h=document.documentElement.scrollHeight-window.innerHeight;
+    pr.style.width=(h>0?(window.scrollY/h)*100:0)+'%';
+  },{passive:true})}
+
+  // sumário ativo
+  var alvos=[].slice.call(document.querySelectorAll('main h2[id],main h3[id]'));
+  var links={};
+  document.querySelectorAll('.toc a').forEach(function(a){links[a.getAttribute('href').slice(1)]=a});
+  if(alvos.length&&'IntersectionObserver' in window){
+    var obs=new IntersectionObserver(function(ents){
+      ents.forEach(function(e){
+        var a=links[e.target.id];
+        if(!a)return;
+        if(e.isIntersecting){
+          Object.keys(links).forEach(function(k){links[k].classList.remove('ativo')});
+          a.classList.add('ativo');
+        }
+      });
+    },{rootMargin:'-76px 0px -75% 0px'});
+    alvos.forEach(function(t){obs.observe(t)});
+  }
+
+  // busca no índice
+  var busca=document.getElementById('busca');
+  if(busca){
+    busca.addEventListener('input',function(){
+      var q=busca.value.toLowerCase().trim();
+      document.querySelectorAll('[data-busca]').forEach(function(el){
+        el.classList.toggle('oculto', q!=='' && el.getAttribute('data-busca').indexOf(q)===-1);
+      });
+    });
+  }
+
+  // atalhos de teclado
+  document.addEventListener('keydown',function(e){
+    if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+    var ant=document.querySelector('[data-nav="anterior"]');
+    var pro=document.querySelector('[data-nav="proxima"]');
+    if(e.key==='j'&&pro)pro.click();
+    if(e.key==='k'&&ant)ant.click();
+    if(e.key==='/'&&busca){e.preventDefault();busca.focus()}
+  });
+})();
+</script>
+</body>
+</html>

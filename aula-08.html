@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-tema="escuro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aula 08 — Definindo endpoints e middlewares · FACET-SNP-310</title>
+<meta name="description" content="Unidade 3 · 05/10/2026 · Definindo endpoints e middlewares">
+<style>
+:root{
+  --bg:#0f1117; --bg-soft:#161922; --bg-code:#11131a; --line:#272b38;
+  --fg:#e6e8ee; --fg-dim:#a6adbb; --fg-faint:#6f7686;
+  --accent:#5eead4; --accent-2:#818cf8; --warn:#fbbf24; --danger:#fb7185;
+  --u1:#5eead4; --u2:#818cf8; --u3:#f0abfc;
+  --radius:12px; --max:860px;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+}
+html[data-tema="claro"]{
+  --bg:#ffffff; --bg-soft:#f6f7f9; --bg-code:#f2f3f6; --line:#e2e5ea;
+  --fg:#1a1d24; --fg-dim:#4b5262; --fg-faint:#8a92a3;
+  --accent:#0d9488; --accent-2:#4f46e5; --warn:#b45309; --danger:#be123c;
+  --u1:#0d9488; --u2:#4f46e5; --u3:#a21caf;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:76px}
+body{
+  margin:0; background:var(--bg); color:var(--fg); font-family:var(--font);
+  font-size:16.5px; line-height:1.72; -webkit-font-smoothing:antialiased;
+}
+a{color:var(--accent); text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ---------- barra superior ---------- */
+.topo{
+  position:sticky; top:0; z-index:50; background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:blur(12px); border-bottom:1px solid var(--line);
+}
+.topo-in{max-width:1400px;margin:0 auto;display:flex;align-items:center;gap:14px;padding:10px 18px}
+.marca{font-weight:700;font-size:.82rem;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-dim);white-space:nowrap}
+.marca b{color:var(--accent)}
+.topo .espaco{flex:1}
+.btn{
+  background:var(--bg-soft); color:var(--fg-dim); border:1px solid var(--line);
+  border-radius:8px; padding:6px 12px; font-size:.82rem; cursor:pointer; font-family:inherit;
+  transition:.15s;
+}
+.btn:hover{color:var(--fg); border-color:var(--accent)}
+#busca{
+  background:var(--bg-soft); border:1px solid var(--line); border-radius:8px; color:var(--fg);
+  padding:6px 12px; font-size:.85rem; font-family:inherit; width:200px;
+}
+#busca:focus{outline:none;border-color:var(--accent)}
+
+/* ---------- layout ---------- */
+.wrap{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:260px minmax(0,1fr) 240px;gap:34px;padding:0 18px}
+@media(max-width:1150px){.wrap{grid-template-columns:240px minmax(0,1fr)} .toc{display:none}}
+@media(max-width:860px){.wrap{grid-template-columns:minmax(0,1fr)} .lateral{display:none}}
+
+.lateral,.toc{position:sticky;top:76px;align-self:start;max-height:calc(100vh - 90px);overflow-y:auto;padding:22px 0 60px;font-size:.85rem}
+.lateral::-webkit-scrollbar,.toc::-webkit-scrollbar{width:6px}
+.lateral::-webkit-scrollbar-thumb,.toc::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+.lateral h4,.toc h4{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-faint);margin:0 0 12px}
+.lateral ol{list-style:none;margin:0;padding:0}
+.lateral li a{
+  display:flex;gap:9px;align-items:baseline;padding:6px 10px;border-radius:7px;
+  color:var(--fg-dim);border-left:2px solid transparent;line-height:1.35;
+}
+.lateral li a:hover{background:var(--bg-soft);color:var(--fg);text-decoration:none}
+.lateral li a.ativo{background:var(--bg-soft);color:var(--fg);border-left-color:var(--accent);font-weight:600}
+.lateral .num{font-variant-numeric:tabular-nums;color:var(--fg-faint);font-size:.78rem;min-width:16px}
+.lateral .grupo{margin:18px 0 6px;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-faint);padding-left:10px}
+.toc a{display:block;padding:4px 0 4px 12px;color:var(--fg-dim);border-left:2px solid var(--line);line-height:1.35;font-size:.8rem}
+.toc a:hover{color:var(--fg);text-decoration:none}
+.toc a.ativo{color:var(--accent);border-left-color:var(--accent)}
+.toc a.n3{padding-left:24px;font-size:.76rem;opacity:.8}
+
+/* ---------- conteúdo ---------- */
+main{padding:34px 0 100px;min-width:0}
+.cabecalho{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:34px}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.tag{font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;font-weight:700;padding:4px 10px;border-radius:999px;border:1px solid var(--line);color:var(--fg-dim)}
+.tag.u1{color:var(--u1);border-color:color-mix(in srgb,var(--u1) 40%,transparent)}
+.tag.u2{color:var(--u2);border-color:color-mix(in srgb,var(--u2) 40%,transparent)}
+.tag.u3{color:var(--u3);border-color:color-mix(in srgb,var(--u3) 40%,transparent)}
+.tag.av{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 45%,transparent)}
+.cabecalho h1{margin:0;font-size:2.05rem;line-height:1.2;letter-spacing:-.02em}
+.cabecalho .sub{color:var(--fg-faint);font-size:.9rem;margin-top:10px}
+
+main h1{font-size:1.9rem;line-height:1.22;letter-spacing:-.02em;margin:0 0 .6em}
+main h2{font-size:1.4rem;margin:2.4em 0 .7em;padding-top:.5em;border-top:1px solid var(--line);letter-spacing:-.01em}
+main h3{font-size:1.12rem;margin:1.9em 0 .5em;color:var(--fg)}
+main h4{font-size:.98rem;margin:1.5em 0 .4em;color:var(--fg-dim)}
+main h2:first-of-type{border-top:none;padding-top:0}
+main p{margin:0 0 1.05em}
+main ul,main ol{margin:0 0 1.15em;padding-left:1.4em}
+main li{margin:.32em 0}
+main li>ul,main li>ol{margin:.35em 0}
+hr{border:none;border-top:1px solid var(--line);margin:2.6em 0}
+strong{color:var(--fg);font-weight:650}
+
+/* âncoras */
+.anchor{opacity:0;margin-left:.4em;font-weight:400;color:var(--fg-faint);text-decoration:none;font-size:.8em}
+h2:hover .anchor,h3:hover .anchor{opacity:1}
+
+/* citações / callouts */
+blockquote{
+  margin:1.4em 0;padding:14px 18px;background:var(--bg-soft);border-left:3px solid var(--accent-2);
+  border-radius:0 var(--radius) var(--radius) 0;color:var(--fg-dim);
+}
+blockquote p:last-child{margin-bottom:0}
+blockquote.dica{border-left-color:var(--accent)}
+blockquote.atencao{border-left-color:var(--warn)}
+blockquote.capo{border-left-color:var(--accent-2)}
+blockquote.prova{border-left-color:var(--danger)}
+
+/* tabelas */
+.tabela-wrap{overflow-x:auto;margin:1.4em 0;border:1px solid var(--line);border-radius:var(--radius)}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{padding:9px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--bg-soft);font-weight:650;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-dim);white-space:nowrap}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:color-mix(in srgb,var(--bg-soft) 60%,transparent)}
+
+/* código */
+code{font-family:var(--mono);font-size:.87em;background:var(--bg-soft);padding:.14em .42em;border-radius:5px;border:1px solid var(--line)}
+.bloco{position:relative;margin:1.3em 0}
+.bloco-topo{
+  display:flex;align-items:center;gap:10px;background:var(--bg-soft);border:1px solid var(--line);
+  border-bottom:none;border-radius:var(--radius) var(--radius) 0 0;padding:6px 12px;
+  font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;color:var(--fg-faint);font-family:var(--mono);
+}
+.bloco-topo .espaco{flex:1}
+.copiar{
+  background:transparent;border:1px solid var(--line);color:var(--fg-faint);border-radius:6px;
+  padding:2px 9px;font-size:.68rem;cursor:pointer;font-family:inherit;letter-spacing:.06em;text-transform:uppercase;transition:.15s;
+}
+.copiar:hover{color:var(--accent);border-color:var(--accent)}
+.copiar.ok{color:var(--accent);border-color:var(--accent)}
+.highlight{
+  margin:0;background:var(--bg-code)!important;border:1px solid var(--line);
+  border-radius:0 0 var(--radius) var(--radius);overflow-x:auto;
+}
+.bloco:not(:has(.bloco-topo)) .highlight{border-radius:var(--radius)}
+.highlight pre{margin:0;padding:15px 17px;font-family:var(--mono);font-size:.845rem;line-height:1.62;background:transparent!important}
+.highlight code{background:transparent;border:none;padding:0;font-size:inherit}
+html[data-tema="claro"] .highlight pre{color:#1a1d24}
+
+/* detalhes */
+details{background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);padding:12px 16px;margin:1.2em 0}
+details[open]{padding-bottom:6px}
+summary{cursor:pointer;font-weight:600;color:var(--fg-dim);font-size:.9rem;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▸ ";color:var(--accent)}
+details[open] summary::before{content:"▾ "}
+details[open] summary{margin-bottom:10px}
+
+img{max-width:100%;border-radius:var(--radius)}
+
+/* rodapé / navegação */
+.navpe{display:flex;gap:14px;margin-top:60px;padding-top:26px;border-top:1px solid var(--line)}
+.navpe a{
+  flex:1;padding:14px 18px;background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);
+  color:var(--fg-dim);transition:.15s;
+}
+.navpe a:hover{border-color:var(--accent);color:var(--fg);text-decoration:none}
+.navpe .rot{display:block;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-faint);margin-bottom:4px}
+.navpe .tit{font-weight:600;font-size:.9rem}
+.navpe .dir{text-align:right}
+.rodape{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:var(--fg-faint);font-size:.8rem}
+
+/* progresso */
+#progresso{position:fixed;top:0;left:0;height:2px;background:var(--accent);z-index:60;width:0}
+
+/* índice (home) */
+.hero{padding:56px 0 34px;border-bottom:1px solid var(--line);margin-bottom:38px}
+.hero h1{font-size:2.6rem;margin:0 0 12px;letter-spacing:-.03em;line-height:1.1}
+.hero p{color:var(--fg-dim);max-width:640px;font-size:1.02rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin:34px 0}
+.stat{background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px}
+.stat .n{font-size:1.7rem;font-weight:700;letter-spacing:-.02em;color:var(--accent)}
+.stat .l{font-size:.75rem;letter-spacing:.07em;text-transform:uppercase;color:var(--fg-faint);margin-top:2px}
+.grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;margin:20px 0 44px}
+.cartao{
+  display:block;background:var(--bg-soft);border:1px solid var(--line);border-radius:var(--radius);
+  padding:17px 19px;color:var(--fg);transition:.16s;position:relative;overflow:hidden;
+}
+.cartao::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--line);transition:.16s}
+.cartao.u1::before{background:var(--u1)} .cartao.u2::before{background:var(--u2)} .cartao.u3::before{background:var(--u3)}
+.cartao:hover{transform:translateY(-2px);border-color:var(--fg-faint);text-decoration:none}
+.cartao .meta{display:flex;justify-content:space-between;align-items:center;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-faint);margin-bottom:8px}
+.cartao .t{font-weight:650;line-height:1.35;font-size:.97rem}
+.cartao .av{display:inline-block;margin-top:9px;font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;color:var(--warn);border:1px solid color-mix(in srgb,var(--warn) 40%,transparent);border-radius:999px;padding:2px 9px}
+.oculto{display:none!important}
+@media print{
+  .topo,.lateral,.toc,.navpe,#progresso{display:none!important}
+  .wrap{display:block;max-width:none;padding:0}
+  body{background:#fff;color:#000;font-size:11pt}
+  .highlight{border:1px solid #ccc;background:#fafafa!important}
+  a{color:#000}
+}
+
+pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #49483e }
+.highlight { background: #232629; color: #CCC }
+.highlight .c { color: #777; font-style: italic } /* Comment */
+.highlight .err { color: #A61717; background-color: #E3D2D2 } /* Error */
+.highlight .esc { color: #CCC } /* Escape */
+.highlight .g { color: #CCC } /* Generic */
+.highlight .k { color: #7686BB; font-weight: bold } /* Keyword */
+.highlight .l { color: #CCC } /* Literal */
+.highlight .n { color: #CCC } /* Name */
+.highlight .o { color: #CCC } /* Operator */
+.highlight .x { color: #CCC } /* Other */
+.highlight .p { color: #CCC } /* Punctuation */
+.highlight .ch { color: #777; font-style: italic } /* Comment.Hashbang */
+.highlight .cm { color: #777; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #777; font-style: italic } /* Comment.Preproc */
+.highlight .cpf { color: #777; font-style: italic } /* Comment.PreprocFile */
+.highlight .c1 { color: #777; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #777; font-style: italic } /* Comment.Special */
+.highlight .gd { color: #CCC } /* Generic.Deleted */
+.highlight .ge { color: #CCC } /* Generic.Emph */
+.highlight .ges { color: #CCC } /* Generic.EmphStrong */
+.highlight .gr { color: #CCC } /* Generic.Error */
+.highlight .gh { color: #CCC } /* Generic.Heading */
+.highlight .gi { color: #CCC } /* Generic.Inserted */
+.highlight .go { color: #CCC } /* Generic.Output */
+.highlight .gp { color: #FFF } /* Generic.Prompt */
+.highlight .gs { color: #CCC } /* Generic.Strong */
+.highlight .gu { color: #CCC } /* Generic.Subheading */
+.highlight .gt { color: #CCC } /* Generic.Traceback */
+.highlight .kc { color: #7686BB; font-weight: bold } /* Keyword.Constant */
+.highlight .kd { color: #7686BB; font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { color: #7686BB; font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { color: #7686BB; font-weight: bold } /* Keyword.Pseudo */
+.highlight .kr { color: #7686BB; font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #7686BB; font-weight: bold } /* Keyword.Type */
+.highlight .ld { color: #CCC } /* Literal.Date */
+.highlight .m { color: #4FB8CC } /* Literal.Number */
+.highlight .s { color: #51CC99 } /* Literal.String */
+.highlight .na { color: #CCC } /* Name.Attribute */
+.highlight .nb { color: #CCC } /* Name.Builtin */
+.highlight .nc { color: #CCC } /* Name.Class */
+.highlight .no { color: #CCC } /* Name.Constant */
+.highlight .nd { color: #CCC } /* Name.Decorator */
+.highlight .ni { color: #CCC } /* Name.Entity */
+.highlight .ne { color: #CCC } /* Name.Exception */
+.highlight .nf { color: #6A6AFF } /* Name.Function */
+.highlight .nl { color: #CCC } /* Name.Label */
+.highlight .nn { color: #CCC } /* Name.Namespace */
+.highlight .nx { color: #E2828E } /* Name.Other */
+.highlight .py { color: #CCC } /* Name.Property */
+.highlight .nt { color: #CCC } /* Name.Tag */
+.highlight .nv { color: #7AB4DB; font-weight: bold } /* Name.Variable */
+.highlight .ow { color: #CCC } /* Operator.Word */
+.highlight .pm { color: #CCC } /* Punctuation.Marker */
+.highlight .w { color: #BBB } /* Text.Whitespace */
+.highlight .mb { color: #4FB8CC } /* Literal.Number.Bin */
+.highlight .mf { color: #4FB8CC } /* Literal.Number.Float */
+.highlight .mh { color: #4FB8CC } /* Literal.Number.Hex */
+.highlight .mi { color: #4FB8CC } /* Literal.Number.Integer */
+.highlight .mo { color: #4FB8CC } /* Literal.Number.Oct */
+.highlight .sa { color: #51CC99 } /* Literal.String.Affix */
+.highlight .sb { color: #51CC99 } /* Literal.String.Backtick */
+.highlight .sc { color: #51CC99 } /* Literal.String.Char */
+.highlight .dl { color: #51CC99 } /* Literal.String.Delimiter */
+.highlight .sd { color: #51CC99 } /* Literal.String.Doc */
+.highlight .s2 { color: #51CC99 } /* Literal.String.Double */
+.highlight .se { color: #51CC99 } /* Literal.String.Escape */
+.highlight .sh { color: #51CC99 } /* Literal.String.Heredoc */
+.highlight .si { color: #51CC99 } /* Literal.String.Interpol */
+.highlight .sx { color: #51CC99 } /* Literal.String.Other */
+.highlight .sr { color: #51CC99 } /* Literal.String.Regex */
+.highlight .s1 { color: #51CC99 } /* Literal.String.Single */
+.highlight .ss { color: #51CC99 } /* Literal.String.Symbol */
+.highlight .bp { color: #CCC } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #6A6AFF } /* Name.Function.Magic */
+.highlight .vc { color: #7AB4DB; font-weight: bold } /* Name.Variable.Class */
+.highlight .vg { color: #BE646C; font-weight: bold } /* Name.Variable.Global */
+.highlight .vi { color: #7AB4DB; font-weight: bold } /* Name.Variable.Instance */
+.highlight .vm { color: #7AB4DB; font-weight: bold } /* Name.Variable.Magic */
+.highlight .il { color: #4FB8CC } /* Literal.Number.Integer.Long */
+</style>
+</head>
+<body>
+<div id="progresso"></div>
+<header class="topo"><div class="topo-in">
+  <span class="marca"><b>FACET-SNP-310</b> &nbsp;Frameworks Modernos</span>
+  <span class="espaco"></span>
+  
+  <a class="btn" href="indice.html">Índice</a>
+  <button class="btn" id="tema" type="button">Tema</button>
+</div></header>
+<div class="wrap">
+  <nav class="lateral"><h4>Aulas</h4><ol><li class="grupo">Unidade 1</li><li><a class="" href="aula-01.html"><span class="num">01</span><span>Apresentação da Disciplina e Revisão JavaScript</span></a></li><li><a class="" href="aula-02.html"><span class="num">02</span><span>Introdução ao Vue: instância, ciclo de vida e diretivas</span></a></li><li><a class="" href="aula-03.html"><span class="num">03</span><span>Vue: listas, computed e ciclo de vida</span></a></li><li><a class="" href="aula-04.html"><span class="num">04</span><span>Introdução a Vuetify e Vue Router</span></a></li><li class="grupo">Unidade 2</li><li><a class="" href="aula-05.html"><span class="num">05</span><span>Componentes, Vue Router e Vuetify avançado</span></a></li><li><a class="" href="aula-06.html"><span class="num">06</span><span>Axios e Pinia</span></a></li><li class="grupo">Unidade 3</li><li><a class="" href="aula-07.html"><span class="num">07</span><span>Introdução ao Firebase, Node.js e Express</span></a></li><li><a class="ativo" href="aula-08.html"><span class="num">08</span><span>Definindo endpoints e middlewares</span></a></li><li><a class="" href="aula-09.html"><span class="num">09</span><span>Integrando com SGBD MySQL</span></a></li><li><a class="" href="aula-10.html"><span class="num">10</span><span>Requisições autenticadas com Firebase</span></a></li><li><a class="" href="aula-11.html"><span class="num">11</span><span>Integrando front-end com back-end: CRUD</span></a></li><li><a class="" href="aula-12.html"><span class="num">12</span><span>CRUD com banco em nuvem (Supabase)</span></a></li><li><a class="" href="aula-13.html"><span class="num">13</span><span>Desenvolvimento do Back-end</span></a></li><li><a class="" href="aula-14.html"><span class="num">14</span><span>Documentação com Swagger</span></a></li><li><a class="" href="aula-15.html"><span class="num">15</span><span>Deploy, apresentação e finalização</span></a></li></ol></nav>
+  <main class=""><div class="cabecalho"><div class="tags"><span class="tag u3">Unidade 3</span><span class="tag">05/10/2026</span><span class="tag">3 aulas de 50 min + 1 h EAD</span><span class="tag av">Entrega da Avaliação 2</span></div><h1>Aula 08 — Definindo endpoints e middlewares</h1><div class="sub">FACET-SNP-310 · Frameworks Modernos para Desenvolvimento de Sistemas · UNEMAT/Cáceres · Prof. Ivan Luiz Pedroso Pires</div></div>
+<blockquote>
+<p><strong>FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas</strong> · Unidade 3
+UNEMAT/Cáceres — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
+<strong>Data:</strong> 05/10/2026 · <strong>Carga:</strong> 3 aulas de 50 min (síncrona) + 1 h (assíncrona)</p>
+</blockquote>
+<p>Na Aula 07 você criou a <code>unieventos-api</code> com Express 5, duas rotas <code>GET</code> em memória, CORS habilitado, e conectou o front-end real a ela. Hoje essa API vira um CRUD completo, ganha middlewares próprios e validação de entrada — e você recebe as instruções da <strong>Avaliação 2</strong>, com entrega até hoje às 23h59.</p>
+<h2 id="objetivos-de-aprendizagem">🎯 Objetivos de aprendizagem<a class="anchor" href="#objetivos-de-aprendizagem" title="Permanent link">¶</a></h2>
+<p>Ao final desta aula você será capaz de:</p>
+<ul>
+<li>projetar endpoints REST coerentes: recursos no plural, verbos HTTP corretos, status codes apropriados por operação;</li>
+<li>implementar um CRUD completo (<code>GET</code>, <code>POST</code>, <code>PUT</code>, <code>PATCH</code>, <code>DELETE</code>) com Express 5, modularizado em <code>express.Router()</code>;</li>
+<li>escrever middlewares próprios — logger, medidor de tempo, validador, tratador de 404 e tratador de erros centralizado — entendendo a ordem de execução da cadeia;</li>
+<li>explicar a diferença entre middleware de aplicação, de rota e de erro, e por que este último precisa vir por último;</li>
+<li>validar corpos de requisição com <code>zod</code>, devolvendo <code>422</code> com mensagens em português;</li>
+<li>entender por que <code>throw</code> dentro de um handler <code>async</code> do Express 5 cai automaticamente no tratador de erros;</li>
+<li>organizar testes manuais num arquivo <code>requests.http</code> cobrindo todos os endpoints.</li>
+</ul>
+<h2 id="pre-requisitos-desta-aula">📋 Pré-requisitos desta aula<a class="anchor" href="#pre-requisitos-desta-aula" title="Permanent link">¶</a></h2>
+<ul>
+<li>[ ] <code>unieventos-api</code> da Aula 07 rodando, com <code>GET /api/eventos</code> e <code>GET /api/eventos/:id</code> funcionando em memória.</li>
+<li>[ ] Front-end <code>unieventos-web</code> apontando para essa API via <code>baseURL</code> do Axios.</li>
+<li>[ ] Entendimento de <code>async</code>/<code>await</code> e por que erros em handlers <code>async</code> do Express 5 são capturados automaticamente (Aula 07).</li>
+<li>[ ] Projeto autoral com API própria (<code>&lt;seu-projeto&gt;-api</code>) criada na atividade assíncrona da Aula 07.</li>
+</ul>
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+Esta é a aula da <strong>Avaliação 2</strong>. Leia a seção "📝 Avaliação 2 — instruções de entrega" logo no início do período de aula, para planejar seu tempo — o prazo de entrega é hoje, 05/10/2026, às 23h59.</p>
+</blockquote>
+<h2 id="roteiro">🗺️ Roteiro<a class="anchor" href="#roteiro" title="Permanent link">¶</a></h2>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Bloco</th>
+<th>Tempo</th>
+<th>Atividade</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>50 min</td>
+<td>REST na prática: recursos, verbos, status codes, formato de resposta, paginação e filtros</td>
+</tr>
+<tr>
+<td>2</td>
+<td>50 min</td>
+<td>CRUD completo com <code>express.Router()</code>; middlewares próprios e de terceiros; tratador de erros central</td>
+</tr>
+<tr>
+<td>3</td>
+<td>50 min</td>
+<td>Validação com <code>zod</code>; <code>requests.http</code> completo; instruções da Avaliação 2</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="1-rest-na-pratica">1. REST na prática<a class="anchor" href="#1-rest-na-pratica" title="Permanent link">¶</a></h2>
+<p>Você já usa APIs "estilo REST" desde a Aula 06, mas hoje é você quem projeta os endpoints. REST não é um protocolo com regras fixadas em pedra — é um conjunto de convenções que, seguidas com consistência, tornam uma API previsível para quem consome.</p>
+<p>O nome vem de <em>Representational State Transfer</em> — a ideia central é que cada recurso do seu domínio (um evento, um usuário, uma inscrição) tem uma <strong>representação</strong> (o JSON que a API devolve) e um <strong>endereço próprio</strong> (a URL). O cliente manipula o estado do sistema transferindo representações desse recurso para lá e para cá, usando os verbos HTTP para expressar a intenção. Você não precisa decorar a definição formal — o que importa na prática são as convenções que seguem daqui.</p>
+<p>Por que seguir convenção importa: quando toda API do mercado usa <code>GET</code> para ler e <code>POST</code> para criar, qualquer desenvolvedor que chega no seu projeto já sabe, sem ler documentação nenhuma, que <code>POST /api/v1/eventos</code> cria um evento. Quebrar essa expectativa (por exemplo, usando <code>GET /api/deletarEvento?id=3</code> para apagar algo) obriga quem consome sua API a ler cada linha de código para entender o que uma rota faz — e, pior, faz com que caches e proxies HTTP, que assumem que <code>GET</code> nunca tem efeito colateral, possam repetir a chamada e apagar coisas sem querer.</p>
+<h3 id="recursos-substantivos-no-plural-sempre">Recursos: substantivos no plural, sempre<a class="anchor" href="#recursos-substantivos-no-plural-sempre" title="Permanent link">¶</a></h3>
+<p>Um endpoint representa um <strong>recurso</strong> — uma entidade do seu domínio — nunca uma ação. O verbo da ação já está no método HTTP, não precisa (e não deve) repetir no caminho.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>✅ GET    /api/eventos            (correto: recurso no plural, sem verbo)
+❌ GET    /api/buscarEventos       (errado: verbo no caminho)
+❌ GET    /api/evento               (errado: singular)
+
+✅ POST   /api/eventos            (criar um evento)
+❌ POST   /api/criarEvento          (errado: verbo redundante)
+
+✅ DELETE /api/eventos/3          (remover o evento de id 3)
+❌ GET    /api/deletarEvento?id=3  (errado: usa GET para uma ação destrutiva)
+</code></pre></div></div>
+
+<p>Sub-recursos seguem o mesmo padrão, aninhando o caminho:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>GET /api/eventos/3/inscricoes     (inscrições do evento 3)
+POST /api/eventos/3/inscricoes    (inscrever alguém no evento 3)
+</code></pre></div></div>
+
+<h3 id="verbos-http-e-o-que-cada-um-significa-neste-dominio">Verbos HTTP e o que cada um significa neste domínio<a class="anchor" href="#verbos-http-e-o-que-cada-um-significa-neste-dominio" title="Permanent link">¶</a></h3>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Verbo</th>
+<th>Uso no UniEventos</th>
+<th>Idempotente?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td>ler evento(s), sem efeito colateral</td>
+<td>sim</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td>criar um evento novo</td>
+<td>não</td>
+</tr>
+<tr>
+<td><code>PUT</code></td>
+<td>substituir um evento inteiro</td>
+<td>sim</td>
+</tr>
+<tr>
+<td><code>PATCH</code></td>
+<td>atualizar campos específicos de um evento</td>
+<td>não, em geral</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td>remover um evento</td>
+<td>sim</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Idempotência</strong> significa: repetir a mesma requisição várias vezes produz o mesmo resultado final que executá-la uma vez. <code>GET /api/eventos/3</code> sempre devolve o mesmo evento (até que ele mude por outro motivo) — chamar dez vezes não altera nada. <code>DELETE /api/eventos/3</code> é idempotente porque, depois da primeira chamada, o evento já não existe; chamar de novo continua resultando em "evento 3 não existe" (ainda que a segunda chamada responda <code>404</code> em vez de <code>204</code> — o estado final do sistema é o mesmo). Já <code>POST /api/eventos</code> <strong>não</strong> é idempotente: cada chamada cria um evento novo, mesmo enviando o corpo idêntico.</p>
+<blockquote class="prova">
+<p><strong>📌 Na prova</strong>
+Se a pergunta pedir para classificar um verbo HTTP como idempotente ou não, lembre: <code>GET</code>, <code>PUT</code>, <code>DELETE</code> são idempotentes; <code>POST</code> não é. <code>PATCH</code> depende de como é implementado, mas normalmente também não é.</p>
+</blockquote>
+<h3 id="status-codes-por-operacao">Status codes por operação<a class="anchor" href="#status-codes-por-operacao" title="Permanent link">¶</a></h3>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Operação</th>
+<th>Status de sucesso</th>
+<th>Quando falha</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code> (lista ou item existente)</td>
+<td><code>200 OK</code></td>
+<td><code>404</code> se o item não existe</td>
+</tr>
+<tr>
+<td><code>POST</code> (criação)</td>
+<td><code>201 Created</code> + cabeçalho <code>Location</code></td>
+<td><code>422</code> se a validação falha</td>
+</tr>
+<tr>
+<td><code>PUT</code>/<code>PATCH</code> (atualização)</td>
+<td><code>200 OK</code> com o recurso atualizado</td>
+<td><code>404</code> se não existe, <code>422</code> se inválido</td>
+</tr>
+<tr>
+<td><code>DELETE</code> (remoção)</td>
+<td><code>204 No Content</code>, sem corpo</td>
+<td><code>404</code> se já não existe</td>
+</tr>
+</tbody>
+</table></div>
+<p>O cabeçalho <code>Location</code> em uma criação bem-sucedida informa ao cliente onde o novo recurso pode ser lido depois — é uma convenção REST, não uma obrigação técnica, mas boas APIs seguem.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// dentro do handler de criação, depois de gerar o novo evento com id 7</span>
+<span class="nx">res</span><span class="p">.</span><span class="nx">status</span><span class="p">(</span><span class="mf">201</span><span class="p">).</span><span class="nx">location</span><span class="p">(</span><span class="sb">`/api/eventos/</span><span class="si">${</span><span class="nx">novoEvento</span><span class="p">.</span><span class="nx">id</span><span class="si">}</span><span class="sb">`</span><span class="p">).</span><span class="nx">json</span><span class="p">(</span><span class="nx">novoEvento</span><span class="p">)</span>
+</code></pre></div></div>
+
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+Lembre da armadilha do Express 5 vista na Aula 07: <code>res.json(objeto, 201)</code> <strong>não existe</strong>. A sintaxe correta é sempre <code>res.status(201).json(objeto)</code>, com o status vindo antes, encadeado.</p>
+</blockquote>
+<h3 id="versionamento">Versionamento<a class="anchor" href="#versionamento" title="Permanent link">¶</a></h3>
+<p>Prefixar rotas com <code>/api/v1</code> sinaliza desde o início que a API pode evoluir sem quebrar clientes existentes — quando uma mudança incompatível for necessária, ela nasce em <code>/api/v2</code>, e <code>/v1</code> continua funcionando para quem ainda depende dele.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="s1">&#39;/api/v1/eventos&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">eventosRoutes</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Esta disciplina usa <code>/api</code> sem versão explícita nos exemplos anteriores para simplificar, mas a partir de hoje adotamos <code>/api/v1</code> na <code>unieventos-api</code> — é o padrão que se espera num projeto profissional, e é exigido na Avaliação 2.</p>
+<h3 id="formato-de-resposta-consistente">Formato de resposta consistente<a class="anchor" href="#formato-de-resposta-consistente" title="Permanent link">¶</a></h3>
+<p>Uma API previsível responde sempre no mesmo formato — envelope de sucesso e envelope de erro —, para que o front-end trate qualquer resposta da mesma forma, sem checar caso a caso.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;dados&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;titulo&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Semana Acadêmica de Computação&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;meta&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;pagina&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;limite&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;erro&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;mensagem&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Evento não encontrado&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;codigo&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;EVENTO_NAO_ENCONTRADO&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><code>dados</code> carrega o conteúdo (objeto único ou array); <code>meta</code> carrega metadados de paginação quando aplicável; <code>erro</code> só aparece em respostas de falha, nunca junto com <code>dados</code>. Vamos implementar exatamente esse envelope no CRUD desta aula.</p>
+<p>O ganho prático aparece no front-end: um interceptor de resposta do Axios (Aula 06) pode, por exemplo, sempre extrair <code>response.data.dados</code> automaticamente, ou sempre reconhecer <code>response.data.erro</code> para disparar uma notificação padronizada — porque a forma nunca muda, só o conteúdo. Sem esse envelope, cada endpoint devolveria uma "forma" diferente (às vezes um array solto, às vezes um objeto solto, às vezes um objeto com <code>results</code>), obrigando o front a tratar cada chamada como um caso especial.</p>
+<h3 id="paginacao-filtros-e-ordenacao-por-query-string">Paginação, filtros e ordenação por query string<a class="anchor" href="#paginacao-filtros-e-ordenacao-por-query-string" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>GET /api/v1/eventos?pagina=2&amp;limite=10
+GET /api/v1/eventos?categoria=palestra
+GET /api/v1/eventos?ordenarPor=dataHora&amp;direcao=asc
+</code></pre></div></div>
+
+<p>Paginação evita devolver milhares de registros de uma vez — o cliente pede uma "página" por vez. Filtros restringem o conjunto por algum critério. Ordenação decide a sequência dos resultados. As três são independentes e combináveis na mesma URL. Vamos implementar isso no CRUD abaixo.</p>
+<h2 id="2-crud-completo-em-memoria">2. CRUD completo em memória<a class="anchor" href="#2-crud-completo-em-memoria" title="Permanent link">¶</a></h2>
+<p>Vamos reescrever a <code>unieventos-api</code> da Aula 07, agora com o CRUD inteiro e o formato de resposta padronizado.</p>
+<h3 id="dados-em-memoria-com-funcao-de-proximo-id">Dados em memória, com função de próximo id<a class="anchor" href="#dados-em-memoria-com-funcao-de-proximo-id" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/dados/eventos.js</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">eventos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Semana Acadêmica de Computação&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">descricao</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Palestras e minicursos sobre o mercado de tecnologia.&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;palestra&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">dataHora</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2026-10-15T19:00:00&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">local</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Auditório FACET&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">80</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">imagemUrl</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://picsum.photos/seed/semana-computacao/400/240&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">2</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Minicurso de Vue 3&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">descricao</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Introdução prática ao framework Vue com Composition API.&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;minicurso&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">dataHora</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2026-10-20T14:00:00&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">local</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Laboratório 3&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">30</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">imagemUrl</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://picsum.photos/seed/minicurso-vue/400/240&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">3</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Workshop de Firebase e Express&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">descricao</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Construindo uma API real do zero.&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;workshop&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">dataHora</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2026-10-28T19:30:00&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">local</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Laboratório 1&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="mf">25</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">imagemUrl</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;https://picsum.photos/seed/workshop-firebase/400/240&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">]</span>
+
+<span class="c1">// gera o próximo id disponível — em memória; na Aula 09 o próprio banco faz isso</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">proximoId</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">maiorId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">reduce</span><span class="p">((</span><span class="nx">max</span><span class="p">,</span><span class="w"> </span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span><span class="nx">max</span><span class="p">,</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">id</span><span class="p">),</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">maiorId</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="classe-de-erro-http-customizada">Classe de erro HTTP customizada<a class="anchor" href="#classe-de-erro-http-customizada" title="Permanent link">¶</a></h3>
+<p>Antes de escrever as rotas, criamos uma classe de erro que carrega o status HTTP junto da mensagem — assim qualquer parte do código pode <code>throw</code> um erro que já sabe se traduzir em resposta.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/erros/ErroHttp.js</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">ErroHttp</span><span class="w"> </span><span class="k">extends</span><span class="w"> </span><span class="ne">Error</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kr">constructor</span><span class="p">(</span><span class="nx">status</span><span class="p">,</span><span class="w"> </span><span class="nx">mensagem</span><span class="p">,</span><span class="w"> </span><span class="nx">codigo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;ERRO&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">super</span><span class="p">(</span><span class="nx">mensagem</span><span class="p">)</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;ErroHttp&#39;</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">status</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">codigo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">codigo</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// atalhos comuns, para não repetir &quot;new ErroHttp(404, ...)&quot; em todo lugar</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">erroNaoEncontrado</span><span class="p">(</span><span class="nx">mensagem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;Recurso não encontrado&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">ErroHttp</span><span class="p">(</span><span class="mf">404</span><span class="p">,</span><span class="w"> </span><span class="nx">mensagem</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;NAO_ENCONTRADO&#39;</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">erroValidacao</span><span class="p">(</span><span class="nx">mensagem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;Dados inválidos&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">ErroHttp</span><span class="p">(</span><span class="mf">422</span><span class="p">,</span><span class="w"> </span><span class="nx">mensagem</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;VALIDACAO&#39;</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="rotas-modularizadas-com-expressrouter">Rotas modularizadas com <code>express.Router()</code><a class="anchor" href="#rotas-modularizadas-com-expressrouter" title="Permanent link">¶</a></h3>
+<p>Até a Aula 07, as rotas viviam direto em <code>src/servidor.js</code>, registradas com <code>app.get(...)</code>. Isso funciona para duas rotas; não escala para uma API com vários recursos, cada um com seu CRUD completo. <code>express.Router()</code> cria um "mini aplicativo Express" — um objeto que aceita <code>.get()</code>, <code>.post()</code>, <code>.put()</code>, <code>.patch()</code>, <code>.delete()</code> exatamente como <code>app</code>, mas que fica isolado num arquivo próprio, sem saber em qual prefixo vai ser montado.</p>
+<p>Repare que dentro do arquivo de rotas os caminhos são <strong>relativos</strong>: <code>router.get('/')</code> e <code>router.get('/:id')</code>, sem repetir <code>/api/v1/eventos</code>. É só na hora de montar, em <code>servidor.js</code>, que o prefixo é definido:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="s1">&#39;/api/v1/eventos&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">eventosRoutes</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Isso significa que, se amanhã você decidir que a API deve responder em <code>/api/v2/eventos</code> também, basta montar o mesmo <code>eventosRoutes</code> num segundo prefixo — nenhuma rota interna precisa mudar.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/routes/eventos.routes.js</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Router</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;express&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">eventos</span><span class="p">,</span><span class="w"> </span><span class="nx">proximoId</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../dados/eventos.js&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">erroNaoEncontrado</span><span class="p">,</span><span class="w"> </span><span class="nx">erroValidacao</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../erros/ErroHttp.js&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">router</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">Router</span><span class="p">()</span>
+
+<span class="c1">// função auxiliar: encontra o índice do evento pelo id, ou -1</span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">indiceDoEvento</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">findIndex</span><span class="p">((</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">id</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// GET /api/v1/eventos — lista com filtro, ordenação e paginação</span>
+<span class="nx">router</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">let</span><span class="w"> </span><span class="nx">resultado</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[...</span><span class="nx">eventos</span><span class="p">]</span>
+
+<span class="w">  </span><span class="c1">// filtro por categoria</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">query</span><span class="p">.</span><span class="nx">categoria</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">resultado</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">resultado</span><span class="p">.</span><span class="nx">filter</span><span class="p">((</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">categoria</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">query</span><span class="p">.</span><span class="nx">categoria</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// ordenação</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">ordenarPor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">query</span><span class="p">.</span><span class="nx">ordenarPor</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;id&#39;</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">direcao</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">query</span><span class="p">.</span><span class="nx">direcao</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;desc&#39;</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="o">-</span><span class="mf">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mf">1</span>
+<span class="w">  </span><span class="nx">resultado</span><span class="p">.</span><span class="nx">sort</span><span class="p">((</span><span class="nx">a</span><span class="p">,</span><span class="w"> </span><span class="nx">b</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">a</span><span class="p">[</span><span class="nx">ordenarPor</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">b</span><span class="p">[</span><span class="nx">ordenarPor</span><span class="p">])</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="o">-</span><span class="mf">1</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">direcao</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">a</span><span class="p">[</span><span class="nx">ordenarPor</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="nx">b</span><span class="p">[</span><span class="nx">ordenarPor</span><span class="p">])</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mf">1</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">direcao</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mf">0</span>
+<span class="w">  </span><span class="p">})</span>
+
+<span class="w">  </span><span class="c1">// paginação</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">pagina</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Number</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">query</span><span class="p">.</span><span class="nx">pagina</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="mf">1</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">limite</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Number</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">query</span><span class="p">.</span><span class="nx">limite</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="mf">10</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">inicio</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">pagina</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nx">limite</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">pagina_de_resultados</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">resultado</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="nx">inicio</span><span class="p">,</span><span class="w"> </span><span class="nx">inicio</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">limite</span><span class="p">)</span>
+
+<span class="w">  </span><span class="nx">res</span><span class="p">.</span><span class="nx">json</span><span class="p">({</span>
+<span class="w">    </span><span class="nx">dados</span><span class="o">:</span><span class="w"> </span><span class="nx">pagina_de_resultados</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">meta</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">pagina</span><span class="p">,</span><span class="w"> </span><span class="nx">limite</span><span class="p">,</span><span class="w"> </span><span class="nx">total</span><span class="o">:</span><span class="w"> </span><span class="nx">resultado</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">})</span>
+<span class="p">})</span>
+
+<span class="c1">// GET /api/v1/eventos/:id — busca um evento específico</span>
+<span class="nx">router</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/:id&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Number</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">id</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">evento</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">find</span><span class="p">((</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">id</span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="nx">erroNaoEncontrado</span><span class="p">(</span><span class="s1">&#39;Evento não encontrado&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">res</span><span class="p">.</span><span class="nx">json</span><span class="p">({</span><span class="w"> </span><span class="nx">dados</span><span class="o">:</span><span class="w"> </span><span class="nx">evento</span><span class="w"> </span><span class="p">})</span>
+<span class="p">})</span>
+
+<span class="c1">// POST /api/v1/eventos — cria um evento novo</span>
+<span class="nx">router</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">corpo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">body</span>
+
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">corpo</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">!</span><span class="nx">corpo</span><span class="p">.</span><span class="nx">titulo</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">!</span><span class="nx">corpo</span><span class="p">.</span><span class="nx">categoria</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="nx">erroValidacao</span><span class="p">(</span><span class="s1">&#39;Campos &quot;titulo&quot; e &quot;categoria&quot; são obrigatórios&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">novoEvento</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="nx">proximoId</span><span class="p">(),</span>
+<span class="w">    </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="nx">corpo</span><span class="p">.</span><span class="nx">titulo</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">descricao</span><span class="o">:</span><span class="w"> </span><span class="nx">corpo</span><span class="p">.</span><span class="nx">descricao</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="nx">corpo</span><span class="p">.</span><span class="nx">categoria</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">dataHora</span><span class="o">:</span><span class="w"> </span><span class="nx">corpo</span><span class="p">.</span><span class="nx">dataHora</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">local</span><span class="o">:</span><span class="w"> </span><span class="nx">corpo</span><span class="p">.</span><span class="nx">local</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="nb">Number</span><span class="p">(</span><span class="nx">corpo</span><span class="p">.</span><span class="nx">vagas</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">imagemUrl</span><span class="o">:</span><span class="w"> </span><span class="nx">corpo</span><span class="p">.</span><span class="nx">imagemUrl</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">novoEvento</span><span class="p">)</span>
+
+<span class="w">  </span><span class="nx">res</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">status</span><span class="p">(</span><span class="mf">201</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">location</span><span class="p">(</span><span class="sb">`/api/v1/eventos/</span><span class="si">${</span><span class="nx">novoEvento</span><span class="p">.</span><span class="nx">id</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">    </span><span class="p">.</span><span class="nx">json</span><span class="p">({</span><span class="w"> </span><span class="nx">dados</span><span class="o">:</span><span class="w"> </span><span class="nx">novoEvento</span><span class="w"> </span><span class="p">})</span>
+<span class="p">})</span>
+
+<span class="c1">// PUT /api/v1/eventos/:id — substitui o evento inteiro</span>
+<span class="nx">router</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s1">&#39;/:id&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Number</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">id</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">indice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">indiceDoEvento</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">indice</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="o">-</span><span class="mf">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="nx">erroNaoEncontrado</span><span class="p">(</span><span class="s1">&#39;Evento não encontrado&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">corpo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">req</span><span class="p">.</span><span class="nx">body</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">corpo</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">!</span><span class="nx">corpo</span><span class="p">.</span><span class="nx">titulo</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">!</span><span class="nx">corpo</span><span class="p">.</span><span class="nx">categoria</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="nx">erroValidacao</span><span class="p">(</span><span class="s1">&#39;Campos &quot;titulo&quot; e &quot;categoria&quot; são obrigatórios&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">eventos</span><span class="p">[</span><span class="nx">indice</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">id</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="nx">corpo</span><span class="p">.</span><span class="nx">titulo</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">descricao</span><span class="o">:</span><span class="w"> </span><span class="nx">corpo</span><span class="p">.</span><span class="nx">descricao</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="nx">corpo</span><span class="p">.</span><span class="nx">categoria</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">dataHora</span><span class="o">:</span><span class="w"> </span><span class="nx">corpo</span><span class="p">.</span><span class="nx">dataHora</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">local</span><span class="o">:</span><span class="w"> </span><span class="nx">corpo</span><span class="p">.</span><span class="nx">local</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="nb">Number</span><span class="p">(</span><span class="nx">corpo</span><span class="p">.</span><span class="nx">vagas</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">imagemUrl</span><span class="o">:</span><span class="w"> </span><span class="nx">corpo</span><span class="p">.</span><span class="nx">imagemUrl</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">res</span><span class="p">.</span><span class="nx">json</span><span class="p">({</span><span class="w"> </span><span class="nx">dados</span><span class="o">:</span><span class="w"> </span><span class="nx">eventos</span><span class="p">[</span><span class="nx">indice</span><span class="p">]</span><span class="w"> </span><span class="p">})</span>
+<span class="p">})</span>
+
+<span class="c1">// PATCH /api/v1/eventos/:id — atualiza campos específicos</span>
+<span class="nx">router</span><span class="p">.</span><span class="nx">patch</span><span class="p">(</span><span class="s1">&#39;/:id&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Number</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">id</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">indice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">indiceDoEvento</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">indice</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="o">-</span><span class="mf">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="nx">erroNaoEncontrado</span><span class="p">(</span><span class="s1">&#39;Evento não encontrado&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// mescla só os campos enviados — PATCH é parcial, diferente de PUT</span>
+<span class="w">  </span><span class="nx">eventos</span><span class="p">[</span><span class="nx">indice</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="nx">eventos</span><span class="p">[</span><span class="nx">indice</span><span class="p">],</span><span class="w"> </span><span class="p">...</span><span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="w"> </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">res</span><span class="p">.</span><span class="nx">json</span><span class="p">({</span><span class="w"> </span><span class="nx">dados</span><span class="o">:</span><span class="w"> </span><span class="nx">eventos</span><span class="p">[</span><span class="nx">indice</span><span class="p">]</span><span class="w"> </span><span class="p">})</span>
+<span class="p">})</span>
+
+<span class="c1">// DELETE /api/v1/eventos/:id — remove o evento</span>
+<span class="nx">router</span><span class="p">.</span><span class="ow">delete</span><span class="p">(</span><span class="s1">&#39;/:id&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Number</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">id</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">indice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">indiceDoEvento</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">indice</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="o">-</span><span class="mf">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="nx">erroNaoEncontrado</span><span class="p">(</span><span class="s1">&#39;Evento não encontrado&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">splice</span><span class="p">(</span><span class="nx">indice</span><span class="p">,</span><span class="w"> </span><span class="mf">1</span><span class="p">)</span>
+
+<span class="w">  </span><span class="nx">res</span><span class="p">.</span><span class="nx">status</span><span class="p">(</span><span class="mf">204</span><span class="p">).</span><span class="nx">send</span><span class="p">()</span>
+<span class="p">})</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">router</span>
+</code></pre></div></div>
+
+<blockquote class="atencao">
+<p><strong>⚠️ Atenção</strong>
+Note <code>router.delete(...)</code>, não <code>router.del(...)</code>. <code>app.del</code>/<code>router.del</code> foram removidos no Express 5 (Aula 07, §5).</p>
+</blockquote>
+<h3 id="montando-o-router-no-servidor">Montando o Router no servidor<a class="anchor" href="#montando-o-router-no-servidor" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/servidor.js</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">express</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;express&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">cors</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;cors&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">eventosRoutes</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./routes/eventos.routes.js&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">middlewareNaoEncontrado</span><span class="p">,</span><span class="w"> </span><span class="nx">tratadorDeErros</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./middlewares/erros.js&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">logger</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./middlewares/logger.js&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">medidorDeTempo</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./middlewares/medidorDeTempo.js&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">app</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">express</span><span class="p">()</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">cors</span><span class="p">())</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">express</span><span class="p">.</span><span class="nx">json</span><span class="p">())</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">logger</span><span class="p">)</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">medidorDeTempo</span><span class="p">)</span>
+
+<span class="c1">// monta o router em /api/v1/eventos — dentro do router, as rotas usam caminhos relativos</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="s1">&#39;/api/v1/eventos&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">eventosRoutes</span><span class="p">)</span>
+
+<span class="c1">// a partir daqui, nenhuma rota casou: 404</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">middlewareNaoEncontrado</span><span class="p">)</span>
+
+<span class="c1">// tratador de erros SEMPRE por último</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">tratadorDeErros</span><span class="p">)</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">porta</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">PORTA</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="mf">3000</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">listen</span><span class="p">(</span><span class="nx">porta</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`unieventos-api rodando em http://localhost:</span><span class="si">${</span><span class="nx">porta</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<p>Modularizar com <code>express.Router()</code> separa a definição das rotas de eventos do arquivo principal do servidor. Isso escala: cada recurso (<code>eventos</code>, e futuramente <code>inscricoes</code>, <code>usuarios</code>) ganha seu próprio arquivo de rotas, e <code>servidor.js</code> só monta cada um em seu prefixo.</p>
+<h2 id="padrao-de-projeto-em-uso">🧩 Padrão de projeto em uso<a class="anchor" href="#padrao-de-projeto-em-uso" title="Permanent link">¶</a></h2>
+<blockquote>
+<h3 id="padrao-de-projeto-em-uso-chain-of-responsibility-e-strategy">🧩 Padrão de projeto em uso — Chain of Responsibility e Strategy<a class="anchor" href="#padrao-de-projeto-em-uso-chain-of-responsibility-e-strategy" title="Permanent link">¶</a></h3>
+<p>A cadeia <code>cors → express.json → logger → medidorDeTempo → eventosRoutes → middlewareNaoEncontrado → tratadorDeErros</code> é o <strong>Chain of Responsibility</strong> completo: cada middleware decide se processa a requisição e a passa adiante com <code>next()</code>, ou se responde e encerra a cadeia ali. A ordem importa — é o próprio desenho do padrão: cada elo só recebe a requisição se o anterior decidiu repassá-la.</p>
+<p>Já os validadores de corpo que vamos construir com <code>zod</code> ilustram o <strong>Strategy</strong> (comportamental): a função <code>validar(schema)</code> é genérica — ela não sabe nada sobre "evento" —, e recebe de fora, como parâmetro, a estratégia de validação específica (o schema Zod do evento, do usuário, do que for). Trocar a validação de uma rota é só trocar o schema passado, sem tocar no middleware <code>validar</code>. Isso é Strategy: o algoritmo (validação) é injetado, intercambiável, sem alterar quem o usa.</p>
+</blockquote>
+<h2 id="3-middlewares-a-fundo">3. Middlewares a fundo<a class="anchor" href="#3-middlewares-a-fundo" title="Permanent link">¶</a></h2>
+<p>Um middleware é uma função com a assinatura <code>(req, res, next)</code> — ou <code>(err, req, res, next)</code> no caso especial de tratador de erros, com <strong>quatro</strong> argumentos. Ele roda entre a chegada da requisição e a resposta final, podendo:</p>
+<ul>
+<li>ler ou modificar <code>req</code>/<code>res</code>;</li>
+<li>encerrar o ciclo respondendo diretamente (<code>res.send()</code>, <code>res.json()</code>, etc.);</li>
+<li>passar a bola adiante chamando <code>next()</code>;</li>
+<li>passar um erro adiante chamando <code>next(erro)</code> (embora no Express 5, como vimos, um <code>throw</code> dentro de um handler <code>async</code> já faz isso sozinho).</li>
+</ul>
+<p>Pense em cada middleware como uma estação de inspeção numa linha de produção. A requisição entra por um lado, passa estação por estação, e cada uma pode carimbá-la (adicionar algo a <code>req</code>), rejeitá-la ali mesmo (responder e nunca chamar <code>next()</code>) ou deixá-la seguir para a próxima estação. Uma rota (<code>router.get</code>, <code>router.post</code>, etc.) é só a última estação da linha — a que finalmente produz uma resposta para o cliente, na maioria das requisições.</p>
+<h3 id="ordem-de-execucao">Ordem de execução<a class="anchor" href="#ordem-de-execucao" title="Permanent link">¶</a></h3>
+<p>Middlewares rodam <strong>na ordem em que são registrados</strong> com <code>app.use()</code> ou dentro de uma rota. Se um middleware não chamar <code>next()</code> nem responder, a requisição fica pendurada para sempre — esse é o erro mais comum ao escrever middleware pela primeira vez.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">cors</span><span class="p">())</span><span class="w">           </span><span class="c1">// 1º: libera CORS</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">express</span><span class="p">.</span><span class="nx">json</span><span class="p">())</span><span class="w">   </span><span class="c1">// 2º: faz o parse do corpo</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">logger</span><span class="p">)</span><span class="w">           </span><span class="c1">// 3º: registra a requisição no console</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">medidorDeTempo</span><span class="p">)</span><span class="w">   </span><span class="c1">// 4º: começa a medir o tempo de resposta</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="s1">&#39;/api/v1/eventos&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">eventosRoutes</span><span class="p">)</span><span class="w">  </span><span class="c1">// 5º: tenta casar com alguma rota de evento</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">middlewareNaoEncontrado</span><span class="p">)</span><span class="w">  </span><span class="c1">// 6º: só roda se nada casou acima</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">tratadorDeErros</span><span class="p">)</span><span class="w">          </span><span class="c1">// 7º: só roda se algo lançou erro em qualquer ponto anterior</span>
+</code></pre></div></div>
+
+<h3 id="middleware-de-aplicacao-de-rota-de-erro">Middleware de aplicação × de rota × de erro<a class="anchor" href="#middleware-de-aplicacao-de-rota-de-erro" title="Permanent link">¶</a></h3>
+<p><strong>Middleware de aplicação</strong> roda para toda requisição, registrado direto em <code>app.use(fn)</code>, sem caminho — é o caso de <code>cors()</code>, <code>express.json()</code>, <code>logger</code>.</p>
+<p><strong>Middleware de rota</strong> roda só para requisições que casam com um caminho e método específicos, registrado como argumento extra antes do handler final:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// middleware de rota: só roda para POST /api/v1/eventos</span>
+<span class="nx">router</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">validar</span><span class="p">(</span><span class="nx">schemaEvento</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// aqui req.body já passou pela validação</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<p><strong>Middleware de erro</strong> tem <strong>quatro</strong> parâmetros — <code>(err, req, res, next)</code> — e o Express o reconhece pela aridade da função (contagem de parâmetros), não por onde está registrado. Ele só é chamado quando algum middleware ou handler anterior invoca <code>next(erro)</code> ou lança uma exceção (capturada automaticamente em handlers <code>async</code>, como vimos).</p>
+<h3 id="por-que-o-tratador-de-erros-vem-por-ultimo">Por que o tratador de erros vem por último<a class="anchor" href="#por-que-o-tratador-de-erros-vem-por-ultimo" title="Permanent link">¶</a></h3>
+<p>O Express testa os middlewares registrados na ordem em que aparecem. Um middleware de erro só é alcançado quando a cadeia "pula" para ele — o que acontece quando algo dá errado em qualquer ponto anterior. Se você registrar o tratador de erros <strong>antes</strong> de uma rota, ele nunca vai capturar os erros dela, porque a execução normal (sem erro) nem chega a considerá-lo — e mesmo em caso de erro, o Express busca o próximo middleware de erro <strong>à frente</strong> na cadeia, nunca voltando para trás. Por isso a regra é fixa: middlewares normais primeiro, depois o 404 (que captura tudo que não casou com nenhuma rota), depois o tratador de erros por último de todos.</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>requisição
+    │
+    ▼
+  cors() ──────────────► ok, next()
+    │
+    ▼
+  express.json() ──────► ok, next()
+    │
+    ▼
+  eventosRoutes ───────► lançou erro (throw)
+    │                         │
+    │            Express pula direto para o
+    │            próximo middleware DE ERRO
+    │                         │
+    ▼                         ▼
+  middlewareNaoEncontrado   tratadorDeErros
+  (não roda: já tinha        (roda: recebe o erro,
+   uma rota que casou)        responde ao cliente)
+</code></pre></div></div>
+
+<p>Se <code>middlewareNaoEncontrado</code> estivesse depois de <code>tratadorDeErros</code>, ele nunca seria alcançado no caminho de erro — e se estivesse antes das rotas, capturaria toda requisição como "não encontrada", mesmo as que tinham rota válida. A ordem — rotas, depois 404, depois tratador de erros — não é estilo, é a única ordem que faz os três cumprirem seu papel corretamente.</p>
+<h3 id="escrevendo-os-middlewares-do-zero">Escrevendo os middlewares do zero<a class="anchor" href="#escrevendo-os-middlewares-do-zero" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/middlewares/logger.js</span>
+<span class="c1">// registra método, caminho e horário de cada requisição recebida</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">logger</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">,</span><span class="w"> </span><span class="nx">next</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">agora</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">().</span><span class="nx">toISOString</span><span class="p">()</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`[</span><span class="si">${</span><span class="nx">agora</span><span class="si">}</span><span class="sb">] </span><span class="si">${</span><span class="nx">req</span><span class="p">.</span><span class="nx">method</span><span class="si">}</span><span class="sb"> </span><span class="si">${</span><span class="nx">req</span><span class="p">.</span><span class="nx">originalUrl</span><span class="si">}</span><span class="sb">`</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">next</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/middlewares/medidorDeTempo.js</span>
+<span class="c1">// mede quanto tempo o servidor levou para responder, em milissegundos</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">medidorDeTempo</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">,</span><span class="w"> </span><span class="nx">next</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">inicio</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">hrtime</span><span class="p">.</span><span class="nx">bigint</span><span class="p">()</span>
+
+<span class="w">  </span><span class="c1">// &#39;finish&#39; dispara quando a resposta terminou de ser enviada</span>
+<span class="w">  </span><span class="nx">res</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;finish&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">fim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">process</span><span class="p">.</span><span class="nx">hrtime</span><span class="p">.</span><span class="nx">bigint</span><span class="p">()</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">duracaoMs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Number</span><span class="p">(</span><span class="nx">fim</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">inicio</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">1</span><span class="nx">_000_000</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`  ↳ </span><span class="si">${</span><span class="nx">res</span><span class="p">.</span><span class="nx">statusCode</span><span class="si">}</span><span class="sb"> em </span><span class="si">${</span><span class="nx">duracaoMs</span><span class="p">.</span><span class="nx">toFixed</span><span class="p">(</span><span class="mf">1</span><span class="p">)</span><span class="si">}</span><span class="sb">ms`</span><span class="p">)</span>
+<span class="w">  </span><span class="p">})</span>
+
+<span class="w">  </span><span class="nx">next</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/middlewares/erros.js</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ErroHttp</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../erros/ErroHttp.js&#39;</span>
+
+<span class="c1">// roda quando nenhuma rota casou com a requisição — precisa vir depois de todas as rotas</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">middlewareNaoEncontrado</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">,</span><span class="w"> </span><span class="nx">next</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">next</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">ErroHttp</span><span class="p">(</span><span class="mf">404</span><span class="p">,</span><span class="w"> </span><span class="sb">`Rota </span><span class="si">${</span><span class="nx">req</span><span class="p">.</span><span class="nx">method</span><span class="si">}</span><span class="sb"> </span><span class="si">${</span><span class="nx">req</span><span class="p">.</span><span class="nx">originalUrl</span><span class="si">}</span><span class="sb"> não existe`</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;ROTA_NAO_ENCONTRADA&#39;</span><span class="p">))</span>
+<span class="p">}</span>
+
+<span class="c1">// tratador de erros central — repare nos QUATRO parâmetros, é assim que o Express o reconhece</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">tratadorDeErros</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span><span class="w"> </span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">,</span><span class="w"> </span><span class="nx">next</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// erros conhecidos (ErroHttp) já sabem seu status; erros inesperados viram 500</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="ow">instanceof</span><span class="w"> </span><span class="nx">ErroHttp</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">err</span><span class="p">.</span><span class="nx">status</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mf">500</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">codigo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="ow">instanceof</span><span class="w"> </span><span class="nx">ErroHttp</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">err</span><span class="p">.</span><span class="nx">codigo</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;ERRO_INTERNO&#39;</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">mensagem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="ow">instanceof</span><span class="w"> </span><span class="nx">ErroHttp</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">err</span><span class="p">.</span><span class="nx">message</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Erro interno do servidor&#39;</span>
+
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">status</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">500</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// erro inesperado: registre o stack completo no servidor, mas não exponha ao cliente</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nx">res</span><span class="p">.</span><span class="nx">status</span><span class="p">(</span><span class="nx">status</span><span class="p">).</span><span class="nx">json</span><span class="p">({</span><span class="w"> </span><span class="nx">erro</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">mensagem</span><span class="p">,</span><span class="w"> </span><span class="nx">codigo</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">})</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/middlewares/validador.js</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">validar</span><span class="p">(</span><span class="nx">schema</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// retorna um middleware de rota configurado para o schema recebido — isto é Strategy</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">,</span><span class="w"> </span><span class="nx">next</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">resultado</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">schema</span><span class="p">.</span><span class="nx">safeParse</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">resultado</span><span class="p">.</span><span class="nx">success</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">mensagens</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">resultado</span><span class="p">.</span><span class="nx">error</span><span class="p">.</span><span class="nx">issues</span><span class="p">.</span><span class="nx">map</span><span class="p">((</span><span class="nx">problema</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">problema</span><span class="p">.</span><span class="nx">message</span><span class="p">)</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="nx">res</span><span class="p">.</span><span class="nx">status</span><span class="p">(</span><span class="mf">422</span><span class="p">).</span><span class="nx">json</span><span class="p">({</span>
+<span class="w">        </span><span class="nx">erro</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">mensagem</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Dados inválidos&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">codigo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;VALIDACAO&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">detalhes</span><span class="o">:</span><span class="w"> </span><span class="nx">mensagens</span><span class="w"> </span><span class="p">},</span>
+<span class="w">      </span><span class="p">})</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// substitui req.body pelos dados já validados e tipados pelo Zod</span>
+<span class="w">    </span><span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">resultado</span><span class="p">.</span><span class="nx">data</span>
+<span class="w">    </span><span class="nx">next</span><span class="p">()</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="middlewares-de-terceiros">Middlewares de terceiros<a class="anchor" href="#middlewares-de-terceiros" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>npm<span class="w"> </span>install<span class="w"> </span>morgan<span class="w"> </span>helmet<span class="w"> </span>express-rate-limit<span class="w"> </span>compression
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/servidor.js (trecho adicional)</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">morgan</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;morgan&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">helmet</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;helmet&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">rateLimit</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;express-rate-limit&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">compression</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;compression&#39;</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">helmet</span><span class="p">())</span><span class="w">            </span><span class="c1">// cabeçalhos de segurança padrão (evita alguns ataques comuns)</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">compression</span><span class="p">())</span><span class="w">       </span><span class="c1">// comprime respostas grandes (gzip) — mais rápido para o cliente</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">morgan</span><span class="p">(</span><span class="s1">&#39;dev&#39;</span><span class="p">))</span><span class="w">       </span><span class="c1">// log de requisições formatado — mais completo que nosso logger</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">limitador</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">rateLimit</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">windowMs</span><span class="o">:</span><span class="w"> </span><span class="mf">15</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">60</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1000</span><span class="p">,</span><span class="w">  </span><span class="c1">// janela de 15 minutos</span>
+<span class="w">  </span><span class="nx">max</span><span class="o">:</span><span class="w"> </span><span class="mf">100</span><span class="p">,</span><span class="w">                   </span><span class="c1">// no máximo 100 requisições por IP nessa janela</span>
+<span class="w">  </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">erro</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">mensagem</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Muitas requisições, tente novamente mais tarde&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">codigo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;RATE_LIMIT&#39;</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">},</span>
+<span class="p">})</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="s1">&#39;/api/&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">limitador</span><span class="p">)</span><span class="w">  </span><span class="c1">// aplica o limite só nas rotas de API</span>
+</code></pre></div></div>
+
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Pacote</th>
+<th>Para que serve</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cors</code></td>
+<td>libera requisições de outras origens (front em outra porta/domínio)</td>
+</tr>
+<tr>
+<td><code>morgan</code></td>
+<td>log de requisições HTTP formatado (substitui nosso <code>logger</code> em produção)</td>
+</tr>
+<tr>
+<td><code>helmet</code></td>
+<td>adiciona cabeçalhos HTTP de segurança (proteção básica contra alguns ataques)</td>
+</tr>
+<tr>
+<td><code>express-rate-limit</code></td>
+<td>limita quantas requisições um IP pode fazer numa janela de tempo</td>
+</tr>
+<tr>
+<td><code>compression</code></td>
+<td>comprime o corpo das respostas (gzip), reduzindo tráfego</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote class="dica">
+<p><strong>💡 Dica</strong>
+<code>morgan('dev')</code> e nosso <code>logger</code>/<code>medidorDeTempo</code> fazem trabalho parecido. Escrever o seu próprio primeiro é pedagógico — mostra o que acontece por baixo —, mas em projetos reais é comum usar só <code>morgan</code>, já testado e configurável.</p>
+</blockquote>
+<h2 id="4-async-no-express-5-revisitado">4. Async no Express 5, revisitado<a class="anchor" href="#4-async-no-express-5-revisitado" title="Permanent link">¶</a></h2>
+<p>Na Aula 07 você viu que <code>throw</code> dentro de um handler <code>async</code> cai automaticamente no tratador de erros — e testou isso no laboratório com a rota <code>/api/quebra</code>. Agora, com um tratador de erros de verdade escrito, o comportamento fica completo:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// Express 5: qualquer throw, síncrono ou dentro de um await, é capturado</span>
+<span class="nx">router</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/:id&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">evento</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">buscarEventoPorIdNoBanco</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">id</span><span class="p">)</span><span class="w">  </span><span class="c1">// função hipotética assíncrona</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">evento</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="nx">erroNaoEncontrado</span><span class="p">(</span><span class="s1">&#39;Evento não encontrado&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">res</span><span class="p">.</span><span class="nx">json</span><span class="p">({</span><span class="w"> </span><span class="nx">dados</span><span class="o">:</span><span class="w"> </span><span class="nx">evento</span><span class="w"> </span><span class="p">})</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<p>Se <code>buscarEventoPorIdNoBanco</code> rejeitasse a Promise (por exemplo, uma falha de conexão), o Express 5 também capturaria automaticamente e encaminharia para <code>tratadorDeErros</code>. Nenhum <code>try/catch</code> manual é necessário para isso — o framework embrulha cada handler <code>async</code> internamente.</p>
+<p><strong>Por que tanto código por aí usa <code>express-async-handler</code> então?</strong> Porque esse pacote foi criado para o Express 4, que <strong>não</strong> tinha essa captura automática — era preciso embrulhar manualmente cada handler assíncrono:</p>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// Express 4 (não use): precisava embrulhar manualmente</span>
+<span class="c1">// const asyncHandler = require(&#39;express-async-handler&#39;)</span>
+<span class="c1">// router.get(&#39;/:id&#39;, asyncHandler(async (req, res) =&gt; { ... }))</span>
+</code></pre></div></div>
+
+<p>No Express 5, esse pacote é desnecessário. Se você encontrar em um projeto ou tutorial, é sinal de código escrito para Express 4 (ou copiado de um).</p>
+<blockquote class="prova">
+<p><strong>📌 Na prova</strong>
+Se perguntarem por que <code>express-async-handler</code> não é mais necessário no Express 5, a resposta é: o próprio framework agora captura automaticamente qualquer exceção lançada (ou Promise rejeitada) dentro de um handler <code>async</code>, encaminhando para o middleware de erro — antes isso exigia embrulhar manualmente.</p>
+</blockquote>
+<h2 id="mao-na-massa-validacao-com-zod-e-testes-organizados">💻 Mão na massa — validação com Zod e testes organizados<a class="anchor" href="#mao-na-massa-validacao-com-zod-e-testes-organizados" title="Permanent link">¶</a></h2>
+<h3 id="passo-1-instalar-e-escrever-o-schema">Passo 1 — instalar e escrever o schema<a class="anchor" href="#passo-1-instalar-e-escrever-o-schema" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code>npm<span class="w"> </span>install<span class="w"> </span>zod
+</code></pre></div></div>
+
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/schemas/evento.schema.js</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">z</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;zod&#39;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">schemaEvento</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">z</span><span class="p">.</span><span class="nx">object</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">titulo</span><span class="o">:</span><span class="w"> </span><span class="nx">z</span><span class="p">.</span><span class="nx">string</span><span class="p">().</span><span class="nx">min</span><span class="p">(</span><span class="mf">3</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;O título precisa ter ao menos 3 caracteres&#39;</span><span class="p">),</span>
+<span class="w">  </span><span class="nx">descricao</span><span class="o">:</span><span class="w"> </span><span class="nx">z</span><span class="p">.</span><span class="nx">string</span><span class="p">().</span><span class="nx">optional</span><span class="p">(),</span>
+<span class="w">  </span><span class="nx">categoria</span><span class="o">:</span><span class="w"> </span><span class="nx">z</span><span class="p">.</span><span class="kr">enum</span><span class="p">([</span><span class="s1">&#39;palestra&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;minicurso&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;workshop&#39;</span><span class="p">],</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Categoria deve ser palestra, minicurso ou workshop&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">}),</span>
+<span class="w">  </span><span class="nx">dataHora</span><span class="o">:</span><span class="w"> </span><span class="nx">z</span><span class="p">.</span><span class="nx">string</span><span class="p">().</span><span class="nx">min</span><span class="p">(</span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Informe a data e hora do evento&#39;</span><span class="p">),</span>
+<span class="w">  </span><span class="nx">local</span><span class="o">:</span><span class="w"> </span><span class="nx">z</span><span class="p">.</span><span class="nx">string</span><span class="p">().</span><span class="nx">min</span><span class="p">(</span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Informe o local do evento&#39;</span><span class="p">),</span>
+<span class="w">  </span><span class="nx">vagas</span><span class="o">:</span><span class="w"> </span><span class="nx">z</span><span class="p">.</span><span class="nx">number</span><span class="p">({</span><span class="w"> </span><span class="nx">message</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Vagas deve ser um número&#39;</span><span class="w"> </span><span class="p">}).</span><span class="kr">int</span><span class="p">().</span><span class="nx">positive</span><span class="p">(</span><span class="s1">&#39;Vagas deve ser maior que zero&#39;</span><span class="p">),</span>
+<span class="w">  </span><span class="nx">imagemUrl</span><span class="o">:</span><span class="w"> </span><span class="nx">z</span><span class="p">.</span><span class="nx">string</span><span class="p">().</span><span class="nx">url</span><span class="p">(</span><span class="s1">&#39;URL de imagem inválida&#39;</span><span class="p">).</span><span class="nx">optional</span><span class="p">().</span><span class="nx">or</span><span class="p">(</span><span class="nx">z</span><span class="p">.</span><span class="nx">literal</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)),</span>
+<span class="p">})</span>
+
+<span class="c1">// schema para PATCH: os mesmos campos, mas todos opcionais</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">schemaEventoParcial</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">schemaEvento</span><span class="p">.</span><span class="nx">partial</span><span class="p">()</span>
+</code></pre></div></div>
+
+<h3 id="passo-2-aplicar-o-middleware-validar-nas-rotas">Passo 2 — aplicar o middleware <code>validar</code> nas rotas<a class="anchor" href="#passo-2-aplicar-o-middleware-validar-nas-rotas" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="c1">// src/routes/eventos.routes.js (trechos alterados)</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Router</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;express&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">eventos</span><span class="p">,</span><span class="w"> </span><span class="nx">proximoId</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../dados/eventos.js&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">erroNaoEncontrado</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../erros/ErroHttp.js&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">validar</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../middlewares/validador.js&#39;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">schemaEvento</span><span class="p">,</span><span class="w"> </span><span class="nx">schemaEventoParcial</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../schemas/evento.schema.js&#39;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">router</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">Router</span><span class="p">()</span>
+
+<span class="c1">// ...rotas GET permanecem como antes...</span>
+
+<span class="nx">router</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">validar</span><span class="p">(</span><span class="nx">schemaEvento</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// req.body já chega validado e com os tipos corretos (vagas já é number, por exemplo)</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">novoEvento</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="nx">proximoId</span><span class="p">(),</span><span class="w"> </span><span class="p">...</span><span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">novoEvento</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">res</span><span class="p">.</span><span class="nx">status</span><span class="p">(</span><span class="mf">201</span><span class="p">).</span><span class="nx">location</span><span class="p">(</span><span class="sb">`/api/v1/eventos/</span><span class="si">${</span><span class="nx">novoEvento</span><span class="p">.</span><span class="nx">id</span><span class="si">}</span><span class="sb">`</span><span class="p">).</span><span class="nx">json</span><span class="p">({</span><span class="w"> </span><span class="nx">dados</span><span class="o">:</span><span class="w"> </span><span class="nx">novoEvento</span><span class="w"> </span><span class="p">})</span>
+<span class="p">})</span>
+
+<span class="nx">router</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s1">&#39;/:id&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">validar</span><span class="p">(</span><span class="nx">schemaEvento</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Number</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">id</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">indice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">findIndex</span><span class="p">((</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">id</span><span class="p">)</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">indice</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="o">-</span><span class="mf">1</span><span class="p">)</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="nx">erroNaoEncontrado</span><span class="p">(</span><span class="s1">&#39;Evento não encontrado&#39;</span><span class="p">)</span>
+
+<span class="w">  </span><span class="nx">eventos</span><span class="p">[</span><span class="nx">indice</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="p">,</span><span class="w"> </span><span class="p">...</span><span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">res</span><span class="p">.</span><span class="nx">json</span><span class="p">({</span><span class="w"> </span><span class="nx">dados</span><span class="o">:</span><span class="w"> </span><span class="nx">eventos</span><span class="p">[</span><span class="nx">indice</span><span class="p">]</span><span class="w"> </span><span class="p">})</span>
+<span class="p">})</span>
+
+<span class="nx">router</span><span class="p">.</span><span class="nx">patch</span><span class="p">(</span><span class="s1">&#39;/:id&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">validar</span><span class="p">(</span><span class="nx">schemaEventoParcial</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">res</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Number</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">id</span><span class="p">)</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">indice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">eventos</span><span class="p">.</span><span class="nx">findIndex</span><span class="p">((</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">id</span><span class="p">)</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">indice</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="o">-</span><span class="mf">1</span><span class="p">)</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="nx">erroNaoEncontrado</span><span class="p">(</span><span class="s1">&#39;Evento não encontrado&#39;</span><span class="p">)</span>
+
+<span class="w">  </span><span class="nx">eventos</span><span class="p">[</span><span class="nx">indice</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="nx">eventos</span><span class="p">[</span><span class="nx">indice</span><span class="p">],</span><span class="w"> </span><span class="p">...</span><span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="w"> </span><span class="p">}</span>
+<span class="w">  </span><span class="nx">res</span><span class="p">.</span><span class="nx">json</span><span class="p">({</span><span class="w"> </span><span class="nx">dados</span><span class="o">:</span><span class="w"> </span><span class="nx">eventos</span><span class="p">[</span><span class="nx">indice</span><span class="p">]</span><span class="w"> </span><span class="p">})</span>
+<span class="p">})</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="nx">router</span>
+</code></pre></div></div>
+
+<p>Com <code>validar(schemaEvento)</code> na frente do handler, o corpo malformado nunca chega a ser processado pela lógica de negócio — a validação já respondeu <code>422</code> e encerrou a cadeia antes disso.</p>
+<h3 id="passo-3-requestshttp-completo">Passo 3 — <code>requests.http</code> completo<a class="anchor" href="#passo-3-requestshttp-completo" title="Permanent link">¶</a></h3>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="err">### requests.http — todos os endpoints da unieventos-api</span>
+
+<span class="err">@baseUrl = http://localhost:3000/api/v1</span>
+
+<span class="err">### listar eventos (com paginação, filtro e ordenação)</span>
+<span class="err">GET {{baseUrl}}/eventos?pagina=1&amp;limite=10&amp;categoria=palestra&amp;ordenarPor=dataHora&amp;direcao=asc</span>
+
+<span class="err">### buscar evento por id</span>
+<span class="err">GET {{baseUrl}}/eventos/1</span>
+
+<span class="err">### buscar evento inexistente (espera 404)</span>
+<span class="err">GET {{baseUrl}}/eventos/999</span>
+
+<span class="err">### criar evento válido (espera 201 + Location)</span>
+<span class="err">POST {{baseUrl}}/eventos</span>
+<span class="err">Content-Type: application/json</span>
+
+<span class="err">{</span>
+<span class="err">  &quot;titulo&quot;: &quot;Palestra de Segurança da Informação&quot;,</span>
+<span class="err">  &quot;categoria&quot;: &quot;palestra&quot;,</span>
+<span class="err">  &quot;dataHora&quot;: &quot;2026-11-05T19:00:00&quot;,</span>
+<span class="err">  &quot;local&quot;: &quot;Auditório FACET&quot;,</span>
+<span class="err">  &quot;vagas&quot;: 60</span>
+<span class="err">}</span>
+
+<span class="err">### criar evento inválido (espera 422)</span>
+<span class="err">POST {{baseUrl}}/eventos</span>
+<span class="err">Content-Type: application/json</span>
+
+<span class="err">{</span>
+<span class="err">  &quot;titulo&quot;: &quot;AB&quot;,</span>
+<span class="err">  &quot;categoria&quot;: &quot;show&quot;</span>
+<span class="err">}</span>
+
+<span class="err">### substituir evento inteiro (espera 200)</span>
+<span class="err">PUT {{baseUrl}}/eventos/1</span>
+<span class="err">Content-Type: application/json</span>
+
+<span class="err">{</span>
+<span class="err">  &quot;titulo&quot;: &quot;Semana Acadêmica de Computação — atualizada&quot;,</span>
+<span class="err">  &quot;categoria&quot;: &quot;palestra&quot;,</span>
+<span class="err">  &quot;dataHora&quot;: &quot;2026-10-16T19:00:00&quot;,</span>
+<span class="err">  &quot;local&quot;: &quot;Auditório FACET&quot;,</span>
+<span class="err">  &quot;vagas&quot;: 100</span>
+<span class="err">}</span>
+
+<span class="err">### atualizar parcialmente (espera 200)</span>
+<span class="err">PATCH {{baseUrl}}/eventos/2</span>
+<span class="err">Content-Type: application/json</span>
+
+<span class="err">{</span>
+<span class="err">  &quot;vagas&quot;: 25</span>
+<span class="err">}</span>
+
+<span class="err">### remover evento (espera 204)</span>
+<span class="err">DELETE {{baseUrl}}/eventos/3</span>
+
+<span class="err">### remover evento já removido (espera 404)</span>
+<span class="err">DELETE {{baseUrl}}/eventos/3</span>
+
+<span class="err">### rota inexistente (espera 404 do middlewareNaoEncontrado)</span>
+<span class="err">GET {{baseUrl}}/qualquer-coisa</span>
+</code></pre></div></div>
+
+<blockquote class="dica">
+<p><strong>💡 Dica</strong>
+A variável <code>@baseUrl</code> no topo do arquivo evita repetir <code>http://localhost:3000/api/v1</code> em toda linha — troque só ali quando mudar de ambiente (local, homologação, produção).</p>
+</blockquote>
+<h2 id="laboratorio">🧪 Laboratório<a class="anchor" href="#laboratorio" title="Permanent link">¶</a></h2>
+<p><strong>1. Endpoint de contagem por categoria.</strong> Crie <code>GET /api/v1/eventos/estatisticas/por-categoria</code> que devolve <code>{ "dados": { "palestra": 2, "minicurso": 1, "workshop": 1 } }</code>, contando quantos eventos existem em cada categoria.</p>
+<details>
+<summary>Dica</summary>
+<p>Cuidado com a ordem: registre essa rota <strong>antes</strong> de <code>router.get('/:id', ...)</code>, senão o Express interpreta <code>estatisticas</code> como um valor de <code>:id</code>.</p>
+</details>
+<p><strong>2. Middleware de log condicional.</strong> Modifique o <code>logger</code> para só imprimir requisições cujo método seja <code>POST</code>, <code>PUT</code>, <code>PATCH</code> ou <code>DELETE</code> (as que alteram dados) — omita <code>GET</code>.</p>
+<details>
+<summary>Dica</summary>
+<p>Um <code>if (req.method !== 'GET') { ... }</code> dentro do middleware, antes de chamar <code>next()</code>.</p>
+</details>
+<p><strong>3. Erro de validação com múltiplos campos.</strong> Envie, pelo <code>requests.http</code>, um <code>POST /api/v1/eventos</code> com <code>titulo</code> vazio <strong>e</strong> <code>categoria</code> inválida ao mesmo tempo. Confirme que a resposta <code>422</code> lista as duas mensagens de erro no array <code>detalhes</code>.</p>
+<details>
+<summary>Dica</summary>
+<p>O Zod, por padrão, coleta <strong>todos</strong> os problemas antes de falhar — não para no primeiro. <code>resultado.error.issues</code> é um array com um item por campo problemático.</p>
+</details>
+<p><strong>4. Rate limit em ação.</strong> Reduza temporariamente o <code>max</code> do <code>express-rate-limit</code> para <code>5</code> e a <code>windowMs</code> para <code>60000</code> (1 minuto). Dispare mais de 5 requisições seguidas com <code>curl</code> num loop e observe a resposta <code>429 Too Many Requests</code>. Depois volte os valores originais.</p>
+<details>
+<summary>Dica</summary>
+<div class="bloco"><div class="bloco-topo"><span>Código</span><span class="espaco"></span><button class="copiar" type="button">Copiar</button></div><div class="highlight"><pre><span></span><code><span class="k">for</span><span class="w"> </span>i<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="m">6</span><span class="w"> </span><span class="m">7</span><span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span>curl<span class="w"> </span>-s<span class="w"> </span>-o<span class="w"> </span>/dev/null<span class="w"> </span>-w<span class="w"> </span><span class="s2">&quot;%{http_code}\n&quot;</span><span class="w"> </span>http://localhost:3000/api/v1/eventos<span class="p">;</span><span class="w"> </span><span class="k">done</span>
+</code></pre></div></div>
+
+</details>
+<p><strong>5. PATCH que tenta mudar o id.</strong> Envie <code>PATCH /api/v1/eventos/1</code> com corpo <code>{ "id": 999 }</code>. Verifique o que acontece com o registro em memória. Corrija o handler para ignorar qualquer <code>id</code> enviado no corpo (o id da URL é sempre a fonte da verdade).</p>
+<details>
+<summary>Dica</summary>
+<p>Depois do merge (<code>{ ...eventos[indice], ...req.body }</code>), force <code>eventos[indice].id = id</code> (o id da URL, já convertido para número) por cima, sobrescrevendo qualquer valor vindo do corpo.</p>
+</details>
+<p><strong>6. Middleware de erro específico para JSON malformado.</strong> Envie, via <code>curl</code>, um <code>POST /api/v1/eventos</code> com corpo JSON propositalmente quebrado (ex.: <code>{"titulo": "teste",}</code> com vírgula sobrando). Observe qual status volta. <code>express.json()</code> lança um erro de parsing antes mesmo de sua rota rodar — confirme que esse erro também é capturado pelo seu <code>tratadorDeErros</code>, e ajuste a mensagem para ficar amigável ("corpo da requisição não é um JSON válido") quando o erro vier do parser.</p>
+<details>
+<summary>Dica</summary>
+<p>O erro lançado pelo <code>express.json()</code> tem <code>err.type === 'entity.parse.failed'</code>. No <code>tratadorDeErros</code>, adicione uma verificação extra antes da checagem de <code>ErroHttp</code>: <code>if (err.type === 'entity.parse.failed') { return res.status(400).json({ erro: { mensagem: 'JSON inválido no corpo da requisição', codigo: 'JSON_INVALIDO' } }) }</code>.</p>
+</details>
+<h2 id="erros-comuns-e-como-resolver">🐛 Erros comuns e como resolver<a class="anchor" href="#erros-comuns-e-como-resolver" title="Permanent link">¶</a></h2>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Sintoma</th>
+<th>Causa</th>
+<th>Solução</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET /eventos/estatisticas</code> cai no handler de <code>/:id</code></td>
+<td>rota com parâmetro dinâmico registrada antes da rota fixa</td>
+<td>registre rotas fixas (<code>/estatisticas/...</code>) antes de rotas com <code>:id</code></td>
+</tr>
+<tr>
+<td>Middleware "trava" a requisição, sem resposta nem erro</td>
+<td>esqueceu de chamar <code>next()</code> dentro do middleware</td>
+<td>toda função de middleware precisa terminar chamando <code>next()</code> <strong>ou</strong> respondendo diretamente</td>
+</tr>
+<tr>
+<td>Tratador de erros nunca é chamado</td>
+<td>ele foi registrado antes das rotas, ou tem menos de 4 parâmetros</td>
+<td>mova <code>app.use(tratadorDeErros)</code> para o fim; confira a assinatura <code>(err, req, res, next)</code></td>
+</tr>
+<tr>
+<td><code>422</code> não aparece, servidor retorna <code>500</code></td>
+<td>schema Zod não corresponde ao formato de <code>req.body</code>, gerando erro diferente do esperado</td>
+<td>confira o schema campo a campo; teste isoladamente com <code>schema.safeParse(objetoDeTeste)</code></td>
+</tr>
+<tr>
+<td><code>POST</code> retorna <code>201</code> mas sem <code>Location</code> no cabeçalho</td>
+<td>esqueceu <code>.location(...)</code> antes de <code>.json(...)</code></td>
+<td>encadeie <code>res.status(201).location(url).json(dados)</code></td>
+</tr>
+<tr>
+<td><code>express-rate-limit</code> bloqueia até requisições legítimas em sala</td>
+<td><code>max</code> configurado baixo demais para uma turma toda testando do mesmo IP/rede</td>
+<td>aumente <code>max</code> durante a aula, ou aplique o limitador só em rotas de escrita</td>
+</tr>
+<tr>
+<td><code>zod</code>: erro <code>Cannot read properties of undefined (reading 'issues')</code></td>
+<td><code>schema.safeParse</code> não foi usado (usou <code>schema.parse</code>, que lança exceção em vez de devolver objeto)</td>
+<td>use sempre <code>safeParse</code> no middleware <code>validar</code>, para tratar o erro manualmente</td>
+</tr>
+<tr>
+<td><code>DELETE</code> retorna <code>204</code> mas o corpo aparece vazio "errado" no REST Client</td>
+<td>comportamento esperado — <code>204 No Content</code> nunca deve ter corpo</td>
+<td>confirme com <code>res.status(204).send()</code> sem argumento; não chame <code>.json()</code> depois de <code>204</code></td>
+</tr>
+<tr>
+<td>Duas rotas parecem casar com a mesma URL, só a primeira responde</td>
+<td>ordem de registro determina qual middleware/rota atende primeiro</td>
+<td>reordene: rotas mais específicas antes das mais genéricas</td>
+</tr>
+<tr>
+<td>Front-end para de funcionar depois de adicionar <code>helmet()</code></td>
+<td><code>helmet</code> por padrão bloqueia carregamento de alguns recursos cross-origin</td>
+<td>ajuste as políticas de <code>helmet</code> conforme a necessidade, ou mantenha o padrão em desenvolvimento e ajuste caso a caso</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="avaliacao-2-instrucoes-de-entrega">📝 Avaliação 2 — instruções de entrega<a class="anchor" href="#avaliacao-2-instrucoes-de-entrega" title="Permanent link">¶</a></h2>
+<p><strong>Escopo.</strong> Uma aplicação <strong>Vue 3</strong> completa, consumindo uma API (a sua, em memória ou já com Firestore — MySQL só é exigido a partir da Aula 09), sobre o <strong>projeto autoral</strong> de cada estudante (não o UniEventos, que é o exemplo do professor).</p>
+<p><strong>Requisitos obrigatórios:</strong></p>
+<ul>
+<li><strong>Vuetify</strong> para toda a interface (nenhum CSS puro estrutural fora do Vuetify, exceto ajustes pontuais).</li>
+<li><strong>Vue Router</strong>, com no mínimo <strong>4 rotas</strong> (ex.: Home, Detalhe, Formulário de criação/edição, uma quarta rota própria do domínio — listagem filtrada, painel, etc.).</li>
+<li>No mínimo <strong>6 componentes próprios</strong> (<code>.vue</code> autorais, além dos componentes do Vuetify) — componentes de card, formulário, lista, filtro, layout, etc.</li>
+<li><strong>Uma store Pinia</strong> com estado assíncrono: ações que chamam a API, estados de <code>carregando</code> e <code>erro</code>, getters quando fizer sentido.</li>
+<li><strong>Axios</strong> com instância dedicada (<code>axios.create</code>) e ao menos um interceptor.</li>
+<li>Consumo de API com tratamento visível de <strong>carregando / erro / vazio</strong> (três estados, não só o caminho feliz) em pelo menos uma tela de listagem.</li>
+<li><strong>Formulário com validação</strong> (Vuetify <code>rules</code> ou biblioteca de validação) para criar ou editar um registro do domínio.</li>
+<li><strong>Layout responsivo</strong> — funcional em tela de celular e de desktop, usando o sistema de grid do Vuetify.</li>
+</ul>
+<p><strong>Rubrica:</strong></p>
+<div class="tabela-wrap"><table>
+<thead>
+<tr>
+<th>Critério</th>
+<th>Peso</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Vue Router — 4+ rotas, navegação coerente, guards se aplicável</td>
+<td>1,5</td>
+</tr>
+<tr>
+<td>Componentização — 6+ componentes próprios, props/emits corretos</td>
+<td>2,0</td>
+</tr>
+<tr>
+<td>Pinia — store com estado assíncrono, carregando/erro tratados</td>
+<td>2,0</td>
+</tr>
+<tr>
+<td>Axios — instância dedicada, interceptor, integração com a store</td>
+<td>1,5</td>
+</tr>
+<tr>
+<td>Vuetify — uso consistente, responsividade</td>
+<td>1,5</td>
+</tr>
+<tr>
+<td>Formulário com validação funcionando</td>
+<td>1,0</td>
+</tr>
+<tr>
+<td>Organização do código e commits (histórico git coerente)</td>
+<td>0,5</td>
+</tr>
+</tbody>
+</table></div>
+<p>Total: <strong>10,0 pontos</strong>.</p>
+<p><strong>Formato de entrega.</strong> Link do repositório Git (GitHub, GitLab ou similar), <strong>público ou com acesso liberado para o professor</strong>, enviado via <strong>SIGAA</strong>, no campo de entrega da Avaliação 2. O <code>README.md</code> do repositório deve conter: nome do projeto autoral, instruções de instalação (<code>npm install</code>, <code>npm run dev</code>) e uma breve descrição do domínio escolhido.</p>
+<p><strong>Prazo.</strong> Até <strong>05/10/2026, 23h59</strong>, horário de Brasília. O SIGAA registra o horário da submissão — entregas após o prazo entram na política de atraso abaixo.</p>
+<p><strong>Política de atraso.</strong> Cada 24h de atraso desconta 1,0 ponto da nota final da avaliação, até o limite de 5 dias corridos; após esse prazo, a atividade recebe nota zero, salvo justificativa formal (atestado médico ou similar) protocolada junto à coordenação.</p>
+<p><strong>Política de plágio e uso de IA.</strong> É permitido usar ferramentas de IA como apoio (explicar um erro, sugerir uma correção pontual, revisar um trecho) — é o mesmo tipo de apoio que se espera de qualquer ferramenta de desenvolvimento moderna. <strong>Não é permitido</strong> entregar um projeto majoritariamente gerado por IA sem compreensão do próprio código: na correção, o professor pode fazer perguntas orais sobre qualquer trecho entregue, e a incapacidade de explicar decisões básicas do próprio código (por que essa rota, por que essa store, o que faz esse <code>computed</code>) resulta em revisão da nota. Cópia entre colegas — código idêntico ou com alterações cosméticas — resulta em nota zero para todos os envolvidos, sem exceção.</p>
+<h2 id="atividade-assincrona-1-h">🏠 Atividade assíncrona (1 h)<a class="anchor" href="#atividade-assincrona-1-h" title="Permanent link">¶</a></h2>
+<p>Além de finalizar e entregar a Avaliação 2, use esta hora para:</p>
+<ol>
+<li>Adicionar ao seu <code>requests.http</code> autoral os casos de erro esperados (<code>404</code>, <code>422</code>) — não só o caminho feliz.</li>
+<li>Rodar o laboratório de rate limit (exercício 4) no seu próprio projeto, confirmando que o <code>429</code> aparece.</li>
+<li>Revisar seu tratador de erros: force um erro inesperado (ex.: acesse uma propriedade de <code>undefined</code> de propósito dentro de uma rota) e confirme que a resposta chega como <code>500</code> com o envelope <code>{ "erro": { ... } }</code>, sem vazar o stack trace para o cliente.</li>
+</ol>
+<p><strong>Critério de pronto:</strong> sua API autoral tem CRUD completo, middlewares próprios funcionando na ordem correta, validação com Zod retornando <code>422</code> com mensagens claras, e a Avaliação 2 já submetida no SIGAA.</p>
+<h2 id="checkpoint-do-projeto-autoral">✅ Checkpoint do projeto autoral<a class="anchor" href="#checkpoint-do-projeto-autoral" title="Permanent link">¶</a></h2>
+<ul>
+<li>[ ] CRUD completo (<code>GET</code> lista, <code>GET</code> por id, <code>POST</code>, <code>PUT</code>, <code>PATCH</code>, <code>DELETE</code>) funcionando na sua API autoral.</li>
+<li>[ ] Rotas modularizadas com <code>express.Router()</code>, montadas com prefixo <code>/api/v1/&lt;recurso&gt;</code>.</li>
+<li>[ ] Middlewares próprios (<code>logger</code>, <code>medidorDeTempo</code>, <code>middlewareNaoEncontrado</code>, <code>tratadorDeErros</code>) escritos e na ordem correta.</li>
+<li>[ ] Validação de entrada com <code>zod</code>, retornando <code>422</code> com mensagens em português.</li>
+<li>[ ] <code>requests.http</code> cobrindo todos os endpoints, inclusive casos de erro.</li>
+<li>[ ] Front-end autoral consumindo o CRUD completo, com tratamento de carregando/erro/vazio.</li>
+<li>[ ] Avaliação 2 entregue via SIGAA.</li>
+</ul>
+<h2 id="para-aprofundar">📚 Para aprofundar<a class="anchor" href="#para-aprofundar" title="Permanent link">¶</a></h2>
+<ul>
+<li>Guia oficial de roteamento do Express — <a href="https://expressjs.com/en/guide/routing.html">expressjs.com/en/guide/routing.html</a>.</li>
+<li>Guia oficial de middleware — <a href="https://expressjs.com/en/guide/using-middleware.html">expressjs.com/en/guide/using-middleware.html</a> e <em>error handling</em> — <a href="https://expressjs.com/en/guide/error-handling.html">expressjs.com/en/guide/error-handling.html</a>.</li>
+<li>Documentação do Zod — <a href="https://zod.dev/">zod.dev</a>.</li>
+<li>Documentação do <code>helmet</code> — <a href="https://helmetjs.github.io/">helmetjs.github.io</a> — o que cada cabeçalho de segurança faz.</li>
+<li>Documentação do <code>express-rate-limit</code> — <a href="https://express-rate-limit.mintlify.app/">express-rate-limit.mintlify.app</a> — estratégias de limitação além do padrão por IP.</li>
+<li>RFC 9110 (semântica HTTP) — referência formal de métodos e status codes, para quem quiser a fonte primária.</li>
+<li>Plano de curso FACET-SNP-310 — bibliografia básica, capítulos sobre APIs REST e middleware.</li>
+</ul>
+<p>Na Aula 09 os dados em memória desta API saem de cena: você migra tudo para <strong>MySQL</strong>, com pool de conexões, consultas parametrizadas e camada de repositório — mantendo os mesmos contratos de endpoint, para o front-end não perceber a diferença.</p><nav class="navpe"><a data-nav="anterior" href="aula-07.html"><span class="rot">← Aula 07</span><span class="tit">Introdução ao Firebase, Node.js e Express</span></a><a class="dir" data-nav="proxima" href="aula-09.html"><span class="rot">Aula 09 →</span><span class="tit">Integrando com SGBD MySQL</span></a></nav>
+    <div class="rodape">
+      UNEMAT — Universidade do Estado de Mato Grosso · Campus Cáceres · FACET<br>
+      FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas · 2026.2<br>
+      Prof. Ivan Luiz Pedroso Pires
+    </div>
+  </main>
+  <aside class="toc"><h4>Nesta aula</h4><a class="" href="#objetivos-de-aprendizagem">🎯 Objetivos de aprendizagem</a><a class="" href="#pre-requisitos-desta-aula">📋 Pré-requisitos desta aula</a><a class="" href="#roteiro">🗺️ Roteiro</a><a class="" href="#1-rest-na-pratica">1. REST na prática</a><a class="n3" href="#recursos-substantivos-no-plural-sempre">Recursos: substantivos no plural, sempre</a><a class="n3" href="#verbos-http-e-o-que-cada-um-significa-neste-dominio">Verbos HTTP e o que cada um significa neste domínio</a><a class="n3" href="#status-codes-por-operacao">Status codes por operação</a><a class="n3" href="#versionamento">Versionamento</a><a class="n3" href="#formato-de-resposta-consistente">Formato de resposta consistente</a><a class="n3" href="#paginacao-filtros-e-ordenacao-por-query-string">Paginação, filtros e ordenação por query string</a><a class="" href="#2-crud-completo-em-memoria">2. CRUD completo em memória</a><a class="n3" href="#dados-em-memoria-com-funcao-de-proximo-id">Dados em memória, com função de próximo id</a><a class="n3" href="#classe-de-erro-http-customizada">Classe de erro HTTP customizada</a><a class="n3" href="#rotas-modularizadas-com-expressrouter">Rotas modularizadas com express.Router()</a><a class="n3" href="#montando-o-router-no-servidor">Montando o Router no servidor</a><a class="" href="#padrao-de-projeto-em-uso">🧩 Padrão de projeto em uso</a><a class="n3" href="#padrao-de-projeto-em-uso-chain-of-responsibility-e-strategy">🧩 Padrão de projeto em uso — Chain of Responsibility e Strategy</a><a class="" href="#3-middlewares-a-fundo">3. Middlewares a fundo</a><a class="n3" href="#ordem-de-execucao">Ordem de execução</a><a class="n3" href="#middleware-de-aplicacao-de-rota-de-erro">Middleware de aplicação × de rota × de erro</a><a class="n3" href="#por-que-o-tratador-de-erros-vem-por-ultimo">Por que o tratador de erros vem por último</a><a class="n3" href="#escrevendo-os-middlewares-do-zero">Escrevendo os middlewares do zero</a><a class="n3" href="#middlewares-de-terceiros">Middlewares de terceiros</a><a class="" href="#4-async-no-express-5-revisitado">4. Async no Express 5, revisitado</a><a class="" href="#mao-na-massa-validacao-com-zod-e-testes-organizados">💻 Mão na massa — validação com Zod e testes organizados</a><a class="n3" href="#passo-1-instalar-e-escrever-o-schema">Passo 1 — instalar e escrever o schema</a><a class="n3" href="#passo-2-aplicar-o-middleware-validar-nas-rotas">Passo 2 — aplicar o middleware validar nas rotas</a><a class="n3" href="#passo-3-requestshttp-completo">Passo 3 — requests.http completo</a><a class="" href="#laboratorio">🧪 Laboratório</a><a class="" href="#erros-comuns-e-como-resolver">🐛 Erros comuns e como resolver</a><a class="" href="#avaliacao-2-instrucoes-de-entrega">📝 Avaliação 2 — instruções de entrega</a><a class="" href="#atividade-assincrona-1-h">🏠 Atividade assíncrona (1 h)</a><a class="" href="#checkpoint-do-projeto-autoral">✅ Checkpoint do projeto autoral</a><a class="" href="#para-aprofundar">📚 Para aprofundar</a></aside>
+</div>
+<script>
+(function(){
+  var raiz=document.documentElement;
+  var salvo=null;
+  try{salvo=window.localStorage&&localStorage.getItem('fds-tema')}catch(e){}
+  if(salvo){raiz.setAttribute('data-tema',salvo)}
+  var bt=document.getElementById('tema');
+  if(bt){bt.addEventListener('click',function(){
+    var novo=raiz.getAttribute('data-tema')==='claro'?'escuro':'claro';
+    raiz.setAttribute('data-tema',novo);
+    try{localStorage.setItem('fds-tema',novo)}catch(e){}
+    bt.textContent=novo==='claro'?'● Escuro':'○ Claro';
+  });
+  bt.textContent=raiz.getAttribute('data-tema')==='claro'?'● Escuro':'○ Claro';}
+
+  // copiar código
+  document.querySelectorAll('.copiar').forEach(function(b){
+    b.addEventListener('click',function(){
+      var pre=b.closest('.bloco').querySelector('pre');
+      var txt=pre.innerText;
+      var ok=function(){b.textContent='Copiado';b.classList.add('ok');
+        setTimeout(function(){b.textContent='Copiar';b.classList.remove('ok')},1600)};
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(ok)}
+      else{var t=document.createElement('textarea');t.value=txt;document.body.appendChild(t);
+           t.select();document.execCommand('copy');t.remove();ok()}
+    });
+  });
+
+  // barra de progresso
+  var pr=document.getElementById('progresso');
+  if(pr){window.addEventListener('scroll',function(){
+    var h=document.documentElement.scrollHeight-window.innerHeight;
+    pr.style.width=(h>0?(window.scrollY/h)*100:0)+'%';
+  },{passive:true})}
+
+  // sumário ativo
+  var alvos=[].slice.call(document.querySelectorAll('main h2[id],main h3[id]'));
+  var links={};
+  document.querySelectorAll('.toc a').forEach(function(a){links[a.getAttribute('href').slice(1)]=a});
+  if(alvos.length&&'IntersectionObserver' in window){
+    var obs=new IntersectionObserver(function(ents){
+      ents.forEach(function(e){
+        var a=links[e.target.id];
+        if(!a)return;
+        if(e.isIntersecting){
+          Object.keys(links).forEach(function(k){links[k].classList.remove('ativo')});
+          a.classList.add('ativo');
+        }
+      });
+    },{rootMargin:'-76px 0px -75% 0px'});
+    alvos.forEach(function(t){obs.observe(t)});
+  }
+
+  // busca no índice
+  var busca=document.getElementById('busca');
+  if(busca){
+    busca.addEventListener('input',function(){
+      var q=busca.value.toLowerCase().trim();
+      document.querySelectorAll('[data-busca]').forEach(function(el){
+        el.classList.toggle('oculto', q!=='' && el.getAttribute('data-busca').indexOf(q)===-1);
+      });
+    });
+  }
+
+  // atalhos de teclado
+  document.addEventListener('keydown',function(e){
+    if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+    var ant=document.querySelector('[data-nav="anterior"]');
+    var pro=document.querySelector('[data-nav="proxima"]');
+    if(e.key==='j'&&pro)pro.click();
+    if(e.key==='k'&&ant)ant.click();
+    if(e.key==='/'&&busca){e.preventDefault();busca.focus()}
+  });
+})();
+</script>
+</body>
+</html>
