@@ -1,7 +1,7 @@
 # Aula 03 — Vue: listas avançadas, computed e carregamento com onMounted
 
 > **FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas** · Unidade 1
-> UNEMAT/Cáceres — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
+> UNEMAT/Sinop — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
 > **Data:** 24/08/2026 · **Carga:** 3 aulas de 50 min (síncrona) + 1 h (assíncrona)
 
 Na Aula 02 criamos a primeira versão do UniEventos: lista, busca, filtro e inscrição, tudo com diretivas básicas e uma função de filtro chamada manualmente três vezes no template. Hoje resolvemos exatamente esse desperdício com `computed()`, aprofundamos `v-for` e passamos a carregar os eventos de forma assíncrona dentro de `onMounted()`.

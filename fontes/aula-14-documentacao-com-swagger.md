@@ -1,7 +1,7 @@
 # Aula 14 — Documentação com Swagger
 
 > **FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas** · Unidade 3
-> UNEMAT/Cáceres — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
+> UNEMAT/Sinop — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
 > **Data:** 07/12/2026 · **Carga:** 3 aulas de 50 min (síncrona) + 1 h (assíncrona)
 
 ## 🎯 Objetivos de aprendizagem
@@ -131,7 +131,7 @@ const opcoes = {
       version: '1.0.0',
       description:
         'API REST da plataforma UniEventos — divulgação e inscrição em eventos acadêmicos. ' +
-        'Desenvolvida na disciplina FACET-SNP-310 (UNEMAT/Cáceres).',
+        'Desenvolvida na disciplina FACET-SNP-310 (UNEMAT/Sinop).',
       contact: {
         name: 'Prof. Ivan Luiz Pedroso Pires',
         email: 'ivanpires@gmail.com',
@@ -766,7 +766,7 @@ Cada endpoint protegido referencia esse esquema com `security: [{ bearerAuth: []
 ![Licença](https://img.shields.io/badge/licença-MIT-lightgrey)
 
 API REST da plataforma **UniEventos** — divulgação e inscrição em eventos acadêmicos.
-Projeto desenvolvido na disciplina FACET-SNP-310 (UNEMAT/Cáceres, 2026.2).
+Projeto desenvolvido na disciplina FACET-SNP-310 (UNEMAT/Sinop, 2026.2).
 
 ## Requisitos
 

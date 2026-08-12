@@ -5,7 +5,7 @@
 ## 1. Identidade da disciplina
 
 - **Código/Turma:** FACET-SNP-310 — FRAMEWORKS MODERNOS PARA DESENVOLVIMENTO DE SISTEMAS — Turma 01 (2026.2)
-- **Instituição:** UNEMAT — Universidade do Estado de Mato Grosso "Carlos Alberto Reyes Maldonado", Campus Cáceres — FACET
+- **Instituição:** UNEMAT — Universidade do Estado de Mato Grosso "Carlos Alberto Reyes Maldonado", Campus Sinop — FACET
 - **Professor:** Ivan Luiz Pedroso Pires
 - **Carga horária:** 60h = 45h síncronas presenciais + 15h assíncronas (EAD)
 - **Horário:** 4N234 — noturno, 3 aulas de 50 min (2ª, 3ª e 4ª aulas do turno)
@@ -267,7 +267,7 @@ O arquivo é `aula-NN-slug.md`. Deve conter, nesta ordem:
 # Aula NN — <Título>
 
 > **FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas** · Unidade N
-> UNEMAT/Cáceres — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
+> UNEMAT/Sinop — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
 > **Data:** DD/MM/2026 · **Carga:** 3 aulas de 50 min (síncrona) + 1 h (assíncrona)
 
 ## 🎯 Objetivos de aprendizagem

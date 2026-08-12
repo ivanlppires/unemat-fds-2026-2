@@ -52,7 +52,7 @@ for num, data, unid, tit in B.AULAS:
         f'<div class="cabecalho"><div class="tags">{tags}</div>'
         f'<h1>Aula {num} — {html.escape(tit)}</h1>'
         '<div class="sub">FACET-SNP-310 · Frameworks Modernos para Desenvolvimento de Sistemas · '
-        'UNEMAT/Cáceres · Prof. Ivan Luiz Pedroso Pires</div></div>'
+        'UNEMAT/Sinop · Prof. Ivan Luiz Pedroso Pires</div></div>'
         + corpo
         + '<div class="toc-dados oculto">' + "".join(sub) + "</div>"
         + "</section>"
@@ -276,7 +276,7 @@ doc = f"""<!DOCTYPE html>
   </ol></nav>
   <main>{capa}{''.join(secoes)}
     <div class="rodape">
-      UNEMAT — Universidade do Estado de Mato Grosso · Campus Cáceres · FACET<br>
+      UNEMAT — Universidade do Estado de Mato Grosso · Campus Sinop · FACET<br>
       FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas · 2026.2<br>
       Prof. Ivan Luiz Pedroso Pires
     </div>

@@ -1,7 +1,7 @@
 # Aula 09 — Integrando com SGBD MySQL
 
 > **FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas** · Unidade 3
-> UNEMAT/Cáceres — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
+> UNEMAT/Sinop — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
 > **Data:** 19/10/2026 · **Carga:** 3 aulas de 50 min (síncrona) + 1 h (assíncrona)
 
 Na Aula 08 você entregou a Avaliação 2 com um CRUD completo, middlewares próprios e validação com Zod — tudo isso guardando dados num array em memória. Hoje esse array desaparece. Toda a `unieventos-api` passa a persistir em um banco de dados relacional de verdade: **MySQL**.
@@ -100,7 +100,7 @@ Relembrando o modelo de dados do projeto (Aula 07, §3), as três entidades cent
 | índice em chave estrangeira | otimização | acelera buscas e junções (`JOIN`) que filtram por aquela coluna |
 
 > **⚠️ Atenção**
-> `DATETIME` no MySQL grava data e hora **sem informação de fuso** — é literalmente "19:00 no dia 15", sem dizer em qual fuso horário. Se a aplicação gravar horários locais (fuso de Cáceres, UTC−4) e outra parte do sistema assumir UTC (o padrão do JavaScript com `new Date().toISOString()`), o horário exibido para o usuário fica deslocado. A prática mais segura: padronize um único fuso para toda a aplicação — o mais comum é gravar tudo em UTC no banco e converter para o fuso do usuário só na apresentação (no front-end). Esta disciplina, por simplicidade didática, grava os horários já no fuso local do evento; em um sistema com usuários em fusos diferentes, prefira UTC no banco.
+> `DATETIME` no MySQL grava data e hora **sem informação de fuso** — é literalmente "19:00 no dia 15", sem dizer em qual fuso horário. Se a aplicação gravar horários locais (fuso de Sinop, UTC−4) e outra parte do sistema assumir UTC (o padrão do JavaScript com `new Date().toISOString()`), o horário exibido para o usuário fica deslocado. A prática mais segura: padronize um único fuso para toda a aplicação — o mais comum é gravar tudo em UTC no banco e converter para o fuso do usuário só na apresentação (no front-end). Esta disciplina, por simplicidade didática, grava os horários já no fuso local do evento; em um sistema com usuários em fusos diferentes, prefira UTC no banco.
 
 ### Script `sql/schema.sql` completo
 

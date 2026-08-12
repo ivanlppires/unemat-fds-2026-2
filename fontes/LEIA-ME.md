@@ -1,6 +1,6 @@
 # Material didático — FACET-SNP-310
 
-**Frameworks Modernos para Desenvolvimento de Sistemas** · UNEMAT / Cáceres — FACET · Turma 01 · 2026.2
+**Frameworks Modernos para Desenvolvimento de Sistemas** · UNEMAT / Sinop — FACET · Turma 01 · 2026.2
 Prof. Ivan Luiz Pedroso Pires · 60h (45h presenciais + 15h EAD)
 
 ## O que tem aqui

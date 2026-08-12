@@ -1,7 +1,7 @@
 # Aula 01 — Apresentação da Disciplina e Revisão de JavaScript
 
 > **FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas** · Unidade 1
-> UNEMAT/Cáceres — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
+> UNEMAT/Sinop — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
 > **Data:** 10/08/2026 · **Carga:** 3 aulas de 50 min (síncrona) + 1 h (assíncrona)
 
 ## 🎯 Objetivos de aprendizagem
@@ -40,7 +40,7 @@ Esta é a primeira aula — não há pré-requisito de conteúdo da disciplina. 
 
 ### 1.1 Quem sou eu e como essa disciplina funciona
 
-Meu nome é Ivan Luiz Pedroso Pires, professor da FACET/UNEMAT — Campus Cáceres. Esta disciplina, **FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas**, tem carga horária de 60 horas: 45h de aulas síncronas presenciais (15 encontros de 3 aulas de 50 minutos, às noites, horário 4N234) e 15h de atividades assíncronas — uma hora de trabalho fora de sala a cada encontro.
+Meu nome é Ivan Luiz Pedroso Pires, professor da FACET/UNEMAT — Campus Sinop. Esta disciplina, **FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas**, tem carga horária de 60 horas: 45h de aulas síncronas presenciais (15 encontros de 3 aulas de 50 minutos, às noites, horário 4N234) e 15h de atividades assíncronas — uma hora de trabalho fora de sala a cada encontro.
 
 A ementa oficial do curso é:
 

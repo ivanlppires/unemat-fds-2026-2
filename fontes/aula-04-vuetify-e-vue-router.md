@@ -1,7 +1,7 @@
 # Aula 04 — Introdução a Vuetify e Vue Router
 
 > **FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas** · Unidade 1
-> UNEMAT/Cáceres — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
+> UNEMAT/Sinop — FACET · Prof. Ivan Luiz Pedroso Pires · 2026.2
 > **Data:** 31/08/2026 · **Carga:** 3 aulas de 50 min (síncrona) + 1 h (assíncrona)
 
 Nas Aulas 02 e 03 você construiu o UniEventos em Vue puro: listagem com `v-for`, filtros com `computed()`, carregamento assíncrono em `onMounted()` e HTML/CSS escritos à mão. Hoje ele ganha interface profissional com **Vuetify** e navegação real com **Vue Router**, virando uma SPA de verdade — e você recebe as instruções completas da Avaliação 1.
@@ -980,7 +980,7 @@ Note o uso de `Number(rota.params.id)` — como discutido na §7, o parâmetro d
         </p>
         <p>
           Projeto desenvolvido na disciplina FACET-SNP-310 — Frameworks Modernos
-          para Desenvolvimento de Sistemas, UNEMAT/Cáceres, 2026.2.
+          para Desenvolvimento de Sistemas, UNEMAT/Sinop, 2026.2.
         </p>
       </v-card-text>
     </v-card>

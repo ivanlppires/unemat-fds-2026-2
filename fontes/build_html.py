@@ -402,7 +402,7 @@ def pagina(titulo, descricao, corpo, lateral, toc, navpe, com_busca=False, extra
   <nav class="lateral">{lateral}</nav>
   <main class="{extra_class}">{corpo}{navpe}
     <div class="rodape">
-      UNEMAT — Universidade do Estado de Mato Grosso · Campus Cáceres · FACET<br>
+      UNEMAT — Universidade do Estado de Mato Grosso · Campus Sinop · FACET<br>
       FACET-SNP-310 — Frameworks Modernos para Desenvolvimento de Sistemas · 2026.2<br>
       Prof. Ivan Luiz Pedroso Pires
     </div>
@@ -494,7 +494,7 @@ for i, (num, data, unid, tit) in enumerate(AULAS):
         f'<div class="tags">{tags}</div>'
         f'<h1>Aula {num} — {html.escape(tit)}</h1>'
         '<div class="sub">FACET-SNP-310 · Frameworks Modernos para Desenvolvimento de Sistemas · '
-        'UNEMAT/Cáceres · Prof. Ivan Luiz Pedroso Pires</div></div>'
+        'UNEMAT/Sinop · Prof. Ivan Luiz Pedroso Pires</div></div>'
     )
     # remove o H1 original do markdown (já está no cabeçalho)
     corpo = re.sub(r"<h1[^>]*>[\s\S]*?</h1>", "", corpo, count=1)
